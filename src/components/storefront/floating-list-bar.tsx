@@ -44,7 +44,7 @@ export function FloatingListBar() {
   return (
     <div
       className={`fixed left-0 right-0 z-40 flex justify-center px-5 transition-all duration-300 ${
-        hasBottomNav ? 'bottom-[86px]' : 'bottom-4'
+        hasBottomNav ? 'bottom-20' : 'bottom-4'
       }`}
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
