@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAnonClient } from '@/lib/supabase/server'
 import type { StorefrontBusiness, StorefrontItem, StorefrontItemDetail } from './types'
 
 /**
@@ -8,7 +8,7 @@ import type { StorefrontBusiness, StorefrontItem, StorefrontItemDetail } from '.
 export async function getStorefrontBusinessById(
   id: string
 ): Promise<StorefrontBusiness | null> {
-  const supabase = await createClient()
+  const supabase = createAnonClient()
 
   const { data, error } = await supabase
     .from('businesses')
@@ -28,31 +28,31 @@ export async function getStorefrontBusinessById(
 }
 
 /**
- * Fetches the business by slug, joined with its storefront config.
+ * Fetches the business by slug, joined with its storefront config and locations.
  * Returns null if not found. Respects is_published flag:
  * returns the full record (caller decides what to render based on is_published).
  */
 export async function getStorefrontBusiness(
   slug: string
 ): Promise<StorefrontBusiness | null> {
-  const supabase = await createClient()
+  const supabase = createAnonClient()
 
   const { data, error } = await supabase
     .from('businesses')
-    .select('*, storefront:storefronts(*)')
+    .select('*, storefront:storefronts(*), locations:locations(*)')
     .eq('slug', slug)
     .eq('status', 'active')
     .maybeSingle()
 
   if (error) throw error
-  // The join returns storefront as an array (one-to-one) — normalise to single or null
   if (!data) return null
-  const raw = data as typeof data & { storefront: unknown }
+  const raw = data as typeof data & { storefront: unknown; locations: unknown }
   const storefront = Array.isArray(raw.storefront)
     ? (raw.storefront[0] ?? null)
     : (raw.storefront ?? null)
+  const locations = Array.isArray(raw.locations) ? raw.locations : []
 
-  return { ...data, storefront } as StorefrontBusiness
+  return { ...data, storefront, locations } as StorefrontBusiness
 }
 
 /**
@@ -60,7 +60,7 @@ export async function getStorefrontBusiness(
  * Ordered by category sort_order, then item name.
  */
 export async function getStorefrontItems(businessId: string): Promise<StorefrontItem[]> {
-  const supabase = await createClient()
+  const supabase = createAnonClient()
 
   const { data, error } = await supabase
     .from('catalog_items')
@@ -88,7 +88,7 @@ export async function getStorefrontItem(
   businessId: string,
   itemId: string
 ): Promise<StorefrontItemDetail | null> {
-  const supabase = await createClient()
+  const supabase = createAnonClient()
 
   const [itemResult, imagesResult] = await Promise.all([
     supabase
@@ -116,4 +116,61 @@ export async function getStorefrontItem(
     : (raw.category ?? null)
 
   return { ...itemResult.data, category, images } as StorefrontItemDetail
+}
+
+/**
+ * Fetches all active businesses with a published storefront and their locations.
+ * Used on the Home screen store grid and the Stores list page.
+ */
+export async function getPublishedBusinesses(): Promise<StorefrontBusiness[]> {
+  const supabase = createAnonClient()
+
+  const { data, error } = await supabase
+    .from('businesses')
+    .select('*, storefront:storefronts(*), locations:locations(*)')
+    .eq('status', 'active')
+    .order('name', { ascending: true })
+
+  if (error) throw error
+  if (!data) return []
+
+  return (data as (typeof data[number] & { storefront: unknown; locations: unknown })[])
+    .map((b) => {
+      const storefront = Array.isArray(b.storefront)
+        ? (b.storefront[0] ?? null)
+        : (b.storefront ?? null)
+      const locations = Array.isArray(b.locations) ? b.locations : []
+      return { ...b, storefront, locations } as StorefrontBusiness
+    })
+    .filter((b) => b.storefront?.is_published === true)
+}
+
+/**
+ * Fetches recent active catalog items with parent business metadata for the Home page showcase.
+ */
+export async function getFeaturedCatalogItems(limit = 6): Promise<(StorefrontItem & { businessSlug: string; businessName: string })[]> {
+  const supabase = createAnonClient()
+
+  try {
+    const { data, error } = await supabase
+      .from('catalog_items')
+      .select('*, business:businesses(name, slug)')
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
+      .limit(limit)
+
+    if (error || !data) return []
+
+    return data.map((item) => {
+      const rawBiz = Array.isArray(item.business) ? item.business[0] : item.business
+      return {
+        ...item,
+        category: null,
+        businessSlug: (rawBiz as { slug?: string })?.slug ?? '',
+        businessName: (rawBiz as { name?: string })?.name ?? 'Store',
+      }
+    })
+  } catch {
+    return []
+  }
 }
