@@ -1,8 +1,14 @@
+import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { getOwnerOrganizationId } from '@/features/organizations/queries'
 import { getBusinessesForOrg } from '@/features/businesses/queries'
+
+export const metadata: Metadata = {
+  title: 'Merchant Dashboard',
+  description: 'Manage your physical stores, locations, catalog items, and team members.',
+}
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -18,12 +24,20 @@ export default async function DashboardPage() {
     <div className="mx-auto max-w-4xl p-8">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-foreground">Your Businesses</h1>
-        <Link
-          href={`/businesses/new?organization_id=${orgId}`}
-          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
-        >
-          New Business
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/dashboard/team"
+            className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground hover:border-ring"
+          >
+            Manage Team
+          </Link>
+          <Link
+            href={`/businesses/new?organization_id=${orgId}`}
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+          >
+            New Business
+          </Link>
+        </div>
       </div>
 
       {businesses.length === 0 ? (

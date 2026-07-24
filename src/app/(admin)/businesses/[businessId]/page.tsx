@@ -1,8 +1,14 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { requireBusinessView } from '@/lib/auth/require-access'
 import { getBusinessById } from '@/features/businesses/queries'
 import { getLocationsForBusiness } from '@/features/locations/queries'
+
+export const metadata: Metadata = {
+  title: 'Business Overview',
+  description: 'View and manage store locations, catalog items, and team members.',
+}
 
 export default async function BusinessDetailPage({
   params,
@@ -27,12 +33,20 @@ export default async function BusinessDetailPage({
     Edit
   </Link>
 </div>
-        <Link
-          href={`/locations/new?business_id=${businessId}`}
-          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
-        >
-          New Location
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href={`/businesses/${businessId}/team`}
+            className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground hover:border-ring"
+          >
+            Manage Team
+          </Link>
+          <Link
+            href={`/locations/new?business_id=${businessId}`}
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+          >
+            New Location
+          </Link>
+        </div>
       </div>
 
       {locations.length === 0 ? (
