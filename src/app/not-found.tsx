@@ -1,0 +1,71 @@
+import Link from 'next/link'
+import type { Metadata } from 'next'
+import { ScanLine, Store, Home, Search, ArrowLeft } from 'lucide-react'
+
+export const metadata: Metadata = {
+  title: '404 · Page Not Found — SurePrice',
+  description: 'The scanned store, item code, or page could not be found.',
+}
+
+export default function NotFound() {
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-950 px-5 py-12 text-slate-100 relative overflow-hidden">
+      {/* Background ambient glow */}
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[var(--lime-base)]/10 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="w-full max-w-md space-y-6 rounded-3xl border border-slate-800 bg-slate-900/90 backdrop-blur-2xl p-8 shadow-2xl text-center relative z-10">
+        {/* Brand Icon Badge */}
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-950 text-[var(--lime-base)] border border-slate-800 shadow-lg">
+          <ScanLine size={32} />
+        </div>
+
+        {/* 404 Header */}
+        <div>
+          <span className="inline-block rounded-full bg-[var(--lime-base)]/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[var(--lime-base)]">
+            404 · Item / Page Not Found
+          </span>
+          <h1 className="mt-3 text-2xl font-black tracking-tight text-white">
+            Unrecognized QR or Page
+          </h1>
+          <p className="mt-2 text-xs leading-relaxed text-slate-400">
+            The product QR code, store link, or page you tried to access doesn&apos;t exist or may have been updated by the store owner.
+          </p>
+        </div>
+
+        {/* Action CTAs */}
+        <div className="space-y-2.5 pt-2">
+          <Link
+            href="/scan"
+            id="not-found-scan-btn"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--lime-base)] py-3.5 text-xs font-black text-black shadow-lg shadow-[var(--lime-base)]/20 transition-all hover:bg-[var(--lime-dark)] active:scale-95"
+          >
+            <ScanLine size={16} />
+            <span>Scan Another QR Code</span>
+          </Link>
+
+          <Link
+            href="/stores"
+            id="not-found-stores-btn"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-800 bg-slate-950 py-3 text-xs font-bold text-slate-200 transition-all hover:border-slate-700 active:scale-95"
+          >
+            <Store size={15} />
+            <span>Browse Verified Stores</span>
+          </Link>
+
+          <Link
+            href="/home"
+            id="not-found-home-btn"
+            className="flex w-full items-center justify-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-300 transition-colors pt-1"
+          >
+            <Home size={14} />
+            <span>Return to Home</span>
+          </Link>
+        </div>
+      </div>
+
+      <div className="mt-8 text-center text-xs text-slate-500">
+        Powered by <span className="font-bold text-white">SurePrice</span> · Zero App Install
+      </div>
+    </div>
+  )
+}

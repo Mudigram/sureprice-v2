@@ -1,6 +1,12 @@
+import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { requireOrgAccess } from '@/lib/auth/require-access'
 import { BusinessForm } from '@/features/businesses/components/business-form'
+
+export const metadata: Metadata = {
+  title: 'Create New Business',
+  description: 'Register a new physical supermarket, restaurant, café, or event pop-up.',
+}
 
 export default async function NewBusinessPage({
   searchParams,

@@ -111,7 +111,7 @@
   --sidebar-primary: oklch(0.488 0.243 264.376);
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.274 0.006 286.033);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.552 0.016 285.938);
 }
@@ -123,6 +123,23 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Sleek custom dropdown select styling across all forms */
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.15em 1.15em;
+    padding-right: 2.75rem !important;
+  }
+
+  select option {
+    background-color: #0f172a;
+    color: #f8fafc;
+    padding: 0.5rem;
   }
 }
 
@@ -153,7 +170,6 @@
   animation: marquee 25s linear infinite;
 }
 
-/* Optional: Pause on hover so people can read the percentage */
 .animate-marquee:hover {
   animation-play-state: paused;
 }

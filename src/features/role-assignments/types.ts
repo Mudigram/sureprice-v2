@@ -8,3 +8,21 @@ export interface RoleAssignment {
 }
 
 export type SubscriptionStatus = 'trial' | 'active' | 'past_due' | 'canceled'
+
+export interface TeamMember {
+  id: string
+  userId: string
+  userEmail: string
+  userName?: string | null
+  role: Role
+  scopeType: ScopeType
+  scopeId: string
+  scopeName: string // e.g. "Main Organization", "Spar Victoria Island", or "Lekki Branch"
+  createdAt?: string
+}
+
+export interface ScopeOption {
+  scopeId: string
+  scopeType: ScopeType
+  name: string
+}

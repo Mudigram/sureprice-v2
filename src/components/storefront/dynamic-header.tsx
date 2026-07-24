@@ -1,7 +1,8 @@
 'use client'
 
 import { usePathname, useRouter } from 'next/navigation'
-import { ChevronLeft, RefreshCcw, Bell } from 'lucide-react'
+import { ChevronLeft, RefreshCcw, Bell, Sun, Moon } from 'lucide-react'
+import { useTheme } from '@/context/ThemeContext'
 
 const ROUTE_TITLES: Record<string, string> = {
   '/home': 'Home',
@@ -12,9 +13,7 @@ const ROUTE_TITLES: Record<string, string> = {
 }
 
 function getTitle(pathname: string): string | null {
-  // Exact matches first
   if (ROUTE_TITLES[pathname]) return ROUTE_TITLES[pathname]
-  // Storefront routes
   if (pathname.match(/^\/s\/[^/]+\/[^/]+/)) return 'Product Details'
   if (pathname.match(/^\/s\/[^/]+/)) return 'Store'
   return null
@@ -23,6 +22,7 @@ function getTitle(pathname: string): string | null {
 export function DynamicHeader() {
   const pathname = usePathname()
   const router = useRouter()
+  const { theme, toggleTheme } = useTheme()
 
   const isHome = pathname === '/home' || pathname === '/'
   const isStorefrontItem = /^\/s\/[^/]+\/[^/]+/.test(pathname)
@@ -65,8 +65,23 @@ export function DynamicHeader() {
         )}
       </div>
 
-      {/* Right: Refresh button on product pages, Notification Bell on others */}
-      <div className="flex items-center justify-end">
+      {/* Right: Theme Toggle + Refresh/Bell Actions */}
+      <div className="flex items-center justify-end gap-2">
+        {/* Sun/Moon Theme Toggle */}
+        <button
+          id="header-theme-toggle-btn"
+          onClick={toggleTheme}
+          aria-label="Toggle Dark Mode"
+          title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-slate-50 text-slate-700 transition-all hover:bg-slate-100 active:scale-90 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
+        >
+          {theme === 'dark' ? (
+            <Sun size={16} className="text-amber-400" />
+          ) : (
+            <Moon size={16} className="text-slate-700" />
+          )}
+        </button>
+
         {isStorefrontItem ? (
           <button
             id="header-refresh-btn"
@@ -80,7 +95,7 @@ export function DynamicHeader() {
           <button
             id="header-notifications-btn"
             aria-label="Notifications"
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:text-foreground"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white text-slate-500 transition-colors hover:text-slate-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
           >
             <Bell size={16} />
           </button>
