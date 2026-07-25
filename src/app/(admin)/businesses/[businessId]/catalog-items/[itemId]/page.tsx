@@ -6,7 +6,7 @@ import { getCatalogItemById } from '@/features/catalog-items/queries'
 import { getMediaForTarget } from '@/features/media/queries'
 import { ImageUploader } from '@/features/catalog-items/components/image-uploader'
 import { QrPanel } from '@/features/qr-codes/components/qr-panel'
-import { getOrCreateQrCodeForItem } from '@/features/qr-codes/queries'
+import { getActiveQrCodeForTarget } from '@/features/qr-codes/queries'
 import { createClient } from '@/lib/supabase/server'
 
 export default async function CatalogItemDetailPage({
@@ -26,8 +26,8 @@ export default async function CatalogItemDetailPage({
 
   const [images, qrCode] = await Promise.all([
     getMediaForTarget('catalog_item', itemId),
-    // Pre-load existing QR code if it already exists (null = not yet generated)
-    getOrCreateQrCodeForItem(itemId, businessId, user.id).catch(() => null),
+    // Pre-load existing active QR code for this item
+    getActiveQrCodeForTarget('catalog_item', itemId).catch(() => null),
   ])
 
   const attributes =
