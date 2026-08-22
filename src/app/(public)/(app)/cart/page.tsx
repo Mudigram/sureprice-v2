@@ -18,9 +18,11 @@ import {
   CheckCircle2,
   BookmarkPlus,
   Check,
+  AlertTriangle,
 } from 'lucide-react'
 import { useCart, type ListItem } from '@/context/CartContext'
 import { saveTrip } from '@/lib/storefront/local-storage'
+import { BottomSheet } from '@/components/ui/bottom-sheet'
 
 export default function CartPage() {
   const {
@@ -35,6 +37,8 @@ export default function CartPage() {
 
   const [copiedStoreSlug, setCopiedStoreSlug] = useState<string | null>(null)
   const [savedStoreSlug, setSavedStoreSlug] = useState<string | null>(null)
+  const [showClearConfirm, setShowClearConfirm] = useState(false)
+  const [editItem, setEditItem] = useState<ListItem | null>(null)
 
   // Group items by Business / Store
   const storeGroups = useMemo(() => {
@@ -57,6 +61,9 @@ export default function CartPage() {
   // Combined overall total
   const grandTotal = items.reduce((sum, item) => sum + (item.base_price ?? 0) * item.quantity, 0)
   const totalCollectedCount = items.filter((i) => i.collected).length
+
+  // Keep editItem in sync with cart state
+  const liveEditItem = editItem ? items.find((i) => i.id === editItem.id) ?? null : null
 
   // Individualized Store Share
   const handleShareStore = async (group: { name: string; slug: string; items: ListItem[] }) => {
@@ -99,21 +106,23 @@ export default function CartPage() {
     setTimeout(() => setSavedStoreSlug(null), 2500)
   }
 
+  const handleConfirmClearAll = () => {
+    clearList()
+    setShowClearConfirm(false)
+  }
+
   return (
     <div className="min-h-screen px-5 pt-3 pb-8 space-y-5">
       {/* Page Header */}
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-zinc-400">
-            In-Store Reference
-          </p>
-          <h1 className="mt-0.5 text-2xl font-black tracking-tight text-slate-900 dark:text-zinc-100">
+          <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-zinc-100">
             My Price List
           </h1>
           {items.length > 0 && (
-            <p className="mt-0.5 text-xs text-slate-500 dark:text-zinc-400">
+            <p className="mt-0.5 text-xs font-semibold text-slate-500 dark:text-zinc-400">
               {totalCount} item{totalCount !== 1 ? 's' : ''} across {storeGroups.length} vendor
-              {storeGroups.length !== 1 ? 's' : ''}
+              {storeGroups.length !== 1 ? 's' : ''} ({totalCollectedCount} picked)
             </p>
           )}
         </div>
@@ -121,24 +130,174 @@ export default function CartPage() {
         {items.length > 0 && (
           <button
             id="clear-all-list-btn"
-            onClick={clearList}
-            className="text-xs font-extrabold text-destructive transition-opacity hover:opacity-70"
+            onClick={() => setShowClearConfirm(true)}
+            className="text-xs font-extrabold text-destructive transition-opacity hover:opacity-70 active:scale-95"
           >
             Clear All
           </button>
         )}
       </div>
 
+      {/* Clear All Confirmation Modal Dialog */}
+      {showClearConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-5">
+          <div className="w-full max-w-xs rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl space-y-4 text-center dark:border-zinc-800 dark:bg-zinc-900">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-red-600 dark:bg-red-950/50 dark:text-red-400 border border-red-200">
+              <AlertTriangle size={24} />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-base font-black text-slate-900 dark:text-zinc-100">
+                Clear Price List?
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed font-medium">
+                This will remove all {items.length} item{items.length !== 1 ? 's' : ''} from your active shopping list across all stores.
+              </p>
+            </div>
+            <div className="flex gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowClearConfirm(false)}
+                className="flex-1 rounded-xl border border-slate-200 bg-slate-100 px-4 py-2.5 text-xs font-extrabold text-slate-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmClearAll}
+                className="flex-1 rounded-xl bg-destructive px-4 py-2.5 text-xs font-extrabold text-white shadow-md shadow-red-600/20 active:scale-95"
+              >
+                Clear List
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── CART ITEM EDIT BOTTOM SHEET ──────────────────────────────────── */}
+      <BottomSheet
+        open={liveEditItem !== null}
+        onClose={() => setEditItem(null)}
+        title="Edit Item"
+      >
+        {liveEditItem && (
+          <div className="space-y-5 pb-2">
+            {/* Item Hero */}
+            <div className="flex items-center gap-4">
+              <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-slate-100 dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700">
+                {liveEditItem.image_url ? (
+                  <Image
+                    src={liveEditItem.image_url}
+                    alt={liveEditItem.name}
+                    fill
+                    className="object-cover"
+                    sizes="80px"
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-2xl" role="img" aria-label="Item image placeholder">📦</div>
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-base font-black text-slate-900 dark:text-zinc-100 line-clamp-2">
+                  {liveEditItem.name}
+                </p>
+                <Link
+                  href={`/s/${liveEditItem.businessSlug}`}
+                  className="mt-0.5 text-xs font-bold text-slate-500 dark:text-zinc-400 hover:underline"
+                  onClick={() => setEditItem(null)}
+                >
+                  {liveEditItem.businessName}
+                </Link>
+              </div>
+            </div>
+
+            {/* Unit Price */}
+            {liveEditItem.base_price !== null && (
+              <div className="rounded-2xl border border-gray-100 bg-slate-50 p-4 dark:border-zinc-800 dark:bg-zinc-800">
+                <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-zinc-500">
+                  Unit Price
+                </p>
+                <p className="text-2xl font-black text-slate-900 dark:text-zinc-100 mt-0.5">
+                  ₦{liveEditItem.base_price.toLocaleString()}
+                </p>
+              </div>
+            )}
+
+            {/* Large Quantity Stepper */}
+            <div className="space-y-2">
+              <p className="text-xs font-extrabold uppercase tracking-widest text-slate-400 dark:text-zinc-500">
+                Quantity
+              </p>
+              <div className="flex items-center justify-center gap-6 rounded-2xl border border-gray-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800">
+                <button
+                  type="button"
+                  onClick={() => updateQuantity(liveEditItem.id, liveEditItem.quantity - 1)}
+                  className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-slate-600 transition-colors hover:bg-red-50 hover:text-red-600 active:scale-95 dark:bg-zinc-700 dark:text-zinc-300"
+                  aria-label={`Decrease quantity for ${liveEditItem.name}`}
+                >
+                  <Minus size={20} />
+                </button>
+                <span className="text-3xl font-black text-slate-900 dark:text-zinc-100 w-12 text-center">
+                  {liveEditItem.quantity}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => updateQuantity(liveEditItem.id, liveEditItem.quantity + 1)}
+                  className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-slate-600 transition-colors hover:bg-[var(--lime-base)]/20 hover:text-[var(--lime-dark)] active:scale-95 dark:bg-zinc-700 dark:text-zinc-300"
+                  aria-label={`Increase quantity for ${liveEditItem.name}`}
+                >
+                  <Plus size={20} />
+                </button>
+              </div>
+            </div>
+
+            {/* Subtotal */}
+            {liveEditItem.base_price !== null && (
+              <div className="flex items-center justify-between rounded-2xl border border-gray-100 bg-slate-50 p-4 dark:border-zinc-800 dark:bg-zinc-800">
+                <span className="text-xs font-extrabold uppercase tracking-widest text-slate-400 dark:text-zinc-500">
+                  Subtotal
+                </span>
+                <span className="text-xl font-black text-slate-900 dark:text-zinc-100">
+                  ₦{(liveEditItem.base_price * liveEditItem.quantity).toLocaleString()}
+                </span>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  removeItem(liveEditItem.id)
+                  setEditItem(null)
+                }}
+                className="flex items-center justify-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-5 py-3.5 text-xs font-extrabold text-red-700 transition-all active:scale-95 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400"
+              >
+                <Trash2 size={15} />
+                Remove
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setEditItem(null)}
+                className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-slate-900 py-3.5 text-xs font-black text-white shadow-lg transition-all active:scale-95 dark:bg-zinc-100 dark:text-zinc-900"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        )}
+      </BottomSheet>
+
       {items.length === 0 ? (
         <div className="flex flex-col items-center py-20 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50 text-blue-900 dark:bg-zinc-800 dark:text-zinc-300">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-800 dark:bg-zinc-800 dark:text-zinc-300 border border-emerald-200">
             <ClipboardList size={36} />
           </div>
-          <p className="mt-4 font-extrabold text-slate-900 dark:text-zinc-100 text-base">
+          <p className="mt-4 font-black text-slate-900 dark:text-zinc-100 text-base">
             Your price list is empty
           </p>
-          <p className="mt-1 text-xs text-slate-500 dark:text-zinc-400 max-w-xs leading-relaxed">
-            Scan product QR codes on shelf tags or menus to note prices while browsing.
+          <p className="mt-1 text-xs text-slate-500 dark:text-zinc-400 max-w-xs leading-relaxed font-medium">
+            Scan product QR codes on shelf tags or menus to note prices while browsing in-store.
           </p>
           <Link
             href="/stores"
@@ -152,7 +311,7 @@ export default function CartPage() {
           {/* Info Banner */}
           <div className="flex items-start gap-3 rounded-2xl bg-blue-50/70 p-3.5 border border-blue-200/80 dark:bg-blue-950/30 dark:border-blue-900/50">
             <Info size={16} className="mt-0.5 shrink-0 text-blue-800 dark:text-blue-400" />
-            <p className="text-xs leading-relaxed text-blue-950 dark:text-blue-200">
+            <p className="text-xs leading-relaxed text-blue-950 dark:text-blue-200 font-medium">
               Items are organized by store. Check off items as you pick them up. Payment happens physically at checkout.
             </p>
           </div>
@@ -172,7 +331,7 @@ export default function CartPage() {
               return (
                 <div
                   key={group.slug}
-                  className="rounded-3xl border border-gray-100 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900 overflow-hidden"
+                  className="rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900 overflow-hidden"
                 >
                   {/* Store Header in Deep Navy / Slate */}
                   <div className="bg-slate-900 px-4 py-3 text-white dark:bg-zinc-950 flex items-center justify-between">
@@ -187,7 +346,7 @@ export default function CartPage() {
                         >
                           {group.name}
                         </Link>
-                        <p className="text-[10px] text-slate-300">
+                        <p className="text-xs text-slate-300">
                           {group.items.length} item{group.items.length !== 1 ? 's' : ''}
                         </p>
                       </div>
@@ -200,6 +359,7 @@ export default function CartPage() {
                       <button
                         onClick={() => clearStoreItems(group.slug)}
                         title="Clear store items"
+                        aria-label={`Clear items for ${group.name}`}
                         className="text-slate-400 hover:text-red-400 transition-colors"
                       >
                         <Trash2 size={15} />
@@ -217,7 +377,7 @@ export default function CartPage() {
                           style={{ width: `${storeProgressPct}%` }}
                         />
                       </div>
-                      <span className="text-[10px] font-extrabold text-slate-700 dark:text-zinc-300 shrink-0">
+                      <span className="text-xs font-extrabold text-slate-700 dark:text-zinc-300 shrink-0">
                         {collectedInStore}/{group.items.length} Picked ({storeProgressPct}%)
                       </span>
                     </div>
@@ -229,7 +389,8 @@ export default function CartPage() {
                         type="button"
                         onClick={() => handleSaveStoreTrip(group)}
                         id={`save-store-btn-${group.slug}`}
-                        className="flex items-center gap-1 rounded-xl border border-blue-200 bg-blue-50 px-2.5 py-1 text-[11px] font-extrabold text-blue-900 transition-all active:scale-95 dark:border-blue-900/50 dark:bg-blue-950/40 dark:text-blue-300"
+                        aria-label={`Save trip for ${group.name}`}
+                        className="flex items-center gap-1 rounded-xl border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-extrabold text-blue-900 transition-all active:scale-95 dark:border-blue-900/50 dark:bg-blue-950/40 dark:text-blue-300"
                       >
                         {isStoreSaved ? (
                           <>
@@ -249,7 +410,8 @@ export default function CartPage() {
                         type="button"
                         onClick={() => handleShareStore(group)}
                         id={`share-store-btn-${group.slug}`}
-                        className="flex items-center gap-1 rounded-xl border border-gray-200 bg-white px-2.5 py-1 text-[11px] font-extrabold text-slate-700 transition-all hover:border-gray-300 active:scale-95 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+                        aria-label={`Share list for ${group.name}`}
+                        className="flex items-center gap-1 rounded-xl border border-gray-200 bg-white px-2.5 py-1 text-xs font-extrabold text-slate-700 transition-all hover:border-gray-300 active:scale-95 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
                       >
                         {isStoreCopied ? (
                           <>
@@ -267,7 +429,7 @@ export default function CartPage() {
                   </div>
 
                   {/* Store Items List */}
-                  <div className="divide-y divide-gray-50 dark:divide-zinc-800/60">
+                  <div className="divide-y divide-gray-100 dark:divide-zinc-800/60">
                     {group.items.map((item) => {
                       const isCollected = !!item.collected
 
@@ -286,6 +448,7 @@ export default function CartPage() {
                             onClick={() => toggleCollected(item.id)}
                             id={`toggle-collect-${item.id}`}
                             className="shrink-0 transition-transform active:scale-90"
+                            aria-label={isCollected ? `Mark ${item.name} uncollected` : `Mark ${item.name} collected`}
                             title={isCollected ? 'Mark uncollected' : 'Mark collected'}
                           >
                             {isCollected ? (
@@ -295,8 +458,13 @@ export default function CartPage() {
                             )}
                           </button>
 
-                          {/* Thumbnail */}
-                          <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-slate-100 dark:bg-zinc-800 border border-gray-100 dark:border-zinc-800">
+                          {/* Thumbnail — tappable to open edit sheet */}
+                          <button
+                            type="button"
+                            onClick={() => setEditItem(item)}
+                            className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-slate-100 dark:bg-zinc-800 border border-gray-100 dark:border-zinc-800 transition-transform active:scale-95"
+                            aria-label={`Edit ${item.name}`}
+                          >
                             {item.image_url ? (
                               <Image
                                 src={item.image_url}
@@ -306,35 +474,36 @@ export default function CartPage() {
                                 sizes="56px"
                               />
                             ) : (
-                              <div className="flex h-full items-center justify-center text-lg">📦</div>
+                              <div className="flex h-full items-center justify-center text-lg" role="img" aria-label="Item image placeholder">📦</div>
                             )}
-                          </div>
+                          </button>
 
                           {/* Info */}
                           <div className="min-w-0 flex-1">
                             <div className="flex items-start justify-between gap-1">
-                              <Link
-                                href={`/s/${item.businessSlug}/${item.id}`}
-                                className={`line-clamp-1 text-xs font-extrabold ${
+                              <button
+                                type="button"
+                                onClick={() => setEditItem(item)}
+                                className={`line-clamp-1 text-xs font-extrabold text-left ${
                                   isCollected
                                     ? 'line-through text-slate-400 dark:text-zinc-500'
                                     : 'text-slate-900 dark:text-zinc-100 hover:underline'
                                 }`}
                               >
                                 {item.name}
-                              </Link>
+                              </button>
                               <button
                                 id={`remove-item-${item.id}`}
                                 onClick={() => removeItem(item.id)}
-                                aria-label="Remove item"
-                                className="shrink-0 text-slate-300 hover:text-destructive dark:text-zinc-600"
+                                aria-label={`Remove ${item.name} from list`}
+                                className="shrink-0 text-slate-400 hover:text-destructive dark:text-zinc-500"
                               >
                                 <X size={15} />
                               </button>
                             </div>
 
                             {item.base_price !== null && (
-                              <p className="mt-0.5 text-[11px] font-medium text-slate-500 dark:text-zinc-400">
+                              <p className="mt-0.5 text-xs font-medium text-slate-500 dark:text-zinc-400">
                                 ₦{item.base_price.toLocaleString()} / unit
                               </p>
                             )}
@@ -345,6 +514,7 @@ export default function CartPage() {
                                 <button
                                   id={`qty-dec-${item.id}`}
                                   onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                  aria-label={`Decrease quantity for ${item.name}`}
                                   className="px-2 text-slate-400 hover:text-red-500"
                                 >
                                   <Minus size={12} />
@@ -355,6 +525,7 @@ export default function CartPage() {
                                 <button
                                   id={`qty-inc-${item.id}`}
                                   onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                  aria-label={`Increase quantity for ${item.name}`}
                                   className="px-2 text-slate-400 hover:text-slate-900 dark:hover:text-zinc-100"
                                 >
                                   <Plus size={12} />
@@ -384,17 +555,17 @@ export default function CartPage() {
           </div>
 
           {/* Price Reference Grand Total Summary Card */}
-          <div className="rounded-3xl border border-gray-100 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 space-y-3">
+          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 space-y-3">
             <div className="flex items-baseline justify-between">
               <div>
-                <p className="text-xs font-extrabold uppercase tracking-widest text-slate-400 dark:text-zinc-500">
+                <h2 className="text-xs font-extrabold uppercase tracking-widest text-slate-500 dark:text-zinc-400">
                   Combined Trip Total
-                </p>
+                </h2>
                 <p className="text-2xl font-black text-slate-900 dark:text-zinc-100 mt-0.5">
                   ₦{grandTotal.toLocaleString()}
                 </p>
               </div>
-              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-extrabold text-slate-600 dark:bg-zinc-800 dark:text-zinc-400">
+              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-extrabold text-slate-600 dark:bg-zinc-800 dark:text-zinc-400 border border-slate-200">
                 Reference · Not a bill
               </span>
             </div>

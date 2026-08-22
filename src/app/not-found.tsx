@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { ScanLine, Store, Home, Search, ArrowLeft } from 'lucide-react'
+import { NotFoundIllustration } from '@/components/illustrations'
 
 export const metadata: Metadata = {
   title: '404 · Page Not Found — SurePrice',
@@ -14,10 +15,8 @@ export default function NotFound() {
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[var(--lime-base)]/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="w-full max-w-md space-y-6 rounded-3xl border border-slate-800 bg-slate-900/90 backdrop-blur-2xl p-8 shadow-2xl text-center relative z-10">
-        {/* Brand Icon Badge */}
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-950 text-[var(--lime-base)] border border-slate-800 shadow-lg">
-          <ScanLine size={32} />
-        </div>
+        {/* Animated 404 Illustration */}
+        <NotFoundIllustration className="w-full h-48 rounded-2xl" />
 
         {/* 404 Header */}
         <div>

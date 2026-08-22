@@ -108,10 +108,7 @@ export default function HistoryPage() {
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-[var(--lime-dark)]">
-            Activity & Memory
-          </p>
-          <h1 className="mt-0.5 text-2xl font-black tracking-tight text-foreground">
+          <h1 className="text-2xl font-black tracking-tight text-foreground">
             Shopping History
           </h1>
         </div>
@@ -120,7 +117,8 @@ export default function HistoryPage() {
           <button
             id="clear-history-btn"
             onClick={handleClearHistory}
-            className="flex items-center gap-1.5 text-xs font-bold text-slate-400 transition-colors hover:text-destructive"
+            aria-label="Clear all scanned items history"
+            className="flex items-center gap-1.5 text-xs font-bold text-slate-500 transition-colors hover:text-destructive"
           >
             <Trash2 size={14} />
             Clear Scans
@@ -167,8 +165,8 @@ export default function HistoryPage() {
               <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 dark:bg-zinc-800 text-slate-400">
                 <BookmarkPlus size={32} />
               </div>
-              <p className="mt-4 font-extrabold text-foreground text-base">No saved trips yet</p>
-              <p className="mt-1 text-xs text-muted-foreground max-w-xs leading-relaxed">
+              <p className="mt-4 font-black text-foreground text-base">No saved trips yet</p>
+              <p className="mt-1 text-xs text-muted-foreground max-w-xs leading-relaxed font-medium">
                 Save your active Price List on the List screen to reload or re-use it on your next store visit.
               </p>
               <Link
@@ -194,8 +192,17 @@ export default function HistoryPage() {
                 return (
                   <div
                     key={trip.id}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Saved trip ${trip.title}`}
                     onClick={() => setExpandedTripId(isExpanded ? null : trip.id)}
-                    className="cursor-pointer rounded-3xl border border-gray-100 bg-white p-4 shadow-sm transition-all hover:border-gray-200 dark:border-zinc-800 dark:bg-zinc-900 space-y-3"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        setExpandedTripId(isExpanded ? null : trip.id)
+                      }
+                    }}
+                    className="cursor-pointer rounded-3xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:border-slate-300 dark:border-zinc-800 dark:bg-zinc-900 space-y-3 focus:outline-none focus:ring-2 focus:ring-[var(--lime-base)]"
                   >
                     {/* Header */}
                     <div className="flex items-start justify-between gap-2">
@@ -204,11 +211,11 @@ export default function HistoryPage() {
                           <h3 className="truncate font-extrabold text-sm text-slate-900 dark:text-zinc-100">
                             {trip.title}
                           </h3>
-                          <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[9px] font-extrabold uppercase text-slate-500 dark:bg-zinc-800 dark:text-zinc-400">
+                          <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-extrabold uppercase text-slate-600 dark:bg-zinc-800 dark:text-zinc-400 border border-slate-200">
                             {trip.items.length} items
                           </span>
                         </div>
-                        <p className="mt-1 text-[11px] text-slate-400 dark:text-zinc-500">
+                        <p className="mt-1 text-xs font-medium text-slate-500 dark:text-zinc-400">
                           {storeNames.join(' · ')} · {dateFormatted}
                         </p>
                       </div>
@@ -219,10 +226,11 @@ export default function HistoryPage() {
                     </div>
 
                     {/* Actions Row */}
-                    <div className="flex items-center justify-between border-t border-gray-50 pt-3 dark:border-zinc-800/60">
+                    <div className="flex items-center justify-between border-t border-gray-100 pt-3 dark:border-zinc-800/60">
                       <button
                         type="button"
                         onClick={(e) => handleReloadTrip(trip, e)}
+                        aria-label={`Reload ${trip.title} to active price list`}
                         className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-black transition-all active:scale-95 ${
                           isReloaded
                             ? 'bg-[var(--lime-dark)] text-black'
@@ -243,14 +251,15 @@ export default function HistoryPage() {
                       </button>
 
                       <div className="flex items-center gap-3">
-                        <span className="text-[10px] font-bold text-slate-400">
+                        <span className="text-xs font-bold text-slate-500">
                           {isExpanded ? 'Hide items ▲' : 'View items ▼'}
                         </span>
                         <button
                           type="button"
                           onClick={(e) => handleDeleteTrip(trip.id, e)}
                           title="Delete saved trip"
-                          className="text-slate-300 hover:text-destructive dark:text-zinc-600 transition-colors"
+                          aria-label={`Delete trip ${trip.title}`}
+                          className="text-slate-400 hover:text-destructive dark:text-zinc-500 transition-colors"
                         >
                           <Trash2 size={15} />
                         </button>
@@ -259,14 +268,14 @@ export default function HistoryPage() {
 
                     {/* Expandable Items List */}
                     {isExpanded && (
-                      <div className="mt-3 divide-y divide-gray-50 rounded-2xl border border-gray-100 bg-slate-50 p-3 dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-800/50 space-y-2">
+                      <div className="mt-3 divide-y divide-gray-100 rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-800/50 space-y-2">
                         {trip.items.map((item, idx) => (
                           <div key={idx} className="flex items-center justify-between pt-1.5 text-xs">
                             <div className="min-w-0 flex-1 pr-2">
                               <p className="truncate font-bold text-slate-800 dark:text-zinc-200">
                                 {item.name} <span className="text-slate-400">(x{item.quantity})</span>
                               </p>
-                              <p className="text-[10px] text-slate-400">{item.businessName}</p>
+                              <p className="text-xs text-slate-500 font-medium">{item.businessName}</p>
                             </div>
                             {item.base_price !== null && (
                               <span className="font-extrabold text-slate-700 dark:text-zinc-300 shrink-0">
@@ -291,8 +300,8 @@ export default function HistoryPage() {
           {history.length === 0 ? (
             <div className="flex flex-col items-center py-16 text-center">
               <Clock size={44} className="text-muted-foreground" />
-              <p className="mt-4 font-extrabold text-foreground text-base">No scan history yet</p>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="mt-4 font-black text-foreground text-base">No scan history yet</p>
+              <p className="mt-1 text-xs text-muted-foreground font-medium">
                 Products you view or scan will appear here automatically
               </p>
               <Link
@@ -310,7 +319,7 @@ export default function HistoryPage() {
                   key={`${item.id}-${item.viewedAt}`}
                   href={`/s/${item.businessSlug}/${item.id}`}
                   id={`history-${item.id}`}
-                  className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-3 shadow-sm transition-all hover:border-[var(--lime-base)]/50 active:scale-[0.99] dark:border-zinc-800 dark:bg-zinc-900"
+                  className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm transition-all hover:border-slate-300 active:scale-[0.99] dark:border-zinc-800 dark:bg-zinc-900"
                 >
                   <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-slate-50 dark:bg-zinc-800 border border-gray-100 dark:border-zinc-800">
                     {item.image_url ? (
@@ -331,7 +340,7 @@ export default function HistoryPage() {
                     <p className="truncate text-xs font-extrabold text-slate-900 dark:text-zinc-100">
                       {item.name}
                     </p>
-                    <p className="mt-0.5 truncate text-[11px] font-medium text-slate-400 dark:text-zinc-500">
+                    <p className="mt-0.5 truncate text-xs font-medium text-slate-500 dark:text-zinc-400">
                       {item.businessName}
                     </p>
                     <div className="mt-1 flex items-center justify-between">
@@ -340,14 +349,14 @@ export default function HistoryPage() {
                           ₦{item.base_price.toLocaleString()}
                         </p>
                       ) : (
-                        <p className="text-[10px] text-muted-foreground">Price on request</p>
+                        <p className="text-xs text-slate-500">Price on request</p>
                       )}
-                      <p className="text-[10px] font-bold text-slate-400 dark:text-zinc-500">
+                      <p className="text-xs font-semibold text-slate-400 dark:text-zinc-500">
                         {timeAgo(item.viewedAt)}
                       </p>
                     </div>
                   </div>
-                  <ChevronRight size={16} className="shrink-0 text-slate-300 dark:text-zinc-600" />
+                  <ChevronRight size={16} className="shrink-0 text-slate-400" />
                 </Link>
               ))}
             </div>

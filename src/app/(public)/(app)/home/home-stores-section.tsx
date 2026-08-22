@@ -6,7 +6,7 @@ import { StoreCard } from '@/components/storefront/store-card'
 import type { StorefrontBusiness } from '@/features/storefront/types'
 
 const HOME_STORE_FILTERS = [
-  { label: 'All', value: 'all' },
+  { label: 'All Stores', value: 'all' },
   { label: 'Retail', value: 'retail' },
   { label: 'Restaurants', value: 'restaurant' },
   { label: 'Cafés', value: 'cafe' },
@@ -29,15 +29,15 @@ export function HomeStoresSection({ businesses }: HomeStoresSectionProps) {
   })
 
   return (
-    <section className="space-y-3">
-      {/* Header & Filter Pills */}
+    <section className="space-y-3.5">
+      {/* Header & View All Link */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xs font-extrabold uppercase tracking-widest text-slate-800 dark:text-zinc-200">
+        <h2 className="text-base font-black tracking-tight text-slate-900">
           Partner Stores & Venues
         </h2>
         <Link
           href="/stores"
-          className="text-xs font-bold text-[var(--lime-dark)] transition-opacity hover:opacity-70"
+          className="text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors"
         >
           View All ({businesses.length})
         </Link>
@@ -52,10 +52,10 @@ export function HomeStoresSection({ businesses }: HomeStoresSectionProps) {
               key={filter.value}
               id={`home-filter-${filter.value}`}
               onClick={() => setSelectedFilter(filter.value)}
-              className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-[11px] font-extrabold transition-all active:scale-95 ${
+              className={`whitespace-nowrap rounded-full px-4 py-1.5 text-xs font-extrabold transition-all active:scale-95 ${
                 isSelected
-                  ? 'bg-[var(--lime-base)] text-black shadow-sm'
-                  : 'border border-gray-200 bg-white text-slate-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400'
+                  ? 'bg-slate-900 text-white shadow-sm'
+                  : 'border border-slate-200 bg-white text-slate-700 hover:border-slate-300'
               }`}
             >
               {filter.label}
@@ -66,8 +66,8 @@ export function HomeStoresSection({ businesses }: HomeStoresSectionProps) {
 
       {/* Store Horizontal Scroll */}
       {filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 py-8 text-center dark:border-zinc-800">
-          <p className="text-xs font-bold text-slate-500 dark:text-zinc-400">
+        <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-white py-10 text-center">
+          <p className="text-xs font-bold text-slate-500">
             No stores found in this category
           </p>
         </div>

@@ -11,7 +11,7 @@ export async function getSubscriptionStatus(organizationId: string): Promise<Sub
     .from('subscriptions')
     .select('status')
     .eq('organization_id', organizationId)
-    .single()
+    .maybeSingle()
 
   if (error) throw error
   if (!data) return null

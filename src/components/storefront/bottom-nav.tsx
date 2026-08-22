@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Home, ShoppingCart, Store, History } from 'lucide-react'
+import { Home, ClipboardList, Store, History } from 'lucide-react'
 import ScanButton from '@/components/ui/ScanButton'
 import { usePathname } from 'next/navigation'
 import { useCart } from '@/context/CartContext'
@@ -9,7 +9,7 @@ import { useCart } from '@/context/CartContext'
 const navItems = [
   { name: 'Home',    href: '/home',    icon: Home },
   { name: 'Stores',  href: '/stores',  icon: Store },
-  { name: 'List',    href: '/cart',    icon: ShoppingCart },
+  { name: 'List',    href: '/cart',    icon: ClipboardList },
   { name: 'History', href: '/history', icon: History },
 ] as const
 

@@ -22,6 +22,7 @@ import {
 import { addToHistory } from '@/lib/storefront/local-storage'
 import { useCart } from '@/context/CartContext'
 import type { StorefrontBusiness, StorefrontItemDetail, AttributeEntry } from '@/features/storefront/types'
+import { getCategorySvgIcon, getBrandFallbackSvgIcon } from '@/components/icons'
 
 // Generate deterministic sparkline data for 30-day trend
 function generateTrend(basePrice: number): number[] {
@@ -130,7 +131,7 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
     <div className="min-h-screen bg-background pb-12">
       {/* Primary Image & Thumbnail Strip */}
       <div className="px-5 pt-3">
-        <div className="relative aspect-square w-full overflow-hidden rounded-3xl bg-slate-900 border border-slate-800 shadow-lg">
+        <div className="relative aspect-square w-full overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border border-slate-800 shadow-lg">
           {images.length > 0 ? (
             <Image
               src={resolveUrl(images[activeImage].storage_path)}
@@ -141,8 +142,15 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
               sizes="(max-width: 448px) 100vw, 448px"
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-6xl">
-              {isRestaurant ? '🍽️' : isEvent ? '🎪' : '📦'}
+            <div className="flex h-full flex-col items-center justify-center p-4 text-center">
+              <div className="p-3.5 rounded-2xl bg-slate-900/60 backdrop-blur-sm border border-white/10 text-[var(--lime-base)] shadow-lg">
+                {item.category?.name
+                  ? getCategorySvgIcon(item.category.name, { size: 44 })
+                  : getBrandFallbackSvgIcon(business.business_type, { size: 44 })}
+              </div>
+              <span className="mt-2.5 text-xs font-bold text-slate-400 opacity-80 uppercase tracking-wide">
+                {item.category?.name ?? 'Catalog Item'}
+              </span>
             </div>
           )}
         </div>
@@ -177,18 +185,18 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
         {/* Business Type Badge */}
         <div className="flex items-center justify-between">
           {isRestaurant ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest text-amber-900 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-900">
-              <Utensils size={12} />
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-900 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-900">
+              <Utensils size={13} />
               Digital Menu Item
             </span>
           ) : isEvent ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-100 px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest text-purple-900 border border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-900">
-              <Ticket size={12} />
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-100 px-3 py-1 text-xs font-bold text-purple-900 border border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-900">
+              <Ticket size={13} />
               Event Vendor Item
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest text-green-900 border border-green-200 dark:bg-green-950/60 dark:text-green-300 dark:border-green-900">
-              <CheckCircle2 size={12} />
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-900 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-900">
+              <CheckCircle2 size={13} />
               Verified Shelf Price
             </span>
           )}
@@ -214,7 +222,7 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
             {item.category && (
               <>
                 <span>·</span>
-                <span className="inline-flex items-center gap-1">
+                <span className="inline-flex items-center gap-1 font-semibold">
                   <Tag size={12} />
                   {item.category.name}
                 </span>
@@ -233,10 +241,10 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
         </div>
 
         {/* Price Tag Box */}
-        <div className="flex items-center justify-between rounded-2xl border border-gray-100 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <div className="flex items-center justify-between rounded-2xl border border-gray-200/80 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
           <div>
-            <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-zinc-500">
-              Verified In-Store Price
+            <p className="text-xs font-bold text-slate-500 dark:text-zinc-400">
+              {isRestaurant ? 'Verified Menu Price' : 'Verified Shelf Price'}
             </p>
             {item.base_price !== null ? (
               <p className="text-3xl font-black text-slate-900 dark:text-zinc-100 mt-0.5">
@@ -252,12 +260,12 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
 
         {/* 30-Day Trend Graph (Retail / Grocery) */}
         {!isRestaurant && trend && (
-          <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 space-y-2">
+          <div className="rounded-2xl border border-gray-200/80 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 space-y-2">
             <div className="flex items-center justify-between">
               <p className="text-xs font-extrabold text-slate-800 dark:text-zinc-200">
                 30-Day Shelf Price History
               </p>
-              <p className={`text-xs font-extrabold ${trendUp ? 'text-red-500' : 'text-green-600'}`}>
+              <p className={`text-xs font-extrabold ${trendUp ? 'text-red-500' : 'text-emerald-600'}`}>
                 {trendUp ? '↑' : '↓'} {trendUp ? '+' : ''}{trendPct}%
               </p>
             </div>
@@ -286,26 +294,26 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
         {/* Description */}
         {item.description && (
           <div className="space-y-1">
-            <h3 className="text-xs font-extrabold uppercase tracking-widest text-slate-400">
-              {isRestaurant ? 'Menu Item Description' : 'Product Details'}
+            <h3 className="text-sm font-black text-slate-900 dark:text-zinc-100">
+              {isRestaurant ? 'About this dish' : 'Product Details'}
             </h3>
-            <p className="text-xs leading-relaxed text-slate-700 dark:text-zinc-300">
+            <p className="text-xs leading-relaxed text-slate-600 dark:text-zinc-300">
               {item.description}
             </p>
           </div>
         )}
 
-        {/* Dynamic Attributes Table (Ingredients for Restaurant, Specs for Retail) */}
+        {/* Dynamic Attributes Table */}
         {attributes.length > 0 && (
           <div className="space-y-2">
-            <h3 className="text-xs font-extrabold uppercase tracking-widest text-slate-400">
-              {isRestaurant ? 'Ingredients & Serving Info' : 'Product Specifications'}
+            <h3 className="text-sm font-black text-slate-900 dark:text-zinc-100">
+              {isRestaurant ? 'Ingredients & Details' : 'Product Specifications'}
             </h3>
-            <div className="divide-y divide-gray-100 rounded-2xl border border-gray-100 bg-white dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-900">
+            <div className="divide-y divide-gray-100 rounded-2xl border border-gray-200/80 bg-white dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-900">
               {attributes.map(({ key, value }) => (
                 <div key={key} className="flex items-baseline justify-between px-4 py-3 text-xs">
                   <span className="font-medium text-slate-500 dark:text-zinc-400">{key}</span>
-                  <span className="font-extrabold text-slate-900 dark:text-zinc-100">{value}</span>
+                  <span className="font-bold text-slate-900 dark:text-zinc-100">{value}</span>
                 </div>
               ))}
             </div>
@@ -313,12 +321,12 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
         )}
 
         {/* Store & Location Card */}
-        <div className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <div className="flex items-center gap-3 rounded-2xl border border-gray-200/80 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-700 dark:bg-zinc-800 dark:text-zinc-300">
             <Store size={18} />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="font-extrabold text-xs text-slate-900 dark:text-zinc-100 truncate">
+            <p className="font-bold text-xs text-slate-900 dark:text-zinc-100 truncate">
               {business.name}
             </p>
             <p className="text-[10px] text-slate-400 dark:text-zinc-500 capitalize">
@@ -337,7 +345,7 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
             >
               <Minus size={16} />
             </button>
-            <span className="w-5 text-center font-extrabold text-sm text-slate-900 dark:text-zinc-100">
+            <span className="w-5 text-center font-bold text-sm text-slate-900 dark:text-zinc-100">
               {quantity}
             </span>
             <button
@@ -353,7 +361,7 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
             id="note-price-btn"
             onClick={handleNotePrice}
             disabled={alreadyNoted}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-extrabold shadow-lg transition-all active:scale-95 ${
+            className={`flex flex-1 items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-black shadow-md transition-all active:scale-95 ${
               alreadyNoted || noted
                 ? 'bg-slate-900 text-white dark:bg-zinc-100 dark:text-zinc-900'
                 : 'bg-[var(--lime-base)] text-black shadow-[var(--lime-base)]/25 hover:bg-[var(--lime-dark)]'

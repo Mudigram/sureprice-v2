@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import {
-  Building2,
+  TrendingUp,
   MapPin,
   Package,
   Plus,
@@ -16,6 +16,7 @@ import { requireBusinessView } from '@/lib/auth/require-access'
 import { getBusinessById } from '@/features/businesses/queries'
 import { getLocationsForBusiness } from '@/features/locations/queries'
 import { getCatalogItemsForBusiness } from '@/features/catalog-items/queries'
+import { FirstCatalogItemIllustration, FirstLocationIllustration } from '@/components/illustrations'
 
 export const metadata: Metadata = {
   title: 'Business Overview — SurePrice Admin',
@@ -70,6 +71,14 @@ export default async function BusinessDetailPage({
           </Link>
 
           <Link
+            href={`/businesses/${businessId}/analytics`}
+            className="flex items-center gap-1.5 rounded-xl border border-blue-500/40 bg-blue-500/10 px-3.5 py-2 text-xs font-black text-blue-400 hover:bg-blue-500 hover:text-white transition-all"
+          >
+            <TrendingUp size={14} />
+            <span>Scan Analytics</span>
+          </Link>
+
+          <Link
             href={`/businesses/${businessId}/qr-studio`}
             className="flex items-center gap-1.5 rounded-xl border border-[var(--lime-base)]/40 bg-[var(--lime-base)]/10 px-3.5 py-2 text-xs font-black text-[var(--lime-base)] hover:bg-[var(--lime-base)] hover:text-black transition-all"
           >
@@ -120,15 +129,17 @@ export default async function BusinessDetailPage({
         </div>
 
         {items.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-slate-800 p-8 text-center bg-slate-900/40">
-            <Package size={32} className="mx-auto text-slate-600" />
-            <p className="mt-3 text-sm font-bold text-white">No catalog items created yet</p>
-            <p className="mt-1 text-xs text-slate-400">
-              Add products or menu items to automatically generate physical QR tags.
-            </p>
+          <div className="rounded-3xl border border-dashed border-slate-800 p-8 text-center bg-slate-900/40 space-y-4">
+            <FirstCatalogItemIllustration className="mx-auto w-56 h-40 rounded-2xl" />
+            <div>
+              <p className="text-sm font-bold text-white">No catalog items created yet</p>
+              <p className="mt-1 text-xs text-slate-400">
+                Add products or menu items to automatically generate physical QR tags.
+              </p>
+            </div>
             <Link
               href={`/businesses/${businessId}/catalog-items/new`}
-              className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-[var(--lime-base)] px-4 py-2 text-xs font-black text-black"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--lime-base)] px-4 py-2.5 text-xs font-black text-black shadow-md"
             >
               <Plus size={14} />
               <span>Add First Catalog Item</span>
@@ -181,8 +192,12 @@ export default async function BusinessDetailPage({
         </div>
 
         {locations.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-slate-800 p-6 text-center bg-slate-900/40">
-            <p className="text-xs text-slate-400">No physical locations added yet.</p>
+          <div className="rounded-3xl border border-dashed border-slate-800 p-6 text-center bg-slate-900/40 space-y-3">
+            <FirstLocationIllustration className="mx-auto w-48 h-36 rounded-2xl" />
+            <p className="text-xs font-bold text-slate-300">No physical locations added yet.</p>
+            <p className="text-[11px] text-slate-500 max-w-xs mx-auto">
+              Add store locations or pop-up event stalls to generate location-scoped QR tags.
+            </p>
           </div>
         ) : (
           <div className="grid gap-3 sm:grid-cols-2">

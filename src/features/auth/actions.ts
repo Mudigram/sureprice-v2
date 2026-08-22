@@ -17,16 +17,25 @@ export async function login(formData: FormData) {
     redirect('/login?error=invalid_credentials')
   }
 
-  const assignments = await getUserRoleAssignments(data.user.id)
+  try {
+    const assignments = await getUserRoleAssignments(data.user.id)
 
-  const owner = assignments.find((a) => a.role === 'owner' && a.scope_type === 'organization')
-  if (owner) {
-    const status = await getSubscriptionStatus(owner.scope_id)
-    if (isSubscriptionBlocked(status)) {
-      redirect('/renew')
+    const owner = assignments.find((a) => a.role === 'owner' && a.scope_type === 'organization')
+    if (owner) {
+      const status = await getSubscriptionStatus(owner.scope_id)
+      if (isSubscriptionBlocked(status)) {
+        redirect('/renew')
+      }
     }
-  }
 
-  const path = resolveRedirectPath(assignments)
-  redirect(path)
+    const path = resolveRedirectPath(assignments)
+    redirect(path)
+  } catch (err: unknown) {
+    // If error is a Next.js redirect exception, rethrow it so Next.js performs the redirect!
+    if (err && typeof err === 'object' && 'digest' in err && typeof (err as { digest: unknown }).digest === 'string' && (err as { digest: string }).digest.startsWith('NEXT_REDIRECT')) {
+      throw err
+    }
+    console.error('Login role lookup error:', err)
+    redirect('/dashboard')
+  }
 }

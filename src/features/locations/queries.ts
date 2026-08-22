@@ -1,5 +1,11 @@
 import { createClient } from '@/lib/supabase/server'
+import { assertEntityStatus } from '@/lib/types/status'
 import type { Location } from './types'
+
+function toLocation(row: Location): Location {
+  assertEntityStatus(row.status, 'locations.status')
+  return row
+}
 
 export async function getLocationsForBusiness(businessId: string): Promise<Location[]> {
   const supabase = await createClient()
@@ -11,7 +17,7 @@ export async function getLocationsForBusiness(businessId: string): Promise<Locat
     .order('created_at', { ascending: false })
 
   if (error) throw error
-  return data ?? []
+  return (data ?? []).map(toLocation)
 }
 
 export async function getLocationById(locationId: string): Promise<Location | null> {
@@ -24,5 +30,6 @@ export async function getLocationById(locationId: string): Promise<Location | nu
     .maybeSingle()
 
   if (error) throw error
+  if (data) toLocation(data)
   return data
 }

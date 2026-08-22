@@ -12,12 +12,27 @@ export type LocationHours = {
 export type StorefrontLocation = Tables<'locations'> & {
   location_hours?: LocationHours[]
   address_text?: string | null
+  phone?: string | null
+}
+
+
+export type StorefrontThemeConfig = {
+  logo_url?: string | null
+  tagline?: string | null
+  primary_color?: string | null
+  highlights?: string[]
+  cover_url?: string | null
 }
 
 export type StorefrontBusiness = Tables<'businesses'> & {
-  storefront: (Tables<'storefronts'> & { logo_url?: string | null }) | null
+  storefront: (Tables<'storefronts'> & {
+    logo_url?: string | null
+    theme?: StorefrontThemeConfig | unknown
+  }) | null
   locations?: StorefrontLocation[]
 }
+
+
 
 export type StorefrontCategory = Tables<'categories'>
 

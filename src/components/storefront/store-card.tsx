@@ -13,6 +13,7 @@ import {
   CheckCircle2,
 } from 'lucide-react'
 import { computeIsOpen, type StorefrontBusiness } from '@/features/storefront/types'
+import { getBrandFallbackSvgIcon } from '@/components/icons'
 
 interface StoreCardProps {
   business: StorefrontBusiness
@@ -20,7 +21,28 @@ interface StoreCardProps {
 }
 
 export function StoreCard({ business, className }: StoreCardProps) {
-  const logoUrl = business.storefront?.logo_url
+  const storefrontTheme = (business.storefront?.theme && typeof business.storefront.theme === 'object')
+    ? (business.storefront.theme as Record<string, unknown>)
+    : {}
+
+  const rawLogoUrl =
+    (typeof (business.storefront as Record<string, unknown>)?.logo_url === 'string' && (business.storefront as Record<string, unknown>).logo_url as string) ||
+    (typeof storefrontTheme.logo_url === 'string' && storefrontTheme.logo_url) ||
+    (typeof storefrontTheme.logoUrl === 'string' && storefrontTheme.logoUrl) ||
+    null
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
+  const resolveUrl = (path: string | null | undefined): string => {
+    if (!path) return ''
+    if (path.startsWith('http://') || path.startsWith('https://')) return path
+    const cleanPath = path.startsWith('/') ? path.slice(1) : path
+    if (cleanPath.startsWith('storage/v1/object/public/')) {
+      return `${supabaseUrl}/${cleanPath}`
+    }
+    return `${supabaseUrl}/storage/v1/object/public/catalog-media/${cleanPath}`
+  }
+
+  const logoUrl = rawLogoUrl ? resolveUrl(rawLogoUrl) : null
   const primaryLocation = business.locations?.[0]
   const addressText = primaryLocation?.address_text ?? primaryLocation?.name ?? 'Nigeria'
 
@@ -75,7 +97,7 @@ export function StoreCard({ business, className }: StoreCardProps) {
         {/* Top Header: Logo + Type Badge */}
         <div className="mb-3 flex items-start justify-between gap-2">
           {/* Store Logo */}
-          <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-2xl border border-gray-100 bg-slate-50 shadow-inner dark:border-zinc-800 dark:bg-zinc-800">
+          <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-2xl border border-gray-100 bg-slate-900 shadow-inner dark:border-zinc-800">
             {logoUrl ? (
               <Image
                 src={logoUrl}
@@ -85,8 +107,8 @@ export function StoreCard({ business, className }: StoreCardProps) {
                 sizes="48px"
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center text-slate-400">
-                <TypeIcon size={20} />
+              <div className="flex h-full w-full items-center justify-center p-1">
+                {getBrandFallbackSvgIcon(business.business_type, { size: 30 })}
               </div>
             )}
           </div>

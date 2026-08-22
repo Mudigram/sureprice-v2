@@ -1,5 +1,16 @@
 import { createClient } from '@/lib/supabase/server'
+import { assertEntityStatus } from '@/lib/types/status'
 import type { QrCode, QrTargetType } from './types'
+
+const VALID_QR_TARGET_TYPES = ['business', 'location', 'table', 'catalog_item', 'collection', 'promotion'] as const
+
+function toQrCode(row: QrCode): QrCode {
+  assertEntityStatus(row.status, 'qr_codes.status')
+  if (!VALID_QR_TARGET_TYPES.includes(row.target_type as typeof VALID_QR_TARGET_TYPES[number])) {
+    throw new Error(`Unexpected qr_codes.target_type value: "${row.target_type}"`)
+  }
+  return row
+}
 
 export async function getQrCodesForBusiness(
   businessId: string,
@@ -17,7 +28,7 @@ export async function getQrCodesForBusiness(
 
   const { data, error } = await query
   if (error) throw error
-  return data ?? []
+  return (data ?? []).map(toQrCode)
 }
 
 export async function getActiveQrCodeForTarget(
@@ -35,11 +46,12 @@ export async function getActiveQrCodeForTarget(
     .maybeSingle()
 
   if (error) throw error
+  if (data) toQrCode(data)
   return data
 }
 
 /**
- * Used by Phase 8's scan resolution route (/q/[code] or /scan/[code])
+ * Used by Phase 8's scan resolution route (/q/[code])
  */
 export async function getQrCodeByCode(code: string): Promise<QrCode | null> {
   const supabase = await createClient()
@@ -52,5 +64,6 @@ export async function getQrCodeByCode(code: string): Promise<QrCode | null> {
     .maybeSingle()
 
   if (error) throw error
+  if (data) toQrCode(data)
   return data
 }

@@ -39,20 +39,21 @@ export async function getStorefrontBusiness(
 
   const { data, error } = await supabase
     .from('businesses')
-    .select('*, storefront:storefronts(*), locations:locations(*)')
+    .select('*, storefront:storefronts(*), locations:locations(*), media:media(*)')
     .eq('slug', slug)
     .eq('status', 'active')
     .maybeSingle()
 
   if (error) throw error
   if (!data) return null
-  const raw = data as typeof data & { storefront: unknown; locations: unknown }
+  const raw = data as typeof data & { storefront: unknown; locations: unknown; media?: unknown[] }
   const storefront = Array.isArray(raw.storefront)
     ? (raw.storefront[0] ?? null)
     : (raw.storefront ?? null)
   const locations = Array.isArray(raw.locations) ? raw.locations : []
+  const media = Array.isArray(raw.media) ? raw.media : []
 
-  return { ...data, storefront, locations } as StorefrontBusiness
+  return { ...data, storefront, locations, media } as StorefrontBusiness & { media?: unknown[] }
 }
 
 /**
@@ -174,3 +175,22 @@ export async function getFeaturedCatalogItems(limit = 6): Promise<(StorefrontIte
     return []
   }
 }
+
+/**
+ * Fetches the storefront configuration by business ID.
+ * Used on the admin storefront settings page.
+ */
+export async function getStorefrontByBusinessId(businessId: string) {
+  const supabase = createAnonClient()
+
+  const { data, error } = await supabase
+    .from('storefronts')
+    .select('*')
+    .eq('business_id', businessId)
+    .maybeSingle()
+
+  if (error) throw error
+  return data
+}
+
+

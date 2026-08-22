@@ -115,6 +115,13 @@ export function QrScanner() {
     }
   }, [startScan])
 
+  // Auto-expand manual code input when camera permission is denied or fails
+  useEffect(() => {
+    if (state === 'denied' || state === 'error') {
+      setShowManual(true)
+    }
+  }, [state])
+
   const handleManualSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     navigateToCode(manualCode)
@@ -151,6 +158,7 @@ export function QrScanner() {
                 type="button"
                 onClick={toggleTorch}
                 id="toggle-torch-btn"
+                aria-label="Toggle camera flashlight"
                 className={`pointer-events-auto absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full backdrop-blur-md transition-all ${
                   torchOn
                     ? 'bg-[var(--lime-base)] text-black'
@@ -178,7 +186,7 @@ export function QrScanner() {
               <CameraOff size={28} />
             </div>
             <p className="font-bold text-sm">Camera Permission Required</p>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <p className="text-xs text-slate-400 leading-relaxed font-medium">
               Please allow camera access in your browser settings to scan QR codes on store shelves.
             </p>
             <button
@@ -195,7 +203,7 @@ export function QrScanner() {
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-slate-950 p-6 text-center text-white">
             <Camera size={32} className="text-slate-500" />
             <p className="font-bold text-sm">Camera Unavailable</p>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-400 font-medium">
               Unable to open camera hardware on this device.
             </p>
             <button
@@ -210,7 +218,7 @@ export function QrScanner() {
 
       {/* Scanner Instructions & Controls */}
       {state === 'scanning' && (
-        <div className="flex items-center gap-2 rounded-full bg-slate-100 px-4 py-1.5 dark:bg-zinc-800 text-center">
+        <div className="flex items-center gap-2 rounded-full bg-slate-100 px-4 py-1.5 dark:bg-zinc-800 text-center border border-slate-200 dark:border-zinc-700">
           <Sparkles size={14} className="text-[var(--lime-dark)]" />
           <span className="text-xs font-semibold text-slate-700 dark:text-zinc-300">
             Align QR code inside the frame
@@ -224,7 +232,7 @@ export function QrScanner() {
           type="button"
           id="toggle-manual-entry-btn"
           onClick={() => setShowManual((prev) => !prev)}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl border border-gray-200 bg-white py-3 text-xs font-bold text-slate-700 transition-colors hover:border-gray-300 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+          className="flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white py-3 text-xs font-bold text-slate-700 transition-colors hover:border-slate-300 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
         >
           <Keyboard size={16} />
           {showManual ? 'Hide Manual Code Entry' : 'Enter Code or Shortcode Manually'}
@@ -233,12 +241,13 @@ export function QrScanner() {
         {showManual && (
           <form
             onSubmit={handleManualSubmit}
-            className="flex gap-2 rounded-2xl border border-gray-200 bg-white p-2 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
+            className="flex gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
           >
             <input
               type="text"
               placeholder="e.g. ABC123 or paste URL"
               value={manualCode}
+              aria-label="Enter QR shortcode or item URL"
               onChange={(e) => setManualCode(e.target.value)}
               id="manual-qr-input"
               className="flex-1 bg-transparent px-3 text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none dark:text-zinc-100"
@@ -256,7 +265,7 @@ export function QrScanner() {
         )}
       </div>
 
-      <p className="text-center text-[10px] text-slate-400 dark:text-zinc-500">
+      <p className="text-center text-xs font-medium text-slate-500 dark:text-zinc-400">
         Camera is used solely for instant in-store QR decoding. No media is stored.
       </p>
     </div>

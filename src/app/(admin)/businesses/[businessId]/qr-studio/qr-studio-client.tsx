@@ -17,6 +17,7 @@ import { PrintTemplates, type PrintPreset, type PrintableItem } from '@/features
 import { getOrCreateActiveQrCode } from '@/features/qr-codes/actions'
 import type { CatalogItem } from '@/features/catalog-items/types'
 import type { QrCode } from '@/features/qr-codes/types'
+import { FirstQRBatchIllustration } from '@/components/illustrations'
 
 interface QrStudioClientProps {
   businessId: string
@@ -210,8 +211,21 @@ export function QrStudioClient({
           </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-96 overflow-y-auto pr-1">
-          {catalogItems.map((item) => {
+        {catalogItems.length === 0 ? (
+          <div className="rounded-3xl border border-dashed border-slate-800 p-8 text-center bg-slate-950/60 space-y-3">
+            <FirstQRBatchIllustration className="mx-auto w-56 h-40 rounded-2xl" />
+            <p className="text-sm font-bold text-white">No catalog items available for printing</p>
+            <p className="text-xs text-slate-400">Add products or menu items to your business catalog first.</p>
+            <Link
+              href={`/businesses/${businessId}/catalog-items/new`}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--lime-base)] px-4 py-2 text-xs font-black text-black"
+            >
+              + Add First Catalog Item
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-96 overflow-y-auto pr-1">
+            {catalogItems.map((item) => {
             const isSelected = selectedIds.includes(item.id)
             const existingQr = existingQrCodes.find(
               (q) => q.target_id === item.id && q.status === 'active'
@@ -252,6 +266,7 @@ export function QrStudioClient({
             )
           })}
         </div>
+        )}
       </div>
 
       {/* Live Print Template Preview */}

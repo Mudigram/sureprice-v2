@@ -1,6 +1,8 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { requireBusinessManage } from '@/lib/auth/require-access'
 import type { MediaTargetType } from './types'
 
 export async function insertMediaRecord(params: {
@@ -11,6 +13,8 @@ export async function insertMediaRecord(params: {
   fileType: string
   altText?: string | null
 }) {
+  await requireBusinessManage(params.businessId)
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
@@ -30,11 +34,26 @@ export async function insertMediaRecord(params: {
     .single()
 
   if (error) throw error
+
+  revalidatePath(`/businesses/${params.businessId}`)
   return data
 }
 
 export async function deleteMediaRecord(mediaId: string) {
   const supabase = await createClient()
+
+  const { data: media, error: fetchError } = await supabase
+    .from('media')
+    .select('business_id')
+    .eq('id', mediaId)
+    .single()
+
+  if (fetchError || !media) throw new Error('Media record not found')
+
+  await requireBusinessManage(media.business_id)
+
   const { error } = await supabase.from('media').delete().eq('id', mediaId)
   if (error) throw error
+
+  revalidatePath(`/businesses/${media.business_id}`)
 }

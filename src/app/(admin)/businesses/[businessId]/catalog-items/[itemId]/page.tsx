@@ -7,7 +7,6 @@ import { getMediaForTarget } from '@/features/media/queries'
 import { ImageUploader } from '@/features/catalog-items/components/image-uploader'
 import { QrPanel } from '@/features/qr-codes/components/qr-panel'
 import { getActiveQrCodeForTarget } from '@/features/qr-codes/queries'
-import { createClient } from '@/lib/supabase/server'
 
 export default async function CatalogItemDetailPage({
   params,
@@ -16,10 +15,6 @@ export default async function CatalogItemDetailPage({
 }) {
   const { businessId, itemId } = await params
   await requireBusinessView(businessId)
-
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return notFound()
 
   const item = await getCatalogItemById(itemId)
   if (!item || item.business_id !== businessId) notFound()
