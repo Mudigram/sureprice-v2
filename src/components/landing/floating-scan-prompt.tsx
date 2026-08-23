@@ -10,22 +10,10 @@ export function FloatingScanPrompt() {
   const [isDismissed, setIsDismissed] = useState(false)
 
   useEffect(() => {
-    // Show prompt after 1.5 seconds or on scroll
     const timer = setTimeout(() => {
       if (!isDismissed) setIsVisible(true)
     }, 1500)
-
-    const handleScroll = () => {
-      if (window.scrollY > 200 && !isDismissed) {
-        setIsVisible(true)
-      }
-    }
-
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => {
-      clearTimeout(timer)
-      window.removeEventListener('scroll', handleScroll)
-    }
+    return () => clearTimeout(timer)
   }, [isDismissed])
 
   if (isDismissed) return null

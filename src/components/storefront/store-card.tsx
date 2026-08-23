@@ -21,14 +21,21 @@ interface StoreCardProps {
 }
 
 export function StoreCard({ business, className }: StoreCardProps) {
-  const storefrontTheme = (business.storefront?.theme && typeof business.storefront.theme === 'object')
-    ? (business.storefront.theme as Record<string, unknown>)
-    : {}
+  const storefrontTheme =
+    business.storefront?.theme && typeof business.storefront.theme === 'object'
+      ? (business.storefront.theme as Record<string, unknown>)
+      : {}
 
   const rawLogoUrl =
-    (typeof (business.storefront as Record<string, unknown>)?.logo_url === 'string' && (business.storefront as Record<string, unknown>).logo_url as string) ||
+    (typeof (business.storefront as Record<string, unknown>)?.logo_url === 'string' &&
+      ((business.storefront as Record<string, unknown>).logo_url as string)) ||
     (typeof storefrontTheme.logo_url === 'string' && storefrontTheme.logo_url) ||
     (typeof storefrontTheme.logoUrl === 'string' && storefrontTheme.logoUrl) ||
+    null
+
+  const rawCoverUrl =
+    (typeof storefrontTheme.cover_url === 'string' && storefrontTheme.cover_url) ||
+    (typeof storefrontTheme.coverUrl === 'string' && storefrontTheme.coverUrl) ||
     null
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
@@ -43,6 +50,8 @@ export function StoreCard({ business, className }: StoreCardProps) {
   }
 
   const logoUrl = rawLogoUrl ? resolveUrl(rawLogoUrl) : null
+  const coverUrl = rawCoverUrl ? resolveUrl(rawCoverUrl) : null
+
   const primaryLocation = business.locations?.[0]
   const addressText = primaryLocation?.address_text ?? primaryLocation?.name ?? 'Nigeria'
 
@@ -55,108 +64,134 @@ export function StoreCard({ business, className }: StoreCardProps) {
   // Dynamic visual themes per business type
   const theme = isRestaurant
     ? {
-        borderTop: 'border-t-amber-500',
+        bannerGradient: 'from-amber-500/20 via-amber-500/10 to-slate-900/40',
         badgeBg: 'bg-amber-100 text-amber-900 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-900',
-        typeLabel: isRestaurant && business.business_type === 'cafe' ? 'Café & Bakery' : 'Restaurant & Dining',
+        typeLabel: business.business_type === 'cafe' ? 'Café' : 'Restaurant',
         icon: Utensils,
-        tagline: 'Digital Menu & Table QR',
+        tagline: 'Digital Menu',
         cta: 'View Menu',
         ctaColor: 'text-amber-700 dark:text-amber-400',
       }
     : isEvent
     ? {
-        borderTop: 'border-t-purple-500',
+        bannerGradient: 'from-purple-500/20 via-purple-500/10 to-slate-900/40',
         badgeBg: 'bg-purple-100 text-purple-900 border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-900',
-        typeLabel: 'Live Event Stall',
+        typeLabel: 'Event Stall',
         icon: Ticket,
-        tagline: 'Event Vendor Stand',
+        tagline: 'Stall QR',
         cta: 'View Stall',
         ctaColor: 'text-purple-700 dark:text-purple-400',
       }
     : {
-        borderTop: 'border-t-[var(--lime-base)]',
-        badgeBg: 'bg-green-100 text-green-900 border-green-200 dark:bg-green-950/60 dark:text-green-300 dark:border-green-900',
-        typeLabel: 'Supermarket & Retail',
+        bannerGradient: 'from-emerald-500/20 via-emerald-500/10 to-slate-900/40',
+        badgeBg: 'bg-emerald-100 text-emerald-900 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-900',
+        typeLabel: 'Retail',
         icon: ShoppingBag,
-        tagline: 'Shelf Tag Directory',
-        cta: 'Browse Shelf Tags',
-        ctaColor: 'text-[var(--lime-dark)]',
+        tagline: 'Shelf Tags',
+        cta: 'Browse Tags',
+        ctaColor: 'text-emerald-700 dark:text-[var(--lime-base)]',
       }
 
   const TypeIcon = theme.icon
+  const itemCount = business.itemCount ?? 0
+  const displayImage = coverUrl || logoUrl
 
   return (
     <Link
       href={`/s/${business.slug}`}
       id={`store-card-${business.id}`}
-      className={`group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-gray-100 border-t-4 ${theme.borderTop} bg-white p-4 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900 ${
-        className || 'min-w-[260px] max-w-[260px]'
+      className={`group relative flex flex-row items-center gap-3.5 overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-slate-300 active:scale-[0.99] dark:border-slate-800 dark:bg-slate-900 ${
+        className || 'w-full'
       }`}
     >
-      <div>
-        {/* Top Header: Logo + Type Badge */}
-        <div className="mb-3 flex items-start justify-between gap-2">
-          {/* Store Logo */}
-          <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-2xl border border-gray-100 bg-slate-900 shadow-inner dark:border-zinc-800">
-            {logoUrl ? (
-              <Image
-                src={logoUrl}
-                alt={business.name}
-                fill
-                className="object-cover transition-transform group-hover:scale-105"
-                sizes="48px"
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center p-1">
-                {getBrandFallbackSvgIcon(business.business_type, { size: 30 })}
-              </div>
-            )}
+      {/* Left Image Thumbnail Container */}
+      <div className="relative h-28 w-28 sm:w-36 shrink-0 overflow-hidden rounded-xl bg-slate-100 border border-slate-200/60 dark:bg-slate-950 dark:border-slate-800">
+        {displayImage ? (
+          <Image
+            src={displayImage}
+            alt={business.name}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            sizes="(max-width: 640px) 112px, 144px"
+          />
+        ) : (
+          <div className={`flex h-full w-full items-center justify-center bg-gradient-to-br ${theme.bannerGradient}`}>
+            {getBrandFallbackSvgIcon(business.business_type, { size: 36 })}
           </div>
+        )}
 
-          {/* Badges */}
-          <div className="flex flex-col items-end gap-1 shrink-0">
-            <span
-              className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide ${theme.badgeBg}`}
-            >
-              <TypeIcon size={10} />
-              {theme.typeLabel}
-            </span>
+        {/* Venue Type Badge Overlay */}
+        <div className="absolute left-1.5 top-1.5 z-10">
+          <span
+            className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[8px] font-black uppercase tracking-wider backdrop-blur-md shadow-sm ${theme.badgeBg}`}
+          >
+            <TypeIcon size={9} />
+            {theme.typeLabel}
+          </span>
+        </div>
+
+        {/* Store Logo Avatar Accent (if cover is main display) */}
+        {coverUrl && logoUrl && (
+          <div className="absolute bottom-1.5 left-1.5 z-10 h-7 w-7 overflow-hidden rounded-lg border border-white/80 bg-slate-900 shadow-md">
+            <Image src={logoUrl} alt={business.name} fill className="object-cover" sizes="28px" />
+          </div>
+        )}
+      </div>
+
+      {/* Right Content Info Column */}
+      <div className="flex min-w-0 flex-1 flex-col justify-between self-stretch py-0.5">
+        <div>
+          {/* Top Line: Name & Open/Closed Status */}
+          <div className="flex items-start justify-between gap-1.5">
+            <h3 className="truncate text-sm sm:text-base font-black text-slate-900 dark:text-white group-hover:text-[var(--lime-dark)] dark:group-hover:text-[var(--lime-base)] transition-colors">
+              {business.name}
+            </h3>
 
             <span
-              className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[9px] font-black uppercase tracking-wider ${
+              className={`inline-flex items-center gap-1 shrink-0 rounded-full px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider ${
                 isOpen
-                  ? 'bg-green-50 text-green-700 dark:bg-green-950/50 dark:text-green-400'
-                  : 'bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-400'
+                  ? 'bg-emerald-100 text-emerald-900 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-900'
+                  : 'bg-rose-100 text-rose-900 border border-rose-200 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-900'
               }`}
             >
-              <span className={`h-1.5 w-1.5 rounded-full ${isOpen ? 'bg-green-500' : 'bg-red-500'}`} />
+              <span className={`h-1.5 w-1.5 rounded-full ${isOpen ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
               {statusText}
             </span>
           </div>
+
+          {/* Catalog Density Signal */}
+          <div className="mt-1 flex items-center gap-2">
+            {itemCount > 0 ? (
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                <ShoppingBag size={12} className="text-emerald-600 dark:text-[var(--lime-base)]" />
+                {itemCount} {itemCount === 1 ? 'Item' : 'Items'} Listed
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                <CheckCircle2 size={12} className="text-emerald-600 dark:text-[var(--lime-base)]" />
+                Verified QR Tag
+              </span>
+            )}
+          </div>
+
+          {/* Location Address */}
+          <p className="mt-1.5 flex items-center gap-1 text-[11px] font-medium text-slate-500 dark:text-slate-400 line-clamp-1">
+            <MapPin size={12} className="shrink-0 text-slate-400 dark:text-slate-500" />
+            <span className="truncate">{addressText}</span>
+          </p>
         </div>
 
-        {/* Business Name */}
-        <h3 className="mb-1 truncate text-sm font-black text-slate-900 dark:text-zinc-100 group-hover:text-[var(--lime-dark)] transition-colors">
-          {business.name}
-        </h3>
+        {/* Bottom CTA Action Line */}
+        <div className="mt-2 flex items-center justify-between border-t border-slate-100 pt-1.5 dark:border-slate-800/80">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+            {theme.tagline}
+          </span>
 
-        {/* Address */}
-        <p className="flex items-center gap-1 text-[11px] font-medium text-slate-500 dark:text-zinc-400 line-clamp-1">
-          <MapPin size={12} className="shrink-0 text-slate-400" />
-          <span className="truncate">{addressText}</span>
-        </p>
-      </div>
-
-      {/* Footer CTA & Tagline */}
-      <div className="mt-4 flex items-center justify-between border-t border-gray-50 pt-2.5 dark:border-zinc-800/60">
-        <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-zinc-500">
-          {theme.tagline}
-        </span>
-
-        <span className={`flex items-center gap-0.5 text-xs font-black ${theme.ctaColor}`}>
-          <span>{theme.cta}</span>
-          <ChevronRight size={14} className="transition-transform group-hover:translate-x-0.5" />
-        </span>
+          <span className={`flex items-center gap-0.5 text-xs font-black ${theme.ctaColor}`}>
+            <span>{theme.cta}</span>
+            <ChevronRight size={13} className="transition-transform group-hover:translate-x-0.5" />
+          </span>
+        </div>
       </div>
     </Link>
   )

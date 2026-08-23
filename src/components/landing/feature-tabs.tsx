@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ScanLine, Zap, ShieldCheck, Printer, ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react'
+import { CheckCircle2 } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
 
 const TABS = [
   {
@@ -12,7 +13,7 @@ const TABS = [
     title: 'Zero-Friction Camera Scan',
     shortBody: 'Shoppers point native iOS/Android camera at shelf tag — instant verified price display.',
     badge: 'Sub-Second Load',
-    badgeStyle: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+    badgeTone: 'emerald',
     stat: '0.4s',
     statLabel: 'Average scan load speed',
     imageSrc: '/images/zero_webview_friction.jpg',
@@ -25,7 +26,7 @@ const TABS = [
     title: '1-Tap Cloud Price Sync',
     shortBody: 'Business owners update item prices across multiple store locations instantly from mobile.',
     badge: 'Real-Time Sync',
-    badgeStyle: 'bg-blue-50 text-blue-800 border-blue-200',
+    badgeTone: 'blue',
     stat: '100%',
     statLabel: 'Price accuracy across shelves',
     imageSrc: '/images/instant_price_update.jpg',
@@ -38,7 +39,7 @@ const TABS = [
     title: 'Durable Waterproof Hardware',
     shortBody: 'Heavy-duty acrylic shelf tags and A6 restaurant tent cards built for high-traffic Nigerian stores.',
     badge: 'Localized Hardware',
-    badgeStyle: 'bg-amber-50 text-amber-800 border-amber-200',
+    badgeTone: 'amber',
     stat: '₦0',
     statLabel: 'Maintenance fee for tags',
     imageSrc: '/images/waterproof_qr_tags_naira.jpg',
@@ -55,11 +56,6 @@ export function FeatureTabs() {
     <section className="mx-auto max-w-5xl px-4 sm:px-6 py-16 sm:py-24">
       {/* Section Header */}
       <div className="text-center max-w-2xl mx-auto space-y-3 mb-12 sm:mb-16">
-        <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3.5 py-1 text-xs font-extrabold text-emerald-900 shadow-sm">
-          <Sparkles size={14} className="text-[var(--lime-dark)]" />
-          <span>Complete Platform Suite</span>
-        </div>
-
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 leading-tight">
           How SurePrice Powers Physical Stores
         </h2>
@@ -104,9 +100,7 @@ export function FeatureTabs() {
                       <h3 className="font-extrabold text-sm sm:text-base text-slate-900">
                         {tab.title}
                       </h3>
-                      <span className={`inline-block rounded-full border px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider ${tab.badgeStyle}`}>
-                        {tab.badge}
-                      </span>
+                      <Badge tone={tab.badgeTone as 'emerald' | 'blue' | 'amber'}>{tab.badge}</Badge>
                     </div>
 
                     <p className="text-xs text-slate-600 font-medium leading-relaxed">

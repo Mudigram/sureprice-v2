@@ -10,25 +10,21 @@ import {
 
 const STEPS = [
   {
-    step: '01',
     title: 'Controlled Pilot Access',
     body: 'Merchant accounts are pre-provisioned for pilot partners with instant sign in.',
     Illustration: ScanStepIllustration,
   },
   {
-    step: '02',
     title: 'QR Codes Generated',
     body: 'SurePrice generates unique QR codes for products, shelves, or table menus.',
     Illustration: SeeStepIllustration,
   },
   {
-    step: '03',
     title: 'Placed In Store',
     body: 'Stick QR codes on physical shelf tags, displays, or restaurant table tent cards.',
     Illustration: ShopConfidentlyIllustration,
   },
   {
-    step: '04',
     title: 'Shoppers Scan & Know',
     body: 'Customers scan any code with zero app download to view verified prices in Naira (₦).',
     Illustration: MerchantCTAIllustration,
@@ -48,9 +44,9 @@ export function WorkflowSteps() {
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {STEPS.map(({ step, title, body, Illustration }, i) => (
+        {STEPS.map(({ title, body, Illustration }, i) => (
           <motion.div
-            key={step}
+            key={title}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.2 }}
@@ -59,8 +55,7 @@ export function WorkflowSteps() {
           >
             <div>
               <Illustration className="w-full h-44 rounded-2xl mb-4" />
-              <span className="text-2xl font-black text-[var(--lime-dark)] tracking-tight">{step}</span>
-              <h3 className="font-extrabold text-base text-slate-900 mt-1">{title}</h3>
+              <h3 className="font-extrabold text-base text-slate-900">{title}</h3>
               <p className="text-xs leading-relaxed text-slate-600 font-medium mt-1.5">{body}</p>
             </div>
           </motion.div>

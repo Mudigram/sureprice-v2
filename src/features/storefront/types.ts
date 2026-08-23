@@ -30,6 +30,7 @@ export type StorefrontBusiness = Tables<'businesses'> & {
     theme?: StorefrontThemeConfig | unknown
   }) | null
   locations?: StorefrontLocation[]
+  itemCount?: number
 }
 
 

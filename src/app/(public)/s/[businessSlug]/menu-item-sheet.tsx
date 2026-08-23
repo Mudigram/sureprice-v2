@@ -1,8 +1,8 @@
 'use client'
 
+import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useState } from 'react'
 import {
   Utensils,
   Minus,
@@ -15,14 +15,19 @@ import {
   ExternalLink,
   Ticket,
   ShoppingBag,
+  Images,
+  Maximize2,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react'
 import { BottomSheet } from '@/components/ui/bottom-sheet'
 import { useCart } from '@/context/CartContext'
 import type { StorefrontItem, StorefrontBusiness } from '@/features/storefront/types'
 import { getCategorySvgIcon } from '@/components/icons'
+import { ImageGalleryLightbox, type GalleryImage } from '@/components/storefront/image-gallery-lightbox'
 
 interface Props {
-  item: StorefrontItem | null
+  item: (StorefrontItem & { images?: GalleryImage[] }) | null
   business: StorefrontBusiness
   businessSlug: string
   open: boolean
@@ -30,8 +35,15 @@ interface Props {
 }
 
 export function MenuItemSheet({ item, business, businessSlug, open, onClose }: Props) {
-  const [quantity, setQuantity] = useState(1)
-  const [noted, setNoted] = useState(false)
+  const [quantity, setQuantity] = useState<number>(1)
+  const [noted, setNoted] = useState<boolean>(false)
+  const [lightboxOpen, setLightboxOpen] = useState<boolean>(false)
+  const [activeImageIndex, setActiveImageIndex] = useState<number>(0)
+
+  // Touch swipe tracking state
+  const [touchStart, setTouchStart] = useState<number | null>(null)
+  const [touchEnd, setTouchEnd] = useState<number | null>(null)
+
   const { addItem, isInList } = useCart()
 
   if (!item) return null
@@ -41,6 +53,50 @@ export function MenuItemSheet({ item, business, businessSlug, open, onClose }: P
 
   const resolveUrl = (path: string) =>
     path.startsWith('http') ? path : `${supabaseUrl}/storage/v1/object/public/catalog-media/${path}`
+
+  // Prepare images list (either attached images or fallback to image_url)
+  const itemImages: GalleryImage[] = item.images && item.images.length > 0
+    ? item.images
+    : item.image_url
+    ? [{ id: 'primary', storage_path: item.image_url }]
+    : []
+
+  const currentImage = itemImages[activeImageIndex] || itemImages[0]
+
+  // Touch handlers for mobile swipe
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX)
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX)
+  }
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd || itemImages.length <= 1) return
+    const distance = touchStart - touchEnd
+    const isLeftSwipe = distance > 40
+    const isRightSwipe = distance < -40
+
+    if (isLeftSwipe) {
+      setActiveImageIndex((prev: number) => (prev + 1) % itemImages.length)
+    } else if (isRightSwipe) {
+      setActiveImageIndex((prev: number) => (prev - 1 + itemImages.length) % itemImages.length)
+    }
+    setTouchStart(null)
+    setTouchEnd(null)
+  }
+
+  const handlePrevImage = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setActiveImageIndex((prev: number) => (prev - 1 + itemImages.length) % itemImages.length)
+  }
+
+  const handleNextImage = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setActiveImageIndex((prev: number) => (prev + 1) % itemImages.length)
+  }
+
 
   // Parse attributes
   const attributes: { key: string; value: string }[] = (() => {
@@ -98,16 +154,81 @@ export function MenuItemSheet({ item, business, businessSlug, open, onClose }: P
   return (
     <BottomSheet open={open} onClose={onClose}>
       <div className="space-y-4 pb-2">
-        {/* Hero Image / Ambient Fallback */}
-        <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-slate-950/30 border border-gray-200 dark:border-zinc-800">
-          {item.image_url ? (
-            <Image
-              src={resolveUrl(item.image_url)}
-              alt={item.name}
-              fill
-              className="object-cover"
-              sizes="(max-width: 448px) 100vw, 448px"
-            />
+        {/* Touch-Swipeable Hero Carousel Container */}
+        <div
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onClick={() => itemImages.length > 0 && setLightboxOpen(true)}
+          className={`relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-slate-950/30 border border-gray-200 dark:border-zinc-800 select-none ${
+            itemImages.length > 0 ? 'cursor-pointer group' : ''
+          }`}
+        >
+          {currentImage ? (
+            <>
+              <Image
+                src={resolveUrl(currentImage.storage_path)}
+                alt={currentImage.alt_text ?? item.name}
+                fill
+                className="object-cover transition-all duration-300 group-hover:scale-105"
+                sizes="(max-width: 448px) 100vw, 448px"
+              />
+
+              {/* Photo Count & Lightbox Trigger Badge */}
+              <div className="absolute right-2.5 top-2.5 z-10 flex items-center gap-1.5 rounded-full bg-slate-950/80 px-2.5 py-1 text-[11px] font-bold text-white border border-white/20 backdrop-blur-md shadow-md">
+                <Images size={13} className="text-[var(--lime-base)]" />
+                <span>
+                  {itemImages.length > 1
+                    ? `${activeImageIndex + 1}/${itemImages.length} Photos`
+                    : 'View Photo'}
+                </span>
+                <Maximize2 size={11} className="text-slate-400" />
+              </div>
+
+              {/* Desktop Left/Right Navigation Arrows */}
+              {itemImages.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={handlePrevImage}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-slate-950/70 text-white border border-white/20 opacity-0 group-hover:opacity-100 transition-opacity active:scale-95 shadow-lg"
+                    aria-label="Previous photo"
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleNextImage}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-slate-950/70 text-white border border-white/20 opacity-0 group-hover:opacity-100 transition-opacity active:scale-95 shadow-lg"
+                    aria-label="Next photo"
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                </>
+              )}
+
+              {/* Pagination Dot Indicators (•••) */}
+              {itemImages.length > 1 && (
+                <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 rounded-full bg-slate-950/75 px-2.5 py-1.5 backdrop-blur-md border border-white/10 shadow-lg">
+                  {itemImages.map((_, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setActiveImageIndex(i)
+                      }}
+                      className={`transition-all rounded-full ${
+                        i === activeImageIndex
+                          ? 'w-4 h-1.5 bg-[var(--lime-base)] shadow-[0_0_6px_var(--lime-base)]'
+                          : 'w-1.5 h-1.5 bg-white/40 hover:bg-white/70'
+                      }`}
+                      aria-label={`Go to slide ${i + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
           ) : (
             <div className="flex h-full flex-col items-center justify-center p-4 text-center">
               <div className="p-3 rounded-2xl bg-slate-900/40 backdrop-blur-sm border border-white/10 text-[var(--lime-base)] shadow-md">
@@ -119,6 +240,17 @@ export function MenuItemSheet({ item, business, businessSlug, open, onClose }: P
             </div>
           )}
         </div>
+
+        <ImageGalleryLightbox
+          images={itemImages}
+          initialIndex={activeImageIndex}
+          isOpen={lightboxOpen}
+          onClose={() => setLightboxOpen(false)}
+          resolveUrl={resolveUrl}
+          itemName={item.name}
+        />
+
+
 
         {/* Badge + Share Row */}
         <div className="flex items-center justify-between">
@@ -216,7 +348,7 @@ export function MenuItemSheet({ item, business, businessSlug, open, onClose }: P
           <div className="flex h-14 items-center gap-4 rounded-2xl border border-gray-200 bg-white px-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
             <button
               type="button"
-              onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+              onClick={() => setQuantity((q: number) => Math.max(1, q - 1))}
               className="text-slate-500 hover:text-red-500 transition-colors"
               aria-label="Decrease quantity"
             >
@@ -227,7 +359,7 @@ export function MenuItemSheet({ item, business, businessSlug, open, onClose }: P
             </span>
             <button
               type="button"
-              onClick={() => setQuantity((q) => q + 1)}
+              onClick={() => setQuantity((q: number) => q + 1)}
               className="text-slate-500 hover:text-slate-900 dark:hover:text-zinc-100 transition-colors"
               aria-label="Increase quantity"
             >

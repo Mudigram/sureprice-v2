@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Store, Utensils, Ticket, ShoppingBag, ChevronDown, Check, ArrowRight, ScanLine } from 'lucide-react'
+import { Store, Utensils, Ticket, ShoppingBag, ChevronDown, ScanLine } from 'lucide-react'
+import { ButtonLink } from '@/components/ui/button'
 
 const VENUES = [
   {
@@ -112,14 +112,9 @@ export function VenueAccordion() {
               </div>
 
               {/* Bottom CTA Button */}
-              <Link
-                href="/login"
-                id="venue-section-cta"
-                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--lime-base)] py-3.5 text-xs font-black text-black shadow-lg shadow-[var(--lime-base)]/25 hover:bg-[var(--lime-dark)] transition-all active:scale-95"
-              >
-                <span>Setup Your Store Now</span>
-                <ArrowRight size={14} strokeWidth={3} />
-              </Link>
+              <ButtonLink href="/login" id="venue-section-cta" size="md" className="w-full">
+                <span>Merchant Sign In</span>
+              </ButtonLink>
             </div>
           </div>
 

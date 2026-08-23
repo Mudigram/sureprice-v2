@@ -18,11 +18,14 @@ import {
   Sparkles,
   MapPin,
   Barcode,
+  Images,
+  Maximize2,
 } from 'lucide-react'
 import { addToHistory } from '@/lib/storefront/local-storage'
 import { useCart } from '@/context/CartContext'
 import type { StorefrontBusiness, StorefrontItemDetail, AttributeEntry } from '@/features/storefront/types'
 import { getCategorySvgIcon, getBrandFallbackSvgIcon } from '@/components/icons'
+import { ImageGalleryLightbox } from '@/components/storefront/image-gallery-lightbox'
 
 // Generate deterministic sparkline data for 30-day trend
 function generateTrend(basePrice: number): number[] {
@@ -41,6 +44,7 @@ interface Props {
 
 export function ItemDetailClient({ item, business, businessSlug }: Props) {
   const [activeImage, setActiveImage] = useState(0)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
   const [quantity, setQuantity] = useState(1)
   const [noted, setNoted] = useState(false)
   const [copiedShare, setCopiedShare] = useState(false)
@@ -131,16 +135,30 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
     <div className="min-h-screen bg-background pb-12">
       {/* Primary Image & Thumbnail Strip */}
       <div className="px-5 pt-3">
-        <div className="relative aspect-square w-full overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border border-slate-800 shadow-lg">
+        <div
+          onClick={() => images.length > 0 && setLightboxOpen(true)}
+          className={`relative aspect-square w-full overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border border-slate-800 shadow-lg ${
+            images.length > 0 ? 'cursor-pointer group' : ''
+          }`}
+        >
           {images.length > 0 ? (
-            <Image
-              src={resolveUrl(images[activeImage].storage_path)}
-              alt={images[activeImage].alt_text ?? item.name}
-              fill
-              className="object-cover"
-              priority
-              sizes="(max-width: 448px) 100vw, 448px"
-            />
+            <>
+              <Image
+                src={resolveUrl(images[activeImage].storage_path)}
+                alt={images[activeImage].alt_text ?? item.name}
+                fill
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                priority
+                sizes="(max-width: 448px) 100vw, 448px"
+              />
+
+              {/* Photo Count & Zoom Badge */}
+              <div className="absolute right-3 top-3 z-10 flex items-center gap-1.5 rounded-full bg-slate-950/80 px-3 py-1.5 text-xs font-bold text-white border border-white/20 backdrop-blur-md shadow-lg transition-transform active:scale-95 hover:bg-slate-900">
+                <Images size={14} className="text-[var(--lime-base)]" />
+                <span>{images.length} Photo{images.length > 1 ? 's' : ''}</span>
+                <Maximize2 size={12} className="text-slate-400 ml-0.5" />
+              </div>
+            </>
           ) : (
             <div className="flex h-full flex-col items-center justify-center p-4 text-center">
               <div className="p-3.5 rounded-2xl bg-slate-900/60 backdrop-blur-sm border border-white/10 text-[var(--lime-base)] shadow-lg">
@@ -157,14 +175,16 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
 
         {/* Thumbnail strip */}
         {images.length > 1 && (
-          <div className="mt-3 flex gap-2">
+          <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1">
             {images.map((img, i) => (
               <button
                 key={img.id}
                 id={`thumb-${i}`}
-                onClick={() => setActiveImage(i)}
+                onClick={() => {
+                  setActiveImage(i)
+                }}
                 className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border-2 transition-all ${
-                  i === activeImage ? 'border-[var(--lime-base)] scale-105' : 'border-transparent opacity-70'
+                  i === activeImage ? 'border-[var(--lime-base)] scale-105 shadow-md shadow-[var(--lime-base)]/20' : 'border-transparent opacity-70 hover:opacity-100'
                 }`}
               >
                 <Image
@@ -179,6 +199,16 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
           </div>
         )}
       </div>
+
+      <ImageGalleryLightbox
+        images={images}
+        initialIndex={activeImage}
+        isOpen={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+        resolveUrl={resolveUrl}
+        itemName={item.name}
+      />
+
 
       {/* Main Content Area */}
       <div className="mt-4 space-y-5 px-5">

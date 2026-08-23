@@ -1,8 +1,8 @@
 'use client'
 
-import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ScanLine, CheckCircle2, Lock, Ticket, ChevronRight } from 'lucide-react'
+import { ScanLine, ChevronRight } from 'lucide-react'
+import { ButtonLink } from '@/components/ui/button'
 
 export function HeroSection() {
   return (
@@ -52,32 +52,15 @@ export function HeroSection() {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="flex flex-wrap items-center justify-center gap-3 pt-2"
         >
-          <Link
-            href="/scan"
-            id="hero-scan-cta"
-            className="flex items-center gap-2 rounded-2xl bg-[var(--lime-base)] px-7 py-4 text-sm font-black text-black shadow-xl shadow-[var(--lime-base)]/30 transition-all hover:bg-[var(--lime-dark)] active:scale-95 min-h-[52px]"
-          >
+          <ButtonLink href="/scan" id="hero-scan-cta" size="lg">
             <ScanLine size={18} strokeWidth={2.5} />
             <span>Try Scanning Now</span>
-          </Link>
+          </ButtonLink>
 
-          <Link
-            href="/login"
-            id="hero-owner-cta"
-            className="flex items-center gap-2 rounded-2xl border border-slate-300 bg-white px-6 py-4 text-sm font-bold text-slate-900 shadow-sm transition-all hover:bg-slate-50 hover:border-slate-400 active:scale-95 min-h-[52px]"
-          >
-            <span>I&apos;m a Business Owner</span>
+          <ButtonLink href="/login" id="hero-owner-cta" variant="outline" size="lg">
+            <span>Merchant Sign In</span>
             <ChevronRight size={16} />
-          </Link>
-
-          <Link
-            href="/login?mode=popup"
-            id="hero-popup-cta"
-            className="flex items-center gap-2 rounded-2xl border border-purple-200 bg-purple-50/90 px-5 py-4 text-sm font-bold text-purple-900 shadow-sm transition-all hover:bg-purple-100 active:scale-95 min-h-[52px]"
-          >
-            <Ticket size={16} className="text-purple-600" />
-            <span>Pop-Up Event Pass</span>
-          </Link>
+          </ButtonLink>
         </motion.div>
 
         {/* Mobile Phone Mockup Interactive Graphic */}
@@ -128,16 +111,6 @@ export function HeroSection() {
             <div className="absolute -inset-4 -z-10 rounded-[3rem] bg-[var(--lime-base)]/20 blur-3xl pointer-events-none" />
           </div>
         </motion.div>
-
-        {/* Mobile Trust Strip */}
-        <div className="pt-6 flex flex-wrap items-center justify-center gap-4 text-xs font-bold text-slate-600">
-          {['Zero App Download', '100% Free for Shoppers', 'Real-Time Prices in Naira (₦)', 'Verified Store Access'].map((t) => (
-            <span key={t} className="flex items-center gap-1.5">
-              <CheckCircle2 size={14} className="text-[var(--lime-dark)] shrink-0" />
-              <span>{t}</span>
-            </span>
-          ))}
-        </div>
       </div>
     </section>
   )

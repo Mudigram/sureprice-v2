@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ScanLine, Lock } from 'lucide-react'
+import { ButtonLink } from '@/components/ui/button'
 import { HeroSection } from '@/components/landing/hero-section'
 import { FeatureTabs } from '@/components/landing/feature-tabs'
 import { BentoShowcase } from '@/components/landing/bento-showcase'
@@ -9,7 +10,7 @@ import { WorkflowSteps } from '@/components/landing/workflow-steps'
 import { FloatingScanPrompt } from '@/components/landing/floating-scan-prompt'
 
 export const metadata: Metadata = {
-  title: 'SurePrice — Scan it. Know it.',
+  title: 'SurePrice. Scan it. Know it.',
   description:
     'SurePrice lets shoppers scan any physical shelf QR tag or menu for instant, verified prices in Naira (₦). Zero app install required. Built for supermarkets, dining cafés, and pop-up vendors across Nigeria.',
 }
@@ -37,14 +38,10 @@ export default function LandingPage() {
             >
               Browse Stores
             </Link>
-            <Link
-              href="/login"
-              id="nav-login"
-              className="flex items-center gap-1.5 rounded-xl bg-[var(--lime-base)] px-3.5 py-2 text-xs font-black text-black shadow-md shadow-[var(--lime-base)]/20 transition-all hover:bg-[var(--lime-dark)] active:scale-95 min-h-[38px]"
-            >
+            <ButtonLink href="/login" id="nav-login" size="sm">
               <Lock size={13} />
               <span>Merchant Sign In</span>
-            </Link>
+            </ButtonLink>
           </div>
         </div>
       </nav>
@@ -73,7 +70,7 @@ export default function LandingPage() {
             </div>
             <span>SurePrice</span>
           </div>
-          <p>© 2026 SurePrice — Scan it. Know it. · Lagos, Nigeria</p>
+          <p>© 2026 SurePrice. Scan it. Know it. · Lagos, Nigeria</p>
         </div>
       </footer>
     </div>
