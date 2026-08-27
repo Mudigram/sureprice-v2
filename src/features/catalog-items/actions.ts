@@ -64,3 +64,19 @@ export async function createCatalogItem(input: CreateCatalogItemInput) {
   revalidatePath(`/businesses/${parsed.business_id}/catalog-items`)
   redirect(`/businesses/${parsed.business_id}/catalog-items/${data.id}`)
 }
+
+export async function deleteCatalogItem(itemId: string, businessId: string) {
+  await requireBusinessManage(businessId)
+
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from('catalog_items')
+    .update({ status: 'archived' })
+    .eq('id', itemId)
+    .eq('business_id', businessId)
+
+  if (error) throw error
+
+  revalidatePath(`/businesses/${businessId}/catalog-items`)
+  redirect(`/businesses/${businessId}/catalog-items`)
+}

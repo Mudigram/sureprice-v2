@@ -14,6 +14,24 @@ import {
 
 type ScanState = 'idle' | 'requesting' | 'scanning' | 'denied' | 'error'
 
+const safeStopScanner = async (scannerInstance: unknown) => {
+  if (!scannerInstance) return
+  try {
+    const s = scannerInstance as {
+      getState?: () => number
+      stop?: () => Promise<void>
+      isScanning?: boolean
+    }
+    // Html5QrcodeScannerState: 2 = SCANNING, 3 = PAUSED
+    const state = typeof s.getState === 'function' ? s.getState() : 0
+    if (state === 2 || state === 3 || s.isScanning) {
+      await s.stop?.().catch(() => undefined)
+    }
+  } catch {
+    // Ignore html5-qrcode stop state errors safely
+  }
+}
+
 export function QrScanner() {
   const router = useRouter()
   const regionRef = useRef<HTMLDivElement>(null)
@@ -38,11 +56,11 @@ export function QrScanner() {
         // Not a full URL — try as a path or QR code identifier
         if (trimmed.startsWith('/')) {
           router.push(trimmed)
-        } else if (trimmed.startsWith('q/') || trimmed.startsWith('s/')) {
+        } else if (trimmed.startsWith('q/') || trimmed.startsWith('s/') || trimmed.startsWith('scan/')) {
           router.push('/' + trimmed)
         } else {
-          // Treat as shortcode -> /q/[code]
-          router.push(`/q/${trimmed}`)
+          // Treat as shortcode -> /scan/[code]
+          router.push(`/scan/${trimmed}`)
         }
       }
     },
@@ -60,8 +78,8 @@ export function QrScanner() {
         { facingMode: 'environment' },
         { fps: 10, qrbox: { width: 240, height: 240 } },
         (decodedText) => {
-          // Stop scanner then navigate
-          scanner.stop().catch(() => undefined)
+          // Stop scanner safely then navigate
+          safeStopScanner(scanner)
           navigateToCode(decodedText)
         },
         () => undefined // ignore per-frame errors
@@ -104,13 +122,13 @@ export function QrScanner() {
     }
   }
 
-  // Auto-start scanner on mount
+  // Auto-start scanner on mount with safe cleanup on unmount
   useEffect(() => {
     startScan()
     return () => {
       if (scannerRef.current) {
-        const s = scannerRef.current as { stop: () => Promise<void> }
-        s.stop().catch(() => undefined)
+        safeStopScanner(scannerRef.current)
+        scannerRef.current = null
       }
     }
   }, [startScan])

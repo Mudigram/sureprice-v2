@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { useState, useTransition } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Upload, X, Check, Image as ImageIcon, Sparkles, Store, ShieldCheck } from 'lucide-react'
+import { Upload, X, Check, Image as ImageIcon, Sparkles, Store, ShieldCheck, Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { updateStorefrontBrandingSchema, HIGHLIGHT_OPTIONS, type UpdateStorefrontBrandingInput } from '../schema'
 import { updateStorefrontBranding } from '../actions'
@@ -137,28 +137,28 @@ export function StorefrontEditForm({ businessId, initialData }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 text-slate-900 dark:text-white">
       {errorMsg && (
-        <div className="rounded-xl bg-destructive/10 p-3.5 text-xs font-bold text-destructive border border-destructive/20">
+        <div className="rounded-2xl bg-rose-50 p-3.5 text-xs font-bold text-rose-700 border border-rose-200 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-300">
           {errorMsg}
         </div>
       )}
 
       {saveSuccess && (
-        <div className="flex items-center gap-2 rounded-xl bg-emerald-500/10 p-3.5 text-xs font-bold text-emerald-600 border border-emerald-500/20 dark:text-emerald-400">
-          <Check size={16} />
-          Storefront branding and settings saved successfully!
+        <div className="flex items-center gap-2 rounded-2xl bg-emerald-50 p-3.5 text-xs font-bold text-emerald-800 border border-emerald-200 dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-300">
+          <Check size={16} className="text-emerald-600 dark:text-[var(--lime-base)]" />
+          <span>Storefront branding and settings saved successfully!</span>
         </div>
       )}
 
       {/* Published Status Toggle */}
-      <div className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 shadow-sm">
+      <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div>
-          <p className="text-sm font-bold text-foreground flex items-center gap-2">
-            <Store size={16} className="text-muted-foreground" />
-            Public Storefront Status
+          <p className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <Store size={16} className="text-slate-400" />
+            <span>Public Storefront Status</span>
           </p>
-          <p className="text-xs text-muted-foreground mt-0.5">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
             When published, customers can scan table QR tags and view verified prices.
           </p>
         </div>
@@ -168,18 +168,20 @@ export function StorefrontEditForm({ businessId, initialData }: Props) {
             {...register('is_published')}
             className="sr-only peer"
           />
-          <div className="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--lime-base)]" />
+          <div className="w-11 h-6 bg-slate-200 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--lime-base)]" />
         </label>
       </div>
 
       {/* Header Cover Image Upload */}
       <div className="space-y-2">
-        <label className="block text-sm font-bold text-foreground">Header Cover Banner Photo</label>
-        <p className="text-xs text-muted-foreground">
+        <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300">
+          Header Cover Banner Photo
+        </label>
+        <p className="text-xs text-slate-500 dark:text-slate-400">
           Upload a wide photo of your restaurant dining room, bar, or signature dish.
         </p>
 
-        <div className="relative aspect-[3/1] w-full overflow-hidden rounded-2xl border-2 border-dashed border-border bg-muted/40 transition-all">
+        <div className="relative aspect-[3/1] w-full overflow-hidden rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950 transition-all">
           {coverUrl ? (
             <>
               <Image
@@ -191,18 +193,18 @@ export function StorefrontEditForm({ businessId, initialData }: Props) {
               <button
                 type="button"
                 onClick={() => setValue('cover_url', null)}
-                className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-slate-900/80 text-white shadow-md hover:bg-red-600 transition-all"
+                className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-slate-900/80 text-white shadow-md hover:bg-rose-600 transition-all"
               >
                 <X size={14} />
               </button>
             </>
           ) : (
-            <label className="flex h-full w-full cursor-pointer flex-col items-center justify-center p-4 text-center hover:bg-muted/70 transition-all">
-              <ImageIcon className="h-8 w-8 text-muted-foreground mb-1" />
-              <span className="text-xs font-bold text-foreground">
+            <label className="flex h-full w-full cursor-pointer flex-col items-center justify-center p-4 text-center hover:bg-slate-100 dark:hover:bg-slate-900 transition-all">
+              <ImageIcon className="h-8 w-8 text-slate-400 mb-1" />
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
                 {uploadingCover ? 'Uploading Cover Banner…' : 'Click to Upload Cover Photo'}
               </span>
-              <span className="text-[10px] text-muted-foreground mt-0.5">JPG or PNG (Recommended 1200x400)</span>
+              <span className="text-[10px] text-slate-400 mt-0.5">JPG or PNG (Recommended 1200x400)</span>
               <input
                 type="file"
                 accept="image/*"
@@ -217,13 +219,15 @@ export function StorefrontEditForm({ businessId, initialData }: Props) {
 
       {/* Logo Avatar Upload */}
       <div className="space-y-2">
-        <label className="block text-sm font-bold text-foreground">Restaurant Logo</label>
-        <p className="text-xs text-muted-foreground">
-          Displayed in a circular avatar badge next to your store name.
+        <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300">
+          Restaurant Logo
+        </label>
+        <p className="text-xs text-slate-500 dark:text-slate-400">
+          Displayed in an avatar badge next to your store name.
         </p>
 
         <div className="flex items-center gap-4">
-          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border-2 border-border bg-muted flex items-center justify-center shadow-sm">
+          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 dark:border-slate-800 dark:bg-slate-950 flex items-center justify-center shadow-sm">
             {logoUrl ? (
               <>
                 <Image
@@ -241,13 +245,13 @@ export function StorefrontEditForm({ businessId, initialData }: Props) {
                 </button>
               </>
             ) : (
-              <Store className="h-8 w-8 text-muted-foreground" />
+              <Store className="h-8 w-8 text-slate-400" />
             )}
           </div>
 
-          <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-input bg-background px-4 py-2.5 text-xs font-bold text-foreground shadow-sm hover:bg-accent hover:text-accent-foreground transition-all">
+          <label className="inline-flex cursor-pointer items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-xs font-bold text-slate-800 shadow-sm hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800 transition-all">
             <Upload size={14} />
-            {uploadingLogo ? 'Uploading Logo…' : 'Upload Logo'}
+            <span>{uploadingLogo ? 'Uploading Logo…' : 'Upload Logo'}</span>
             <input
               type="file"
               accept="image/*"
@@ -260,20 +264,24 @@ export function StorefrontEditForm({ businessId, initialData }: Props) {
       </div>
 
       {/* Tagline / Slogan */}
-      <div className="space-y-1">
-        <label className="block text-sm font-bold text-foreground">Tagline / Slogan</label>
+      <div className="space-y-1.5">
+        <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300">
+          Tagline / Slogan
+        </label>
         <input
           {...register('tagline')}
           placeholder="e.g. Authentic Wood-Fired Grill & Artisan Cocktails"
-          className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-xs font-semibold text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-[var(--lime-base)] focus:outline-none focus:ring-1 focus:ring-[var(--lime-base)] dark:border-slate-800 dark:bg-slate-900 dark:text-white transition-all"
         />
-        {errors.tagline && <p className="text-xs text-destructive mt-1">{errors.tagline.message}</p>}
+        {errors.tagline && <p className="text-xs text-rose-500 font-bold mt-1">{errors.tagline.message}</p>}
       </div>
 
       {/* Highlight Badges Multi-select */}
       <div className="space-y-2">
-        <label className="block text-sm font-bold text-foreground">Restaurant Amenity Badges</label>
-        <p className="text-xs text-muted-foreground">
+        <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300">
+          Restaurant Amenity Badges
+        </label>
+        <p className="text-xs text-slate-500 dark:text-slate-400">
           Select features to highlight on your digital menu header.
         </p>
 
@@ -287,13 +295,13 @@ export function StorefrontEditForm({ businessId, initialData }: Props) {
                 onClick={() => toggleHighlight(opt.id)}
                 className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-bold transition-all active:scale-95 border ${
                   isSelected
-                    ? 'border-[var(--lime-base)] bg-[var(--lime-base)]/15 text-foreground shadow-sm'
-                    : 'border-border bg-card text-muted-foreground hover:border-gray-300'
+                    ? 'border-emerald-500 bg-emerald-50 text-slate-900 dark:border-[var(--lime-base)] dark:bg-slate-900 dark:text-white shadow-sm'
+                    : 'border-slate-200 bg-white text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 hover:border-slate-300'
                 }`}
               >
                 <span>{opt.icon}</span>
                 <span>{opt.label}</span>
-                {isSelected && <Check size={12} className="text-[var(--lime-dark)]" />}
+                {isSelected && <Check size={12} className="text-emerald-600 dark:text-[var(--lime-base)]" />}
               </button>
             )
           })}
@@ -302,7 +310,9 @@ export function StorefrontEditForm({ businessId, initialData }: Props) {
 
       {/* Brand Accent Color Selector */}
       <div className="space-y-2">
-        <label className="block text-sm font-bold text-foreground">Primary Brand Accent Color</label>
+        <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300">
+          Primary Brand Accent Color
+        </label>
         <div className="flex flex-wrap items-center gap-3">
           {COLOR_SWATCHES.map((swatch) => {
             const isSelected = selectedColor === swatch.hex
@@ -311,8 +321,10 @@ export function StorefrontEditForm({ businessId, initialData }: Props) {
                 key={swatch.hex}
                 type="button"
                 onClick={() => setValue('primary_color', swatch.hex)}
-                className={`flex items-center gap-2 rounded-xl border p-2 text-xs font-bold transition-all ${
-                  isSelected ? 'border-foreground bg-accent' : 'border-border bg-card hover:border-gray-300'
+                className={`flex items-center gap-2 rounded-2xl border p-2.5 text-xs font-bold transition-all ${
+                  isSelected
+                    ? 'border-slate-900 bg-slate-100 text-slate-900 dark:border-white dark:bg-slate-800 dark:text-white shadow-sm'
+                    : 'border-slate-200 bg-white text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 hover:border-slate-300'
                 }`}
               >
                 <span
@@ -329,9 +341,17 @@ export function StorefrontEditForm({ businessId, initialData }: Props) {
       <button
         type="submit"
         disabled={isPending || uploadingLogo || uploadingCover}
-        className="w-full rounded-2xl bg-[var(--lime-base)] py-3.5 text-sm font-black text-black shadow-lg shadow-[var(--lime-base)]/25 transition-all hover:bg-[var(--lime-dark)] active:scale-95 disabled:opacity-50"
+        id="save-storefront-branding-btn"
+        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--lime-base)] py-4 text-xs font-black text-black shadow-md shadow-[var(--lime-base)]/25 transition-all hover:bg-[var(--lime-dark)] active:scale-95 disabled:opacity-50"
       >
-        {isPending ? 'Saving Settings…' : 'Save Storefront Branding'}
+        {isPending ? (
+          <>
+            <Loader2 size={16} className="animate-spin" />
+            <span>Saving Settings…</span>
+          </>
+        ) : (
+          <span>Save Storefront Branding</span>
+        )}
       </button>
     </form>
   )

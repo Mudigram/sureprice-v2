@@ -34,8 +34,15 @@ export function StoreCard({ business, className }: StoreCardProps) {
     null
 
   const rawCoverUrl =
+    (typeof (business.storefront as Record<string, unknown>)?.cover_url === 'string' && ((business.storefront as Record<string, unknown>).cover_url as string)) ||
     (typeof storefrontTheme.cover_url === 'string' && storefrontTheme.cover_url) ||
     (typeof storefrontTheme.coverUrl === 'string' && storefrontTheme.coverUrl) ||
+    (typeof storefrontTheme.banner_url === 'string' && storefrontTheme.banner_url) ||
+    (typeof storefrontTheme.bannerUrl === 'string' && storefrontTheme.bannerUrl) ||
+    (Array.isArray((business as unknown as { media?: Array<{ target_type?: string; storage_path?: string }> }).media) &&
+      (business as unknown as { media?: Array<{ target_type?: string; storage_path?: string }> }).media?.find(
+        (m) => (m.target_type === 'business' || m.target_type === 'storefront') && typeof m.storage_path === 'string'
+      )?.storage_path) ||
     null
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''

@@ -32,12 +32,12 @@ export function HomeStoresSection({ businesses }: HomeStoresSectionProps) {
     <section className="space-y-3.5">
       {/* Header & View All Link */}
       <div className="flex items-center justify-between">
-        <h2 className="text-base font-black tracking-tight text-slate-900">
+        <h2 className="text-base font-black tracking-tight text-slate-900 dark:text-white">
           Partner Stores & Venues
         </h2>
         <Link
           href="/stores"
-          className="text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors"
+          className="text-xs font-bold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
         >
           View All ({businesses.length})
         </Link>
@@ -52,10 +52,10 @@ export function HomeStoresSection({ businesses }: HomeStoresSectionProps) {
               key={filter.value}
               id={`home-filter-${filter.value}`}
               onClick={() => setSelectedFilter(filter.value)}
-              className={`whitespace-nowrap rounded-full px-4 py-1.5 text-xs font-extrabold transition-all active:scale-95 ${
+              className={`whitespace-nowrap rounded-full px-4 py-1.5 text-xs font-extrabold transition-all active:scale-95 border ${
                 isSelected
-                  ? 'bg-slate-900 text-white shadow-sm'
-                  : 'border border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+                  ? 'bg-slate-900 text-white border-slate-900 dark:bg-slate-100 dark:text-slate-900 dark:border-white shadow-sm'
+                  : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300'
               }`}
             >
               {filter.label}
@@ -66,15 +66,17 @@ export function HomeStoresSection({ businesses }: HomeStoresSectionProps) {
 
       {/* Store Horizontal Scroll */}
       {filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-white py-10 text-center">
-          <p className="text-xs font-bold text-slate-500">
+        <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-white py-10 text-center dark:border-slate-800 dark:bg-slate-900">
+          <p className="text-xs font-bold text-slate-500 dark:text-slate-400">
             No stores found in this category
           </p>
         </div>
       ) : (
-        <div className="flex gap-4 overflow-x-auto pb-3 no-scrollbar scroll-smooth">
+        <div className="flex gap-3.5 overflow-x-auto pb-3 no-scrollbar scroll-smooth">
           {filtered.map((biz) => (
-            <StoreCard key={biz.id} business={biz} />
+            <div key={biz.id} className="w-[290px] sm:w-[320px] shrink-0">
+              <StoreCard business={biz} className="w-full" />
+            </div>
           ))}
         </div>
       )}

@@ -128,21 +128,22 @@ export async function getPublishedBusinesses(): Promise<StorefrontBusiness[]> {
 
   const { data, error } = await supabase
     .from('businesses')
-    .select('*, storefront:storefronts(*), locations:locations(*), items:catalog_items(id, status)')
+    .select('*, storefront:storefronts(*), locations:locations(*), media:media(*), items:catalog_items(id, status)')
     .eq('status', 'active')
     .order('name', { ascending: true })
 
   if (error) throw error
   if (!data) return []
 
-  return (data as (typeof data[number] & { storefront: unknown; locations: unknown; items?: { id: string; status: string }[] })[])
+  return (data as (typeof data[number] & { storefront: unknown; locations: unknown; media?: unknown[]; items?: { id: string; status: string }[] })[])
     .map((b) => {
       const storefront = Array.isArray(b.storefront)
         ? (b.storefront[0] ?? null)
         : (b.storefront ?? null)
       const locations = Array.isArray(b.locations) ? b.locations : []
+      const media = Array.isArray(b.media) ? b.media : []
       const activeItems = Array.isArray(b.items) ? b.items.filter((i) => i.status === 'active') : []
-      return { ...b, storefront, locations, itemCount: activeItems.length } as StorefrontBusiness
+      return { ...b, storefront, locations, media, itemCount: activeItems.length } as StorefrontBusiness
     })
     .filter((b) => b.storefront?.is_published === true)
 }

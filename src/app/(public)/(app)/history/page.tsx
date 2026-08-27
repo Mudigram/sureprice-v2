@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -15,6 +15,10 @@ import {
   CheckCircle2,
   ArrowRight,
   Package,
+  Search,
+  Plus,
+  Check,
+  ShoppingBag,
 } from 'lucide-react'
 import {
   getHistory,
@@ -25,6 +29,7 @@ import {
   type SavedTrip,
 } from '@/lib/storefront/local-storage'
 import { useCart } from '@/context/CartContext'
+import { getCategorySvgIcon } from '@/components/icons'
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime()
@@ -38,9 +43,10 @@ function timeAgo(dateStr: string): string {
 
 export default function HistoryPage() {
   const router = useRouter()
-  const { clearList, addItem } = useCart()
+  const { clearList, addItem, removeItem, isInList, getQuantity } = useCart()
 
   const [activeTab, setActiveTab] = useState<'trips' | 'scans'>('trips')
+  const [search, setSearch] = useState('')
   const [history, setHistory] = useState<HistoryItem[]>([])
   const [savedTrips, setSavedTrips] = useState<SavedTrip[]>([])
   const [expandedTripId, setExpandedTripId] = useState<string | null>(null)
@@ -72,7 +78,29 @@ export default function HistoryPage() {
     e.stopPropagation()
     clearList()
     for (const item of trip.items) {
-      // Add each item with its saved quantity
+      for (let q = 0; q < item.quantity; q++) {
+        addItem({
+          id: item.id,
+          name: item.name,
+          base_price: item.base_price,
+          image_url: item.image_url,
+          businessSlug: item.businessSlug,
+          businessName: item.businessName,
+        })
+      }
+    }
+    setReloadedTripId(trip.id)
+    setTimeout(() => {
+      setReloadedTripId(null)
+      router.push('/cart')
+    }, 1000)
+  }
+
+  const handleToggleScannedItemCart = (item: HistoryItem, e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (isInList(item.id)) {
+      removeItem(item.id)
+    } else {
       addItem({
         id: item.id,
         name: item.name,
@@ -81,36 +109,42 @@ export default function HistoryPage() {
         businessSlug: item.businessSlug,
         businessName: item.businessName,
       })
-      if (item.quantity > 1) {
-        for (let q = 1; q < item.quantity; q++) {
-          addItem({
-            id: item.id,
-            name: item.name,
-            base_price: item.base_price,
-            image_url: item.image_url,
-            businessSlug: item.businessSlug,
-            businessName: item.businessName,
-          })
-        }
-      }
     }
-    setReloadedTripId(trip.id)
-    setTimeout(() => {
-      setReloadedTripId(null)
-      router.push('/cart')
-    }, 1200)
   }
+
+  // Filtered trips
+  const filteredTrips = useMemo(() => {
+    if (!search) return savedTrips
+    const q = search.toLowerCase()
+    return savedTrips.filter(
+      (t) =>
+        t.title.toLowerCase().includes(q) ||
+        t.items.some((i) => i.name.toLowerCase().includes(q) || i.businessName.toLowerCase().includes(q))
+    )
+  }, [savedTrips, search])
+
+  // Filtered history scans
+  const filteredScans = useMemo(() => {
+    if (!search) return history
+    const q = search.toLowerCase()
+    return history.filter(
+      (i) => i.name.toLowerCase().includes(q) || i.businessName.toLowerCase().includes(q)
+    )
+  }, [history, search])
 
   if (!mounted) return null
 
   return (
-    <div className="min-h-screen px-5 pt-3 pb-8 space-y-5">
+    <div className="min-h-screen px-5 pt-3 pb-12 space-y-4 bg-slate-50 dark:bg-slate-950">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-foreground">
+          <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
             Shopping History
           </h1>
+          <p className="mt-0.5 text-xs font-medium text-slate-500 dark:text-slate-400">
+            Re-visit your scanned products & saved store shopping lists.
+          </p>
         </div>
 
         {activeTab === 'scans' && history.length > 0 && (
@@ -118,27 +152,27 @@ export default function HistoryPage() {
             id="clear-history-btn"
             onClick={handleClearHistory}
             aria-label="Clear all scanned items history"
-            className="flex items-center gap-1.5 text-xs font-bold text-slate-500 transition-colors hover:text-destructive"
+            className="flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-extrabold text-rose-700 hover:bg-rose-100 dark:border-rose-900/50 dark:bg-rose-950/40 dark:text-rose-400 transition-colors"
           >
-            <Trash2 size={14} />
+            <Trash2 size={13} />
             Clear Scans
           </button>
         )}
       </div>
 
       {/* Tabs */}
-      <div className="grid grid-cols-2 rounded-2xl border border-gray-100 bg-slate-100/70 p-1 dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="grid grid-cols-2 rounded-2xl border border-slate-200 bg-white p-1 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <button
           type="button"
           id="tab-saved-trips"
           onClick={() => setActiveTab('trips')}
           className={`flex items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-extrabold transition-all ${
             activeTab === 'trips'
-              ? 'bg-white text-slate-900 shadow-sm dark:bg-zinc-800 dark:text-zinc-100'
-              : 'text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200'
+              ? 'bg-slate-900 text-white shadow-sm dark:bg-slate-100 dark:text-slate-900'
+              : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
           }`}
         >
-          <BookmarkPlus size={15} className={activeTab === 'trips' ? 'text-[var(--lime-dark)]' : ''} />
+          <BookmarkPlus size={15} className={activeTab === 'trips' ? 'text-[var(--lime-base)]' : ''} />
           <span>Saved Trips ({savedTrips.length})</span>
         </button>
 
@@ -148,37 +182,61 @@ export default function HistoryPage() {
           onClick={() => setActiveTab('scans')}
           className={`flex items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-extrabold transition-all ${
             activeTab === 'scans'
-              ? 'bg-white text-slate-900 shadow-sm dark:bg-zinc-800 dark:text-zinc-100'
-              : 'text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200'
+              ? 'bg-slate-900 text-white shadow-sm dark:bg-slate-100 dark:text-slate-900'
+              : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
           }`}
         >
-          <Clock size={15} className={activeTab === 'scans' ? 'text-[var(--lime-dark)]' : ''} />
+          <Clock size={15} className={activeTab === 'scans' ? 'text-[var(--lime-base)]' : ''} />
           <span>Scanned Items ({history.length})</span>
         </button>
       </div>
 
+      {/* Search Input Filter */}
+      {(savedTrips.length > 0 || history.length > 0) && (
+        <div className="relative">
+          <Search
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500"
+            size={16}
+          />
+          <input
+            type="text"
+            placeholder={
+              activeTab === 'trips'
+                ? 'Search saved trips by name or store...'
+                : 'Search scanned items or stores...'
+            }
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            id="history-search-input"
+            className="h-11 w-full rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/90 pl-11 pr-4 text-xs font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-[var(--lime-base)] focus:outline-none focus:ring-1 focus:ring-[var(--lime-base)] shadow-sm transition-all"
+          />
+        </div>
+      )}
+
       {/* TAB 1: SAVED TRIPS & LISTS */}
       {activeTab === 'trips' && (
         <>
-          {savedTrips.length === 0 ? (
-            <div className="flex flex-col items-center py-16 text-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 dark:bg-zinc-800 text-slate-400">
-                <BookmarkPlus size={32} />
+          {filteredTrips.length === 0 ? (
+            <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-white p-10 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400 border border-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400 mb-3">
+                <BookmarkPlus size={28} />
               </div>
-              <p className="mt-4 font-black text-foreground text-base">No saved trips yet</p>
-              <p className="mt-1 text-xs text-muted-foreground max-w-xs leading-relaxed font-medium">
-                Save your active Price List on the List screen to reload or re-use it on your next store visit.
+              <p className="text-base font-extrabold text-slate-900 dark:text-white">
+                {search ? 'No matching saved trips' : 'No saved trips yet'}
+              </p>
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 max-w-xs leading-relaxed">
+                Save your active Price List on the List screen to reload or re-use it on your next physical store visit.
               </p>
               <Link
                 href="/cart"
-                className="mt-5 flex items-center gap-2 rounded-2xl bg-[var(--lime-base)] px-6 py-3 text-xs font-extrabold text-black shadow-md shadow-[var(--lime-base)]/25"
+                className="mt-5 flex items-center gap-2 rounded-2xl bg-[var(--lime-base)] px-6 py-3 text-xs font-extrabold text-black shadow-md shadow-[var(--lime-base)]/20 active:scale-95 transition-transform"
               >
                 Go to My Price List <ArrowRight size={15} />
               </Link>
             </div>
           ) : (
             <div className="space-y-3">
-              {savedTrips.map((trip) => {
+              {filteredTrips.map((trip) => {
                 const isExpanded = expandedTripId === trip.id
                 const isReloaded = reloadedTripId === trip.id
                 const dateFormatted = new Date(trip.createdAt).toLocaleDateString('en-US', {
@@ -192,49 +250,40 @@ export default function HistoryPage() {
                 return (
                   <div
                     key={trip.id}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={`Saved trip ${trip.title}`}
                     onClick={() => setExpandedTripId(isExpanded ? null : trip.id)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault()
-                        setExpandedTripId(isExpanded ? null : trip.id)
-                      }
-                    }}
-                    className="cursor-pointer rounded-3xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:border-slate-300 dark:border-zinc-800 dark:bg-zinc-900 space-y-3 focus:outline-none focus:ring-2 focus:ring-[var(--lime-base)]"
+                    className="cursor-pointer rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 space-y-3"
                   >
                     {/* Header */}
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <h3 className="truncate font-extrabold text-sm text-slate-900 dark:text-zinc-100">
+                          <h3 className="truncate font-black text-sm text-slate-900 dark:text-white">
                             {trip.title}
                           </h3>
-                          <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-extrabold uppercase text-slate-600 dark:bg-zinc-800 dark:text-zinc-400 border border-slate-200">
-                            {trip.items.length} items
+                          <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-extrabold uppercase text-slate-600 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                            {trip.items.length} {trip.items.length === 1 ? 'item' : 'items'}
                           </span>
                         </div>
-                        <p className="mt-1 text-xs font-medium text-slate-500 dark:text-zinc-400">
-                          {storeNames.join(' · ')} · {dateFormatted}
+                        <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
+                          {storeNames.join(' · ')} • {dateFormatted}
                         </p>
                       </div>
 
-                      <p className="text-sm font-black text-[var(--lime-dark)] shrink-0">
+                      <p className="text-sm font-black text-emerald-700 dark:text-[var(--lime-base)] shrink-0">
                         ₦{trip.total.toLocaleString()}
                       </p>
                     </div>
 
                     {/* Actions Row */}
-                    <div className="flex items-center justify-between border-t border-gray-100 pt-3 dark:border-zinc-800/60">
+                    <div className="flex items-center justify-between border-t border-slate-100 pt-3 dark:border-slate-800">
                       <button
                         type="button"
                         onClick={(e) => handleReloadTrip(trip, e)}
                         aria-label={`Reload ${trip.title} to active price list`}
-                        className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-black transition-all active:scale-95 ${
+                        className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-black transition-all active:scale-95 ${
                           isReloaded
-                            ? 'bg-[var(--lime-dark)] text-black'
-                            : 'bg-[var(--lime-base)] text-black shadow-sm'
+                            ? 'bg-emerald-600 text-white shadow-md'
+                            : 'bg-[var(--lime-base)] text-black shadow-md shadow-[var(--lime-base)]/20 hover:bg-[var(--lime-dark)]'
                         }`}
                       >
                         {isReloaded ? (
@@ -251,7 +300,7 @@ export default function HistoryPage() {
                       </button>
 
                       <div className="flex items-center gap-3">
-                        <span className="text-xs font-bold text-slate-500">
+                        <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
                           {isExpanded ? 'Hide items ▲' : 'View items ▼'}
                         </span>
                         <button
@@ -259,7 +308,7 @@ export default function HistoryPage() {
                           onClick={(e) => handleDeleteTrip(trip.id, e)}
                           title="Delete saved trip"
                           aria-label={`Delete trip ${trip.title}`}
-                          className="text-slate-400 hover:text-destructive dark:text-zinc-500 transition-colors"
+                          className="text-slate-400 hover:text-rose-600 dark:text-slate-500 transition-colors"
                         >
                           <Trash2 size={15} />
                         </button>
@@ -268,17 +317,17 @@ export default function HistoryPage() {
 
                     {/* Expandable Items List */}
                     {isExpanded && (
-                      <div className="mt-3 divide-y divide-gray-100 rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-800/50 space-y-2">
+                      <div className="mt-3 divide-y divide-slate-100 rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:divide-slate-800 dark:border-slate-800 dark:bg-slate-950 space-y-2">
                         {trip.items.map((item, idx) => (
                           <div key={idx} className="flex items-center justify-between pt-1.5 text-xs">
                             <div className="min-w-0 flex-1 pr-2">
-                              <p className="truncate font-bold text-slate-800 dark:text-zinc-200">
-                                {item.name} <span className="text-slate-400">(x{item.quantity})</span>
+                              <p className="truncate font-bold text-slate-800 dark:text-slate-200">
+                                {item.name} <span className="text-slate-400 font-semibold">(x{item.quantity})</span>
                               </p>
-                              <p className="text-xs text-slate-500 font-medium">{item.businessName}</p>
+                              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">{item.businessName}</p>
                             </div>
                             {item.base_price !== null && (
-                              <span className="font-extrabold text-slate-700 dark:text-zinc-300 shrink-0">
+                              <span className="font-black text-slate-900 dark:text-white shrink-0">
                                 ₦{(item.base_price * item.quantity).toLocaleString()}
                               </span>
                             )}
@@ -297,68 +346,108 @@ export default function HistoryPage() {
       {/* TAB 2: SCANNED & VIEWED PRODUCTS */}
       {activeTab === 'scans' && (
         <>
-          {history.length === 0 ? (
-            <div className="flex flex-col items-center py-16 text-center">
-              <Clock size={44} className="text-muted-foreground" />
-              <p className="mt-4 font-black text-foreground text-base">No scan history yet</p>
-              <p className="mt-1 text-xs text-muted-foreground font-medium">
-                Products you view or scan will appear here automatically
+          {filteredScans.length === 0 ? (
+            <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-white p-10 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400 border border-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400 mb-3">
+                <Clock size={28} />
+              </div>
+              <p className="text-base font-extrabold text-slate-900 dark:text-white">
+                {search ? 'No matching scanned items' : 'No scan history yet'}
+              </p>
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 max-w-xs font-medium">
+                Products you view or scan will appear here automatically with 1-tap cart controls.
               </p>
               <Link
                 href="/scan"
-                className="mt-5 flex items-center gap-2 rounded-2xl bg-[var(--lime-base)] px-6 py-3 text-xs font-extrabold text-black shadow-md shadow-[var(--lime-base)]/25"
+                className="mt-5 flex items-center gap-2 rounded-2xl bg-[var(--lime-base)] px-6 py-3 text-xs font-extrabold text-black shadow-md shadow-[var(--lime-base)]/20 active:scale-95 transition-transform"
               >
                 <ScanLine size={16} />
-                Scan Product QR
+                Scan Product QR Tag
               </Link>
             </div>
           ) : (
-            <div className="space-y-2.5">
-              {history.map((item) => (
-                <Link
-                  key={`${item.id}-${item.viewedAt}`}
-                  href={`/s/${item.businessSlug}/${item.id}`}
-                  id={`history-${item.id}`}
-                  className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm transition-all hover:border-slate-300 active:scale-[0.99] dark:border-zinc-800 dark:bg-zinc-900"
-                >
-                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-slate-50 dark:bg-zinc-800 border border-gray-100 dark:border-zinc-800">
-                    {item.image_url ? (
-                      <Image
-                        src={item.image_url}
-                        alt={item.name}
-                        fill
-                        className="object-cover"
-                        sizes="56px"
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-slate-400">
-                        <Package size={20} />
-                      </div>
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-xs font-extrabold text-slate-900 dark:text-zinc-100">
-                      {item.name}
-                    </p>
-                    <p className="mt-0.5 truncate text-xs font-medium text-slate-500 dark:text-zinc-400">
-                      {item.businessName}
-                    </p>
-                    <div className="mt-1 flex items-center justify-between">
-                      {item.base_price !== null ? (
-                        <p className="text-xs font-black text-[var(--lime-dark)]">
-                          ₦{item.base_price.toLocaleString()}
-                        </p>
+            <div className="space-y-3">
+              {filteredScans.map((item) => {
+                const isNoted = isInList(item.id)
+                const notedQty = getQuantity(item.id)
+
+                return (
+                  <div
+                    key={`${item.id}-${item.viewedAt}`}
+                    onClick={() => router.push(`/s/${item.businessSlug}/${item.id}`)}
+                    className={`group relative flex flex-row items-center gap-3.5 overflow-hidden rounded-2xl border p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md cursor-pointer ${
+                      isNoted
+                        ? 'border-emerald-300 bg-emerald-50/40 dark:border-emerald-900/50 dark:bg-emerald-950/20'
+                        : 'border-slate-200/80 bg-white hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900'
+                    }`}
+                  >
+                    {/* Left Product Photo Thumbnail */}
+                    <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-slate-100 border border-slate-200/60 dark:bg-slate-950 dark:border-slate-800">
+                      {item.image_url ? (
+                        <Image
+                          src={item.image_url}
+                          alt={item.name}
+                          fill
+                          className="object-cover transition-transform duration-300 group-hover:scale-105"
+                          sizes="80px"
+                        />
                       ) : (
-                        <p className="text-xs text-slate-500">Price on request</p>
+                        <div className="flex h-full w-full items-center justify-center text-slate-400 dark:text-slate-500">
+                          {getCategorySvgIcon(item.name, { size: 28 })}
+                        </div>
                       )}
-                      <p className="text-xs font-semibold text-slate-400 dark:text-zinc-500">
-                        {timeAgo(item.viewedAt)}
-                      </p>
+                    </div>
+
+                    {/* Right Info Column */}
+                    <div className="flex min-w-0 flex-1 flex-col justify-between self-stretch py-0.5">
+                      <div>
+                        {/* Title & Store Name */}
+                        <div className="flex items-start justify-between gap-1.5">
+                          <h3 className="truncate text-xs sm:text-sm font-black text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-[var(--lime-base)] transition-colors">
+                            {item.name}
+                          </h3>
+                          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 shrink-0">
+                            {timeAgo(item.viewedAt)}
+                          </span>
+                        </div>
+
+                        <p className="mt-0.5 truncate text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                          {item.businessName}
+                        </p>
+                      </div>
+
+                      {/* Price & 1-Tap Cart Button Row */}
+                      <div className="mt-2 flex items-center justify-between gap-2">
+                        <span className="text-sm font-black text-emerald-700 dark:text-[var(--lime-base)]">
+                          {item.base_price !== null ? `₦${item.base_price.toLocaleString()}` : 'Price on request'}
+                        </span>
+
+                        <button
+                          type="button"
+                          onClick={(e) => handleToggleScannedItemCart(item, e)}
+                          className={`flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-extrabold transition-all active:scale-95 border ${
+                            isNoted
+                              ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                              : 'bg-slate-100 text-slate-800 border-slate-200 hover:bg-slate-200 dark:bg-slate-800 dark:text-white dark:border-slate-700 dark:hover:bg-slate-700'
+                          }`}
+                        >
+                          {isNoted ? (
+                            <>
+                              <Check size={13} strokeWidth={3} />
+                              <span>Noted ({notedQty})</span>
+                            </>
+                          ) : (
+                            <>
+                              <Plus size={13} strokeWidth={3} />
+                              <span>Note</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
-                  <ChevronRight size={16} className="shrink-0 text-slate-400" />
-                </Link>
-              ))}
+                )
+              })}
             </div>
           )}
         </>

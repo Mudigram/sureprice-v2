@@ -4,7 +4,6 @@ import { useState } from 'react'
 import Link from 'next/link'
 import {
   Printer,
-  ArrowLeft,
   CheckSquare,
   Square,
   ScanLine,
@@ -17,18 +16,18 @@ import { PrintTemplates, type PrintPreset, type PrintableItem } from '@/features
 import { getOrCreateActiveQrCode } from '@/features/qr-codes/actions'
 import type { CatalogItem } from '@/features/catalog-items/types'
 import type { QrCode } from '@/features/qr-codes/types'
+import type { StorefrontBusiness } from '@/features/storefront/types'
 import { FirstQRBatchIllustration } from '@/components/illustrations'
+import { BusinessAdminNav } from '@/components/admin/business-admin-nav'
 
 interface QrStudioClientProps {
-  businessId: string
-  businessName: string
+  business: StorefrontBusiness
   catalogItems: CatalogItem[]
   existingQrCodes: QrCode[]
 }
 
 export function QrStudioClient({
-  businessId,
-  businessName,
+  business,
   catalogItems,
   existingQrCodes,
 }: QrStudioClientProps) {
@@ -72,7 +71,8 @@ export function QrStudioClient({
           name: item.name,
           price: item.base_price,
           code: qr.code,
-          businessName,
+          businessName: business.name,
+          categoryName: (item as unknown as { category?: { name: string } })?.category?.name ?? null,
         })
       }
 
@@ -90,27 +90,25 @@ export function QrStudioClient({
   }
 
   return (
-    <div className="mx-auto max-w-4xl p-6 sm:p-8 space-y-8">
+    <div className="mx-auto max-w-5xl p-4 sm:p-8 space-y-6 text-slate-900 dark:text-white">
+      {/* Store Admin Header Navigation Bar */}
+      <div className="no-print">
+        <BusinessAdminNav business={business} currentSection="qr-studio" />
+      </div>
+
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6 no-print">
-        <div>
-          <Link
-            href={`/businesses/${businessId}`}
-            className="mb-2 inline-flex items-center gap-1 text-xs font-bold text-slate-400 hover:text-white transition-colors"
-          >
-            <ArrowLeft size={14} />
-            <span>Back to {businessName}</span>
-          </Link>
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--lime-base)] text-black">
-              <Printer size={20} />
-            </div>
-            <div>
-              <h1 className="text-2xl font-black tracking-tight text-white">QR Print Studio</h1>
-              <p className="text-xs text-slate-400">
-                Batch generate and print physical shelf tags, packaging stickers, and table standees.
-              </p>
-            </div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-6 dark:border-slate-800 no-print">
+        <div className="flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--lime-base)] text-black shadow-sm">
+            <Printer size={22} />
+          </div>
+          <div>
+            <h1 className="text-xl font-black tracking-tight text-slate-900 dark:text-white">
+              QR Print Studio
+            </h1>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Batch generate and print enlarged physical shelf tags, packaging stickers, and table standees for {business.name}.
+            </p>
           </div>
         </div>
 
@@ -118,15 +116,15 @@ export function QrStudioClient({
           onClick={handleLaunchPrint}
           disabled={isPreparing || selectedIds.length === 0}
           id="launch-batch-print-btn"
-          className="flex items-center justify-center gap-2 rounded-2xl bg-[var(--lime-base)] px-6 py-3.5 text-xs font-black text-black shadow-lg shadow-[var(--lime-base)]/25 transition-all hover:bg-[var(--lime-dark)] active:scale-95 disabled:opacity-50"
+          className="flex items-center justify-center gap-2 rounded-2xl bg-[var(--lime-base)] px-6 py-3.5 text-xs font-black text-black shadow-md shadow-[var(--lime-base)]/25 transition-all hover:bg-[var(--lime-dark)] active:scale-95 disabled:opacity-50"
         >
           <Printer size={16} />
-          <span>{isPreparing ? 'Generating QR Sheet…' : `Print Selected Tags (${selectedIds.length})`}</span>
+          <span>{isPreparing ? 'Preparing Print Sheet…' : `Print Selected Tags (${selectedIds.length})`}</span>
         </button>
       </div>
 
       {/* Preset Selector */}
-      <div className="space-y-2 no-print">
+      <div className="space-y-2.5 no-print">
         <h2 className="text-xs font-extrabold uppercase tracking-widest text-slate-400">
           1. Select Physical Print Layout Preset
         </h2>
@@ -136,14 +134,14 @@ export function QrStudioClient({
             onClick={() => setPreset('shelf_tag')}
             className={`flex flex-col items-start gap-1.5 rounded-2xl border p-4 text-left transition-all ${
               preset === 'shelf_tag'
-                ? 'border-[var(--lime-base)] bg-[var(--lime-base)]/15 text-white'
-                : 'border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700'
+                ? 'border-emerald-500 bg-emerald-50 text-slate-900 dark:border-[var(--lime-base)] dark:bg-slate-900 dark:text-white shadow-sm'
+                : 'border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:border-slate-300'
             }`}
           >
-            <Tag size={18} className={preset === 'shelf_tag' ? 'text-[var(--lime-base)]' : 'text-slate-400'} />
+            <Tag size={18} className={preset === 'shelf_tag' ? 'text-emerald-600 dark:text-[var(--lime-base)]' : 'text-slate-400'} />
             <div>
-              <p className="font-extrabold text-xs text-white">Shelf Tag (3.5&quot; x 2&quot;)</p>
-              <p className="text-[10px] text-slate-400">Standard supermarket shelf tag</p>
+              <p className="font-extrabold text-xs text-slate-900 dark:text-white">Shelf Tag (Large 4.2&quot;)</p>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400">Supermarket shelf price tag</p>
             </div>
           </button>
 
@@ -152,14 +150,14 @@ export function QrStudioClient({
             onClick={() => setPreset('sticker')}
             className={`flex flex-col items-start gap-1.5 rounded-2xl border p-4 text-left transition-all ${
               preset === 'sticker'
-                ? 'border-purple-500 bg-purple-950/40 text-purple-200'
-                : 'border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700'
+                ? 'border-purple-500 bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-200 shadow-sm'
+                : 'border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:border-slate-300'
             }`}
           >
-            <Sparkles size={18} className={preset === 'sticker' ? 'text-purple-400' : 'text-slate-400'} />
+            <Sparkles size={18} className={preset === 'sticker' ? 'text-purple-600 dark:text-purple-400' : 'text-slate-400'} />
             <div>
-              <p className="font-extrabold text-xs text-white">Packaging Sticker</p>
-              <p className="text-[10px] text-slate-400">1.5&quot; x 1.5&quot; Stick-on tag</p>
+              <p className="font-extrabold text-xs text-slate-900 dark:text-white">Packaging Sticker</p>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400">2.2&quot; x 2.4&quot; Stick-on tag</p>
             </div>
           </button>
 
@@ -168,14 +166,14 @@ export function QrStudioClient({
             onClick={() => setPreset('table_standee')}
             className={`flex flex-col items-start gap-1.5 rounded-2xl border p-4 text-left transition-all ${
               preset === 'table_standee'
-                ? 'border-amber-500 bg-amber-950/40 text-amber-200'
-                : 'border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700'
+                ? 'border-amber-500 bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 shadow-sm'
+                : 'border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:border-slate-300'
             }`}
           >
-            <Utensils size={18} className={preset === 'table_standee' ? 'text-amber-400' : 'text-slate-400'} />
+            <Utensils size={18} className={preset === 'table_standee' ? 'text-amber-600 dark:text-amber-400' : 'text-slate-400'} />
             <div>
-              <p className="font-extrabold text-xs text-white">Table Standee (A6)</p>
-              <p className="text-[10px] text-slate-400">Restaurant tent card</p>
+              <p className="font-extrabold text-xs text-slate-900 dark:text-white">Table Standee (A6 Tent)</p>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400">Restaurant & event standee</p>
             </div>
           </button>
 
@@ -184,14 +182,14 @@ export function QrStudioClient({
             onClick={() => setPreset('batch_a4')}
             className={`flex flex-col items-start gap-1.5 rounded-2xl border p-4 text-left transition-all ${
               preset === 'batch_a4'
-                ? 'border-blue-500 bg-blue-950/40 text-blue-200'
-                : 'border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700'
+                ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/40 text-blue-900 dark:text-blue-200 shadow-sm'
+                : 'border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:border-slate-300'
             }`}
           >
-            <Grid size={18} className={preset === 'batch_a4' ? 'text-blue-400' : 'text-slate-400'} />
+            <Grid size={18} className={preset === 'batch_a4' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400'} />
             <div>
-              <p className="font-extrabold text-xs text-white">A4 Batch Grid</p>
-              <p className="text-[10px] text-slate-400">Multi-tag paper sheet</p>
+              <p className="font-extrabold text-xs text-slate-900 dark:text-white">A4 Batch Grid</p>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400">Multi-tag paper sheet</p>
             </div>
           </button>
         </div>
@@ -205,19 +203,19 @@ export function QrStudioClient({
           </h2>
           <button
             onClick={toggleSelectAll}
-            className="text-xs font-bold text-[var(--lime-base)] underline"
+            className="text-xs font-bold text-emerald-700 dark:text-[var(--lime-base)] underline"
           >
             {selectedIds.length === catalogItems.length ? 'Deselect All' : 'Select All'}
           </button>
         </div>
 
         {catalogItems.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-slate-800 p-8 text-center bg-slate-950/60 space-y-3">
-            <FirstQRBatchIllustration className="mx-auto w-56 h-40 rounded-2xl" />
-            <p className="text-sm font-bold text-white">No catalog items available for printing</p>
-            <p className="text-xs text-slate-400">Add products or menu items to your business catalog first.</p>
+          <div className="rounded-3xl border border-dashed border-slate-200 p-8 text-center bg-white dark:border-slate-800 dark:bg-slate-900 space-y-3 shadow-sm">
+            <FirstQRBatchIllustration className="mx-auto w-56 h-36 rounded-2xl" />
+            <p className="text-sm font-bold text-slate-900 dark:text-white">No catalog items available for printing</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Add products or menu items to your business catalog first.</p>
             <Link
-              href={`/businesses/${businessId}/catalog-items/new`}
+              href={`/businesses/${business.id}/catalog-items/new`}
               className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--lime-base)] px-4 py-2 text-xs font-black text-black"
             >
               + Add First Catalog Item
@@ -226,51 +224,51 @@ export function QrStudioClient({
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-96 overflow-y-auto pr-1">
             {catalogItems.map((item) => {
-            const isSelected = selectedIds.includes(item.id)
-            const existingQr = existingQrCodes.find(
-              (q) => q.target_id === item.id && q.status === 'active'
-            )
+              const isSelected = selectedIds.includes(item.id)
+              const existingQr = existingQrCodes.find(
+                (q) => q.target_id === item.id && q.status === 'active'
+              )
 
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => toggleSelect(item.id)}
-                className={`flex items-center justify-between rounded-2xl border p-4 text-left transition-all ${
-                  isSelected
-                    ? 'border-[var(--lime-base)] bg-slate-900 text-white'
-                    : 'border-slate-800 bg-slate-950/60 text-slate-400 opacity-60'
-                }`}
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  {isSelected ? (
-                    <CheckSquare size={20} className="text-[var(--lime-base)] shrink-0" />
-                  ) : (
-                    <Square size={20} className="text-slate-500 shrink-0" />
-                  )}
-                  <div className="min-w-0">
-                    <p className="font-extrabold text-xs text-white truncate">{item.name}</p>
-                    <p className="text-[10px] text-slate-400 font-mono">
-                      {item.base_price !== null ? `₦${item.base_price.toLocaleString()}` : 'Price on request'}
-                    </p>
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => toggleSelect(item.id)}
+                  className={`flex items-center justify-between rounded-2xl border p-4 text-left transition-all ${
+                    isSelected
+                      ? 'border-emerald-500 bg-emerald-50 text-slate-900 dark:border-[var(--lime-base)] dark:bg-slate-900 dark:text-white shadow-sm font-semibold'
+                      : 'border-slate-200/80 bg-white text-slate-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400 opacity-75 hover:opacity-100 hover:border-slate-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    {isSelected ? (
+                      <CheckSquare size={20} className="text-emerald-600 dark:text-[var(--lime-base)] shrink-0" />
+                    ) : (
+                      <Square size={20} className="text-slate-400 shrink-0" />
+                    )}
+                    <div className="min-w-0">
+                      <p className="font-extrabold text-xs text-slate-900 dark:text-white truncate">{item.name}</p>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
+                        {item.base_price !== null ? `₦${item.base_price.toLocaleString()}` : 'Price on request'}
+                      </p>
+                    </div>
                   </div>
-                </div>
 
-                {existingQr && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-slate-800 px-2 py-0.5 text-[9px] font-bold text-slate-300">
-                    <ScanLine size={10} className="text-[var(--lime-base)]" />
-                    <span>{existingQr.code}</span>
-                  </span>
-                )}
-              </button>
-            )
-          })}
-        </div>
+                  {existingQr && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-[9px] font-bold text-slate-600 dark:text-slate-300">
+                      <ScanLine size={10} className="text-emerald-600 dark:text-[var(--lime-base)]" />
+                      <span>{existingQr.code}</span>
+                    </span>
+                  )}
+                </button>
+              )
+            })}
+          </div>
         )}
       </div>
 
       {/* Live Print Template Preview */}
-      <div className="space-y-3 pt-4 border-t border-slate-800">
+      <div className="space-y-3 pt-4 border-t border-slate-200 dark:border-slate-800">
         <h2 className="text-xs font-extrabold uppercase tracking-widest text-slate-400 no-print">
           3. Print Sheet Layout Preview
         </h2>
@@ -280,7 +278,8 @@ export function QrStudioClient({
             name: i.name,
             price: i.base_price,
             code: existingQrCodes.find((q) => q.target_id === i.id)?.code ?? 'ci_preview',
-            businessName,
+            businessName: business.name,
+            categoryName: (i as unknown as { category?: { name: string } })?.category?.name ?? null,
           }))}
           preset={preset}
         />

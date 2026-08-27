@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ArrowLeft, TrendingUp } from 'lucide-react'
+import { TrendingUp } from 'lucide-react'
 import { requireBusinessView } from '@/lib/auth/require-access'
-import { getBusinessById } from '@/features/businesses/queries'
+import { getStorefrontBusinessById } from '@/features/storefront/queries'
 import { getScanAnalyticsSummary } from '@/features/analytics/queries'
 import { AnalyticsOverview } from '@/features/analytics/components/analytics-overview'
+import { BusinessAdminNav } from '@/components/admin/business-admin-nav'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,32 +22,28 @@ export default async function AnalyticsPage({
   const { businessId } = await params
   await requireBusinessView(businessId)
 
-  const business = await getBusinessById(businessId)
+  const business = await getStorefrontBusinessById(businessId)
   if (!business) notFound()
 
   const summary = await getScanAnalyticsSummary(businessId)
 
   return (
-    <div className="mx-auto max-w-4xl p-6 sm:p-8 space-y-6">
-      <div>
-        <Link
-          href={`/businesses/${businessId}`}
-          className="mb-2 inline-flex items-center gap-1 text-xs font-bold text-slate-400 hover:text-white transition-colors"
-        >
-          <ArrowLeft size={14} />
-          <span>Back to {business.name}</span>
-        </Link>
+    <div className="mx-auto max-w-5xl p-4 sm:p-8 space-y-6 text-slate-900 dark:text-white">
+      {/* Unified Business Admin Header */}
+      <BusinessAdminNav business={business} currentSection="analytics" />
 
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--lime-base)] text-black">
-            <TrendingUp size={20} />
-          </div>
-          <div>
-            <h1 className="text-2xl font-black tracking-tight text-white">In-Store Scan Analytics</h1>
-            <p className="text-xs text-slate-400">
-              Customer price tag scans and product traction for {business.name}.
-            </p>
-          </div>
+      {/* Analytics Page Title Header */}
+      <div className="flex items-center gap-3 border-b border-slate-200 pb-4 dark:border-slate-800">
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
+          <TrendingUp size={22} />
+        </div>
+        <div>
+          <h1 className="text-xl font-black tracking-tight text-slate-900 dark:text-white">
+            In-Store Scan Analytics
+          </h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Customer price tag scan velocity and top scanned products for {business.name}.
+          </p>
         </div>
       </div>
 
