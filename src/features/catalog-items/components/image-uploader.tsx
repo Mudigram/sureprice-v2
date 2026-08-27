@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { attachCatalogItemImage, removeCatalogItemImage } from '../media-actions'
 import { CATALOG_MEDIA_BUCKET, getCatalogMediaPublicUrl } from '@/lib/supabase/storage'
 import type { Media } from '@/features/media/types'
+import { MediaUploadEmptyIllustration } from '@/components/illustrations'
 
 export function ImageUploader({
   businessId,
@@ -55,22 +56,29 @@ export function ImageUploader({
   }
 
   return (
-    <div>
-      <label className="block text-sm font-medium text-foreground">Images ({images.length}/2)</label>
+    <div className="space-y-3">
+      <label className="block text-sm font-bold text-foreground">Catalog Item Photos ({images.length}/2)</label>
 
-      <div className="mt-2 flex gap-3">
+      {images.length === 0 && (
+        <div className="rounded-2xl border border-dashed border-border p-4 text-center bg-muted/20 flex flex-col items-center gap-2">
+          <MediaUploadEmptyIllustration className="w-40 h-28 rounded-xl" />
+          <p className="text-xs text-muted-foreground">No photos uploaded yet. High-resolution item photos increase shopper trust during scans.</p>
+        </div>
+      )}
+
+      <div className="flex gap-3">
         {images.map((media) => (
           <div key={media.id} className="relative">
             <img
               src={getCatalogMediaPublicUrl(media.storage_path)}
               alt={media.alt_text ?? ''}
-              className="h-24 w-24 rounded-lg border border-border object-cover"
+              className="h-24 w-24 rounded-xl border border-border object-cover"
             />
             <button
               type="button"
               onClick={() => handleDelete(media)}
               disabled={isPending}
-              className="absolute -right-2 -top-2 rounded-full bg-destructive px-1.5 text-xs text-white"
+              className="absolute -right-2 -top-2 rounded-full bg-destructive px-1.5 text-xs text-white shadow-md"
             >
               ✕
             </button>
@@ -78,8 +86,8 @@ export function ImageUploader({
         ))}
 
         {canUploadMore && (
-          <label className="flex h-24 w-24 cursor-pointer items-center justify-center rounded-lg border border-dashed border-input text-sm text-muted-foreground hover:border-ring">
-            {isUploading ? '…' : '+ Add'}
+          <label className="flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-input bg-background text-xs font-bold text-muted-foreground transition-colors hover:border-ring hover:bg-muted/40">
+            <span>{isUploading ? 'Uploading…' : '+ Add Photo'}</span>
             <input
               type="file"
               accept="image/jpeg,image/png,image/webp"
@@ -91,7 +99,7 @@ export function ImageUploader({
         )}
       </div>
 
-      {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
+      {error && <p className="mt-2 text-xs font-bold text-destructive">{error}</p>}
     </div>
   )
 }

@@ -1,5 +1,11 @@
 import { createClient } from '@/lib/supabase/server'
+import { assertEntityStatus } from '@/lib/types/status'
 import type { Category } from './types'
+
+function toCategory(row: Category): Category {
+  assertEntityStatus(row.status, 'categories.status')
+  return row
+}
 
 export async function getCategoriesForBusiness(
   businessId: string,
@@ -17,5 +23,5 @@ export async function getCategoriesForBusiness(
 
   const { data, error } = await query
   if (error) throw error
-  return data ?? []
+  return (data ?? []).map(toCategory)
 }

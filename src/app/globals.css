@@ -186,3 +186,74 @@
 .animate-scan-laser {
   animation: scan-laser 2.2s ease-in-out infinite;
 }
+
+/* ─── Bottom Sheet Animations ─────────────────────────────────────────── */
+
+@keyframes sheet-slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes sheet-slide-down {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes overlay-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes overlay-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.animate-sheet-up {
+  animation: sheet-slide-up 0.35s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+
+.animate-sheet-down {
+  animation: sheet-slide-down 0.28s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+
+.animate-overlay-in {
+  animation: overlay-fade-in 0.25s ease-out forwards;
+}
+
+.animate-overlay-out {
+  animation: overlay-fade-out 0.2s ease-out forwards;
+}
+
+/* ─── Restaurant Welcome Overlay ──────────────────────────────────────── */
+
+@keyframes welcome-fade-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+.animate-welcome-out {
+  animation: welcome-fade-out 0.5s ease-out forwards;
+}

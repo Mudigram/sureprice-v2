@@ -1,36 +1,45 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { getQrCodeByCode } from '@/features/qr-codes/queries'
-import { recordScanAndIncrement } from '@/features/qr-codes/actions'
-import { getStorefrontBusinessById } from '@/features/storefront/queries'
+import { getBusinessSlugById } from '@/features/businesses/queries'
+import { recordScanAndIncrement } from '@/features/scan-events/actions'
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ code: string }> }
 ) {
   const { code } = await params
 
+  // Looks up active QR code (filters status = 'active')
   const qrCode = await getQrCodeByCode(code).catch(() => null)
 
-  if (!qrCode || qrCode.status !== 'active') {
-    return new NextResponse('QR code not found or inactive.', { status: 404 })
+  if (!qrCode) {
+    return NextResponse.redirect(new URL('/not-found', request.url))
   }
 
-  const business = await getStorefrontBusinessById(qrCode.business_id).catch(() => null)
-  if (!business) {
-    return new NextResponse('Business not found.', { status: 404 })
+  // Awaited deliberately to ensure reliable scan tracking without edge runtime dropouts
+  await recordScanAndIncrement(qrCode.id, qrCode.business_id).catch(() => undefined)
+
+  const destination = await resolveDestination(qrCode)
+  return NextResponse.redirect(new URL(destination, request.url))
+}
+
+async function resolveDestination(qrCode: {
+  target_type: string
+  target_id: string
+  business_id: string
+}): Promise<string> {
+  const slug = await getBusinessSlugById(qrCode.business_id)
+  if (!slug) return '/not-found'
+
+  switch (qrCode.target_type) {
+    case 'catalog_item':
+      return `/s/${slug}/${qrCode.target_id}`
+    case 'business':
+    case 'location':
+      return `/s/${slug}`
+    case 'collection':
+      return `/s/${slug}?collection=${qrCode.target_id}`
+    default:
+      return '/not-found'
   }
-
-  // Build the redirect path based on target type
-  let redirectPath: string
-  if (qrCode.target_type === 'catalog_item') {
-    redirectPath = `/s/${business.slug}/${qrCode.target_id}`
-  } else {
-    // storefront or business QR → goes to the storefront landing
-    redirectPath = `/s/${business.slug}`
-  }
-
-  // Fire-and-forget scan recording — must never block the redirect
-  recordScanAndIncrement(qrCode.id, qrCode.business_id).catch(() => undefined)
-
-  return NextResponse.redirect(new URL(redirectPath, request.url), { status: 307 })
 }

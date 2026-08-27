@@ -38,14 +38,29 @@ export function DynamicHeader() {
     return null
   }
 
+  const handleBack = () => {
+    if (typeof window !== 'undefined' && window.history.length <= 2) {
+      // Direct QR code deep-link landing fallback
+      const parts = pathname.split('/')
+      if (parts.length >= 3 && parts[1] === 's') {
+        router.push(`/s/${parts[2]}`)
+        return
+      }
+      router.push('/stores')
+      return
+    }
+    router.back()
+  }
+
   return (
     <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-gray-100 bg-white/80 px-5 shadow-sm backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-950/80">
       {/* Left: Back or brand logo */}
       {!isHome ? (
         <button
-          onClick={() => router.back()}
+          onClick={handleBack}
           id="header-back-btn"
-          className="flex items-center gap-1 font-bold text-[var(--lime-dark)] transition-opacity hover:opacity-80"
+          aria-label="Go Back"
+          className="flex items-center gap-1 font-bold text-[var(--lime-dark)] transition-opacity hover:opacity-80 active:scale-95"
         >
           <ChevronLeft size={22} strokeWidth={2.5} />
           <span className="text-sm font-semibold">Back</span>

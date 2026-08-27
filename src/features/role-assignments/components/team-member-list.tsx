@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Crown, Briefcase, MapPin, Trash2, UserCheck, ShieldAlert, Mail } from 'lucide-react'
 import type { TeamMember } from '../types'
 import { revokeRoleAction } from '../actions'
+import { InviteTeammateIllustration } from '@/components/illustrations'
 
 interface TeamMemberListProps {
   members: TeamMember[]
@@ -29,12 +30,14 @@ export function TeamMemberList({ members, canManage = true }: TeamMemberListProp
 
   if (members.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-gray-200 py-12 text-center dark:border-zinc-800">
-        <UserCheck size={36} className="text-slate-400" />
-        <p className="mt-3 text-base font-extrabold text-slate-900 dark:text-zinc-100">No team members assigned</p>
-        <p className="mt-1 text-xs text-slate-400 dark:text-zinc-400">
-          Assign business admins or location managers to delegate store management.
-        </p>
+      <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-gray-200 p-8 text-center dark:border-zinc-800 space-y-4">
+        <InviteTeammateIllustration className="w-56 h-40 rounded-2xl" />
+        <div>
+          <p className="text-base font-extrabold text-slate-900 dark:text-zinc-100">No team members assigned</p>
+          <p className="mt-1 text-xs text-slate-400 dark:text-zinc-400">
+            Assign business admins or location managers to delegate store management.
+          </p>
+        </div>
       </div>
     )
   }

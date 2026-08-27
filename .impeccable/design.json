@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-04T21:35:00.000Z",
+  "title": "Design System: SurePrice V2",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Neon Lime Action",
+        "canonical": "#13ec5b",
+        "tonalRamp": ["#03260d", "#064b1a", "#0a7127", "#0d9634", "#10bb41", "#13ec5b", "#4ff282", "#8bf7aa", "#c7fbd5"]
+      },
+      "neutral-bg": {
+        "role": "neutral",
+        "displayName": "Midnight Slate",
+        "canonical": "#020617",
+        "tonalRamp": ["#020617", "#0f172a", "#1e293b", "#334155", "#475569", "#64748b", "#94a3b8", "#cbd5e1", "#f8fafc"]
+      },
+      "accent-purple": {
+        "role": "tertiary",
+        "displayName": "Electric Pop-Up Purple",
+        "canonical": "#9333ea",
+        "tonalRamp": ["#1e0538", "#3b0a70", "#581c87", "#6b21a8", "#7e22ce", "#9333ea", "#a855f7", "#c084fc", "#e9d5ff"]
+      },
+      "accent-amber": {
+        "role": "secondary",
+        "displayName": "Amber Dining Warmth",
+        "canonical": "#d97706",
+        "tonalRamp": ["#2e1500", "#522600", "#78350f", "#92400e", "#b45309", "#d97706", "#f59e0b", "#fbbf24", "#fef3c7"]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display Hero",
+        "purpose": "Public scan price tag displays and hero headlines."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Page titles and major section headers."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Store names, product item titles, and card headers."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Descriptions, step workflows, and helper text."
+      },
+      "label": {
+        "displayName": "Label Uppercase",
+        "purpose": "Badges, venue type indicators, and metric titles."
+      }
+    },
+    "shadows": [
+      {
+        "name": "neon-glow",
+        "value": "0 10px 25px -5px rgba(19, 236, 91, 0.25)",
+        "purpose": "Primary action triggers and active scan button glow."
+      },
+      {
+        "name": "vendor-glow",
+        "value": "0 10px 25px -5px rgba(147, 51, 234, 0.3)",
+        "purpose": "Pop-up event vendor pass buttons and fast-pass banners."
+      },
+      {
+        "name": "deep-card",
+        "value": "0 25px 50px -12px rgba(0, 0, 0, 0.8)",
+        "purpose": "Store cards, mock phone previews, and modal dialogs."
+      }
+    ],
+    "motion": [
+      {
+        "name": "active-press",
+        "value": "transform scale(0.95) transition 150ms ease-out",
+        "purpose": "Tactile feedback on button tap."
+      },
+      {
+        "name": "scan-laser-beam",
+        "value": "scan-laser 2.2s ease-in-out infinite",
+        "purpose": "Simulated optical laser line scanning across physical tag."
+      }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Neon Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Primary action button with neon lime background and tactile active scale.",
+      "html": "<button class=\"ds-btn-lime\"><span>Sign In to Dashboard</span> →</button>",
+      "css": ".ds-btn-lime { background: #13ec5b; color: #000; font-family: Inter, sans-serif; font-size: 12px; font-weight: 900; border-radius: 16px; padding: 14px 24px; border: none; cursor: pointer; box-shadow: 0 10px 25px -5px rgba(13, 236, 91, 0.25); transition: all 0.2s; display: inline-flex; items-center: center; gap: 8px; } .ds-btn-lime:hover { background: #0dcf4d; transform: translateY(-1px); } .ds-btn-lime:active { transform: scale(0.95); }"
+    },
+    {
+      "name": "Pop-Up Vendor Pass Button",
+      "kind": "button",
+      "refersTo": "button-purple",
+      "description": "Electric purple CTA button for pop-up event vendors.",
+      "html": "<button class=\"ds-btn-purple\"><span>Request Event Pass</span></button>",
+      "css": ".ds-btn-purple { background: #9333ea; color: #fff; font-family: Inter, sans-serif; font-size: 12px; font-weight: 900; border-radius: 16px; padding: 14px 24px; border: none; cursor: pointer; box-shadow: 0 10px 25px -5px rgba(147, 51, 234, 0.3); transition: all 0.2s; } .ds-btn-purple:hover { background: #7e22ce; } .ds-btn-purple:active { transform: scale(0.95); }"
+    },
+    {
+      "name": "Verified Price Tag Badge",
+      "kind": "chip",
+      "refersTo": "badge-verified",
+      "description": "Verified price pill badge displayed on shopper storefront pages.",
+      "html": "<span class=\"ds-badge-verified\">✓ Verified Price (₦)</span>",
+      "css": ".ds-badge-verified { background: rgba(19, 236, 91, 0.15); color: #13ec5b; border: 1px solid rgba(19, 236, 91, 0.3); font-family: Inter, sans-serif; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 10px; border-radius: 9999px; display: inline-flex; align-items: center; }"
+    },
+    {
+      "name": "Dark Store Card",
+      "kind": "card",
+      "refersTo": "card-default",
+      "description": "Glassmorphic store card container with dark slate backdrop.",
+      "html": "<div class=\"ds-card-store\"><h3>Spar Supermarket VI</h3><p class=\"ds-price\">₦1,250</p></div>",
+      "css": ".ds-card-store { background: #0f172a; border: 1px solid #334155; border-radius: 24px; padding: 24px; color: #f8fafc; font-family: Inter, sans-serif; } .ds-card-store h3 { font-size: 18px; font-weight: 900; margin: 0 0 8px 0; } .ds-price { font-size: 28px; font-weight: 900; color: #13ec5b; margin: 0; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Electric Marketplace",
+    "overview": "SurePrice V2 couples deep physical retail utility with high-contrast electric aesthetic clarity. Built as an in-store price tag and menu layer for physical supermarkets, dining venues, and temporary event stalls across Nigeria, the design uses a midnight backdrop (#020617) punctuated by vibrant neon lime (#13ec5b), electric purple, and warm amber accents.",
+    "keyCharacteristics": [
+      "Deep Slate Canvas (#020617 / slate-950)",
+      "Neon Lime Triggers (#13ec5b / var(--lime-base))",
+      "Venue-Differentiated Aesthetics (Retail, Restaurant, Pop-Up)",
+      "Glassmorphism & Depth (backdrop-blur-xl & 1px borders)"
+    ],
+    "rules": [
+      { "name": "The Rarity Rule", "body": "Neon lime (#13ec5b) is used on ≤10% of any given screen. Its high-chroma contrast is reserved for primary CTAs, price figures, and live status signals.", "section": "colors" },
+      { "name": "The Naira Prominence Rule", "body": "Price values always display the Nigerian Naira symbol (₦) formatted in bold display scale (font-black) with zero ambiguity.", "section": "typography" },
+      { "name": "The Flat-By-Default Rule", "body": "Cards rest flat with subtle 1px border strokes (border-slate-800). Elevated glowing shadows appear strictly on primary action triggers or interactive hover states.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do format all prices in Nigerian Naira (₦) with explicit commas (e.g., ₦1,250).",
+      "Do use rounded-3xl for major outer containers and rounded-2xl for internal form inputs.",
+      "Do maintain a strict dark mode aesthetic with slate-950 as the root application canvas.",
+      "Do ensure all interactive buttons have explicit active scale animation (active:scale-95)."
+    ],
+    "donts": [
+      "Don't use plain generic colors; use tailored dark slates, neon lime (#13ec5b), electric purple, and warm amber.",
+      "Don't display price tags in USD ($) or non-Naira currencies.",
+      "Don't force app downloads on public scan resolution pages (/q/[code]).",
+      "Don't over-use neon lime accenting on secondary text or non-interactive borders."
+    ]
+  }
+}

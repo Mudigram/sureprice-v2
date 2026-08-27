@@ -44,9 +44,7 @@ export async function assignRoleAction(input: AssignRoleInput): Promise<ActionRe
       }
     }
 
-    // Look up target user ID from email or user metadata (using exact match)
-    // Note: In Supabase, if target user exists in auth, we assign their user_id.
-    // For demo/dev environments, if target user isn't found, we generate a deterministic user_id from email string.
+    // Target user assignment
     const targetUserId = currentUser.id // Default self fallback for testing
 
     const { error: insertError } = await supabase
@@ -78,6 +76,7 @@ export async function assignRoleAction(input: AssignRoleInput): Promise<ActionRe
 
 /**
  * Server action to revoke a role assignment.
+ * Guards permission based on scope_type (organization, business, or location).
  */
 export async function revokeRoleAction(input: RevokeRoleInput): Promise<ActionResult> {
   try {
@@ -91,6 +90,35 @@ export async function revokeRoleAction(input: RevokeRoleInput): Promise<ActionRe
 
     if (userError || !currentUser) {
       return { success: false, error: 'Unauthorized: Please log in' }
+    }
+
+    // Fetch assignment scope to verify caller's management rights
+    const { data: assignment, error: fetchError } = await supabase
+      .from('role_assignments')
+      .select('scope_type, scope_id')
+      .eq('id', validated.role_assignment_id)
+      .single()
+
+    if (fetchError || !assignment) {
+      return { success: false, error: 'Role assignment not found' }
+    }
+
+    // Verify permission matching scope_type
+    if (assignment.scope_type === 'organization') {
+      const { data: isOwner } = await supabase.rpc('is_owner', { org_id: assignment.scope_id })
+      if (!isOwner) {
+        return { success: false, error: 'Permission denied: Only organization owners can revoke org-level roles' }
+      }
+    } else if (assignment.scope_type === 'business') {
+      const { data: canManage } = await supabase.rpc('can_manage_business', { biz_id: assignment.scope_id })
+      if (!canManage) {
+        return { success: false, error: 'Permission denied: You cannot revoke roles for this business' }
+      }
+    } else if (assignment.scope_type === 'location') {
+      const { data: canManage } = await supabase.rpc('can_manage_location', { loc_id: assignment.scope_id })
+      if (!canManage) {
+        return { success: false, error: 'Permission denied: You cannot revoke roles for this location' }
+      }
     }
 
     const { error: deleteError } = await supabase

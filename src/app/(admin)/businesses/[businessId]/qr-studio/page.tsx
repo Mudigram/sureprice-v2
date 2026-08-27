@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { requireBusinessManage } from '@/lib/auth/require-access'
-import { getBusinessById } from '@/features/businesses/queries'
+import { getStorefrontBusinessById } from '@/features/storefront/queries'
 import { getCatalogItemsForBusiness } from '@/features/catalog-items/queries'
 import { getQrCodesForBusiness } from '@/features/qr-codes/queries'
 import { QrStudioClient } from './qr-studio-client'
@@ -21,7 +21,7 @@ export default async function QrStudioPage({
   const { businessId } = await params
   await requireBusinessManage(businessId)
 
-  const business = await getBusinessById(businessId)
+  const business = await getStorefrontBusinessById(businessId)
   if (!business) notFound()
 
   const [catalogItems, existingQrCodes] = await Promise.all([
@@ -31,8 +31,7 @@ export default async function QrStudioPage({
 
   return (
     <QrStudioClient
-      businessId={businessId}
-      businessName={business.name}
+      business={business}
       catalogItems={catalogItems}
       existingQrCodes={existingQrCodes}
     />

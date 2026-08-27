@@ -35,14 +35,14 @@ export default async function StoresPage() {
     <div className="min-h-screen px-5 pt-3">
       {/* Directory Title Block */}
       <div className="mb-4">
-        <p className="text-xs font-semibold uppercase tracking-widest text-[var(--lime-dark)]">
-          Partner Directory
-        </p>
-        <h1 className="mt-0.5 text-2xl font-black tracking-tight text-foreground">
-          Stores & Menus
+        <span className="inline-flex items-center gap-1 rounded-full bg-[var(--lime-base)]/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[var(--lime-base)] border border-[var(--lime-base)]/20">
+          Verified Directory
+        </span>
+        <h1 className="mt-1.5 text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+          Stores & Digital Menus
         </h1>
-        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-          Browse verified physical stores, restaurants, cafés and pop-up locations near you.
+        <p className="mt-1 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
+          Browse verified physical supermarkets, dining venues, cafés, and live pop-up locations.
         </p>
       </div>
 

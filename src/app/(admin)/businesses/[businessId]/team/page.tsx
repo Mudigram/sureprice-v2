@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { requireBusinessView } from '@/lib/auth/require-access'
-import { getBusinessById } from '@/features/businesses/queries'
+import { getStorefrontBusinessById } from '@/features/storefront/queries'
 import { getTeamMembersForBusiness, getScopeOptionsForOrg } from '@/features/role-assignments/queries'
 import { BusinessTeamClient } from './business-team-client'
 
@@ -20,7 +20,7 @@ export default async function BusinessTeamPage({
   const { businessId } = await params
   await requireBusinessView(businessId)
 
-  const business = await getBusinessById(businessId)
+  const business = await getStorefrontBusinessById(businessId)
   if (!business) notFound()
 
   const teamMembers = await getTeamMembersForBusiness(businessId)
@@ -28,8 +28,7 @@ export default async function BusinessTeamPage({
 
   return (
     <BusinessTeamClient
-      businessId={businessId}
-      businessName={business.name}
+      business={business}
       teamMembers={teamMembers}
       scopeOptions={scopeOptions}
     />

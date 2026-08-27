@@ -39,20 +39,21 @@ export async function getStorefrontBusiness(
 
   const { data, error } = await supabase
     .from('businesses')
-    .select('*, storefront:storefronts(*), locations:locations(*)')
+    .select('*, storefront:storefronts(*), locations:locations(*), media:media(*)')
     .eq('slug', slug)
     .eq('status', 'active')
     .maybeSingle()
 
   if (error) throw error
   if (!data) return null
-  const raw = data as typeof data & { storefront: unknown; locations: unknown }
+  const raw = data as typeof data & { storefront: unknown; locations: unknown; media?: unknown[] }
   const storefront = Array.isArray(raw.storefront)
     ? (raw.storefront[0] ?? null)
     : (raw.storefront ?? null)
   const locations = Array.isArray(raw.locations) ? raw.locations : []
+  const media = Array.isArray(raw.media) ? raw.media : []
 
-  return { ...data, storefront, locations } as StorefrontBusiness
+  return { ...data, storefront, locations, media } as StorefrontBusiness & { media?: unknown[] }
 }
 
 /**
@@ -127,20 +128,22 @@ export async function getPublishedBusinesses(): Promise<StorefrontBusiness[]> {
 
   const { data, error } = await supabase
     .from('businesses')
-    .select('*, storefront:storefronts(*), locations:locations(*)')
+    .select('*, storefront:storefronts(*), locations:locations(*), media:media(*), items:catalog_items(id, status)')
     .eq('status', 'active')
     .order('name', { ascending: true })
 
   if (error) throw error
   if (!data) return []
 
-  return (data as (typeof data[number] & { storefront: unknown; locations: unknown })[])
+  return (data as (typeof data[number] & { storefront: unknown; locations: unknown; media?: unknown[]; items?: { id: string; status: string }[] })[])
     .map((b) => {
       const storefront = Array.isArray(b.storefront)
         ? (b.storefront[0] ?? null)
         : (b.storefront ?? null)
       const locations = Array.isArray(b.locations) ? b.locations : []
-      return { ...b, storefront, locations } as StorefrontBusiness
+      const media = Array.isArray(b.media) ? b.media : []
+      const activeItems = Array.isArray(b.items) ? b.items.filter((i) => i.status === 'active') : []
+      return { ...b, storefront, locations, media, itemCount: activeItems.length } as StorefrontBusiness
     })
     .filter((b) => b.storefront?.is_published === true)
 }
@@ -174,3 +177,22 @@ export async function getFeaturedCatalogItems(limit = 6): Promise<(StorefrontIte
     return []
   }
 }
+
+/**
+ * Fetches the storefront configuration by business ID.
+ * Used on the admin storefront settings page.
+ */
+export async function getStorefrontByBusinessId(businessId: string) {
+  const supabase = createAnonClient()
+
+  const { data, error } = await supabase
+    .from('storefronts')
+    .select('*')
+    .eq('business_id', businessId)
+    .maybeSingle()
+
+  if (error) throw error
+  return data
+}
+
+

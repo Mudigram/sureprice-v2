@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Plus, Minus, Trash2, Package } from 'lucide-react'
 import type { StorefrontItem } from '@/features/storefront/types'
 import { useCart } from '@/context/CartContext'
+import { getCategorySvgIcon } from '@/components/icons'
 
 interface ProductRowProps {
   product: StorefrontItem
@@ -17,6 +18,19 @@ export function ProductRow({ product, businessSlug, businessName }: ProductRowPr
 
   const inList = isInList(product.id)
   const quantity = getQuantity(product.id)
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
+  const resolveUrl = (path: string | null | undefined): string => {
+    if (!path) return ''
+    if (path.startsWith('http://') || path.startsWith('https://')) return path
+    const cleanPath = path.startsWith('/') ? path.slice(1) : path
+    if (cleanPath.startsWith('storage/v1/object/public/')) {
+      return `${supabaseUrl}/${cleanPath}`
+    }
+    return `${supabaseUrl}/storage/v1/object/public/catalog-media/${cleanPath}`
+  }
+
+  const imageUrl = product.image_url ? resolveUrl(product.image_url) : null
 
   const handleToggle = () => {
     if (inList) {
@@ -72,17 +86,17 @@ export function ProductRow({ product, businessSlug, businessName }: ProductRowPr
 
       {/* Thumbnail */}
       <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-gray-100 bg-slate-50 dark:border-zinc-800 dark:bg-zinc-800">
-        {product.image_url ? (
+        {imageUrl ? (
           <Image
-            src={product.image_url}
+            src={imageUrl}
             alt={product.name}
             fill
             className="object-cover"
             sizes="56px"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-slate-400">
-            <Package size={20} />
+          <div className="flex h-full w-full items-center justify-center text-[var(--lime-dark)]">
+            {getCategorySvgIcon(product.category?.name ?? product.name, { size: 24 })}
           </div>
         )}
       </div>
