@@ -21,14 +21,23 @@ interface StoresClientProps {
 export function StoresClient({ businesses }: StoresClientProps) {
   const searchParams = useSearchParams()
   const initialType = searchParams.get('type') ?? 'all'
+  const initialQuery = searchParams.get('q') ?? searchParams.get('search') ?? ''
+  const initialArea = searchParams.get('area') ?? ''
 
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useState(initialQuery)
   const [selectedType, setSelectedType] = useState<string>(initialType)
+  const [selectedArea, setSelectedArea] = useState<string>(initialArea)
   const [openOnly, setOpenOnly] = useState<boolean>(false)
 
   useEffect(() => {
-    const param = searchParams.get('type')
-    if (param) setSelectedType(param)
+    const typeParam = searchParams.get('type')
+    if (typeParam) setSelectedType(typeParam)
+
+    const qParam = searchParams.get('q') ?? searchParams.get('search')
+    if (qParam !== null) setSearch(qParam)
+
+    const areaParam = searchParams.get('area')
+    if (areaParam !== null) setSelectedArea(areaParam)
   }, [searchParams])
 
   const filtered = businesses.filter((b) => {
@@ -37,6 +46,12 @@ export function StoresClient({ businesses }: StoresClientProps) {
       b.name.toLowerCase().includes(search.toLowerCase()) ||
       b.business_type.toLowerCase().includes(search.toLowerCase()) ||
       b.locations?.[0]?.address_text?.toLowerCase().includes(search.toLowerCase())
+
+    const matchesArea =
+      !selectedArea ||
+      selectedArea === 'all' ||
+      b.locations?.[0]?.address_text?.toLowerCase().includes(selectedArea.replace(/_/g, ' ').toLowerCase()) ||
+      b.locations?.[0]?.name?.toLowerCase().includes(selectedArea.replace(/_/g, ' ').toLowerCase())
 
     const matchesType =
       selectedType === 'all' ||
@@ -48,7 +63,7 @@ export function StoresClient({ businesses }: StoresClientProps) {
     const { isOpen } = computeIsOpen(hours)
     const matchesOpen = !openOnly || isOpen
 
-    return matchesSearch && matchesType && matchesOpen
+    return matchesSearch && matchesArea && matchesType && matchesOpen
   })
 
   const currentLabel = VENUE_FILTERS.find((f) => f.value === selectedType)?.label ?? 'All Businesses'
@@ -56,6 +71,7 @@ export function StoresClient({ businesses }: StoresClientProps) {
   const handleResetFilters = () => {
     setSearch('')
     setSelectedType('all')
+    setSelectedArea('')
     setOpenOnly(false)
   }
 

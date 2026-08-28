@@ -12,13 +12,13 @@ export function AdminMobileNav({ userEmail }: AdminMobileNavProps) {
   const pathname = usePathname()
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-800 bg-slate-950/90 backdrop-blur-xl sm:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200/90 bg-white/95 backdrop-blur-md sm:hidden shadow-lg">
       <div className="flex items-center justify-around py-2.5 px-2">
         <Link
           href="/dashboard"
           id="mobile-admin-dashboard"
           className={`flex flex-col items-center gap-1 transition-colors ${
-            pathname === '/dashboard' ? 'text-[var(--lime-base)] font-bold' : 'text-slate-400 hover:text-slate-200'
+            pathname === '/dashboard' ? 'text-emerald-700 font-black' : 'text-slate-500 hover:text-slate-900'
           }`}
         >
           <Building2 size={18} />
@@ -29,7 +29,7 @@ export function AdminMobileNav({ userEmail }: AdminMobileNavProps) {
           href="/dashboard/team"
           id="mobile-admin-team"
           className={`flex flex-col items-center gap-1 transition-colors ${
-            pathname.startsWith('/dashboard/team') ? 'text-[var(--lime-base)] font-bold' : 'text-slate-400 hover:text-slate-200'
+            pathname.startsWith('/dashboard/team') ? 'text-emerald-700 font-black' : 'text-slate-500 hover:text-slate-900'
           }`}
         >
           <Users size={18} />
@@ -39,3 +39,4 @@ export function AdminMobileNav({ userEmail }: AdminMobileNavProps) {
     </nav>
   )
 }
+

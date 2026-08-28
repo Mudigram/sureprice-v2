@@ -62,10 +62,10 @@ export function ProductRow({ product, businessSlug, businessName }: ProductRowPr
 
   return (
     <div
-      className={`flex items-center gap-4 border-b border-gray-100 p-4 last:border-0 transition-colors dark:border-zinc-800 ${
+      className={`flex items-center gap-4 border-b p-4 last:border-0 transition-colors backdrop-blur-xl ${
         inList
-          ? 'bg-green-50/60 dark:bg-green-950/20'
-          : 'bg-white hover:bg-slate-50 dark:bg-zinc-900 dark:hover:bg-zinc-800/60'
+          ? 'border-emerald-500/30 bg-emerald-950/20 dark:border-emerald-900/40 dark:bg-emerald-950/30'
+          : 'border-slate-200/80 bg-white hover:bg-slate-50/80 dark:border-slate-800/80 dark:bg-slate-900/90 dark:hover:bg-slate-850'
       }`}
     >
       {/* Left: Checkbox & Quantity */}
@@ -75,17 +75,17 @@ export function ProductRow({ product, businessSlug, businessName }: ProductRowPr
           checked={inList}
           onChange={handleToggle}
           id={`check-${product.id}`}
-          className="h-6 w-6 cursor-pointer rounded-md border-2 border-green-200 accent-[var(--lime-base)] transition-transform active:scale-95"
+          className="h-6 w-6 cursor-pointer rounded-lg border-2 border-slate-300 dark:border-slate-700 accent-[var(--lime-base)] transition-transform active:scale-95"
         />
         {inList && (
-          <span className="rounded-full border border-green-100 bg-white px-2 py-0.5 text-[10px] font-black text-[var(--lime-dark)] shadow-sm dark:bg-zinc-800">
+          <span className="rounded-full border border-emerald-500/30 bg-emerald-950/80 px-2 py-0.5 text-[10px] font-black text-[var(--lime-base)] shadow-sm">
             {quantity}
           </span>
         )}
       </div>
 
       {/* Thumbnail */}
-      <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-gray-100 bg-slate-50 dark:border-zinc-800 dark:bg-zinc-800">
+      <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-slate-200/80 bg-slate-100 dark:border-slate-800 dark:bg-slate-950">
         {imageUrl ? (
           <Image
             src={imageUrl}
@@ -95,7 +95,7 @@ export function ProductRow({ product, businessSlug, businessName }: ProductRowPr
             sizes="56px"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-[var(--lime-dark)]">
+          <div className="flex h-full w-full items-center justify-center text-[var(--lime-base)]">
             {getCategorySvgIcon(product.category?.name ?? product.name, { size: 24 })}
           </div>
         )}
@@ -107,16 +107,16 @@ export function ProductRow({ product, businessSlug, businessName }: ProductRowPr
         id={`product-row-link-${product.id}`}
         className="flex min-w-0 flex-1 flex-col gap-1"
       >
-        <h3 className="truncate text-sm font-bold leading-tight text-slate-900 dark:text-zinc-100">
+        <h3 className="truncate text-sm font-black leading-tight text-slate-900 dark:text-white hover:text-emerald-600 dark:hover:text-[var(--lime-base)] transition-colors">
           {product.name}
         </h3>
         <div className="flex items-center gap-2">
           {product.sku && (
-            <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-mono text-slate-500 dark:bg-zinc-800 dark:text-zinc-400">
+            <span className="rounded bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 text-[10px] font-mono font-bold text-slate-600 dark:text-slate-400">
               {product.sku}
             </span>
           )}
-          <span className="text-[10px] text-slate-400 dark:text-zinc-500">
+          <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">
             Updated {formattedDate}
           </span>
         </div>
@@ -125,31 +125,31 @@ export function ProductRow({ product, businessSlug, businessName }: ProductRowPr
       {/* Right: Quantity controls when in list, or price display */}
       <div className="flex min-w-[85px] shrink-0 flex-col items-end gap-1">
         {inList ? (
-          <div className="flex h-8 items-center overflow-hidden rounded-lg border border-green-100 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
+          <div className="flex h-8 items-center overflow-hidden rounded-xl border border-emerald-500/40 bg-emerald-50 shadow-sm dark:border-emerald-800 dark:bg-emerald-950/80">
             <button
               onClick={() => handleQtyChange(quantity - 1)}
               id={`dec-qty-${product.id}`}
-              className="px-2.5 text-slate-400 transition-colors hover:text-red-500"
+              className="px-2.5 text-emerald-700 transition-colors hover:text-rose-500 dark:text-emerald-300"
             >
-              {quantity === 1 ? <Trash2 size={13} /> : <Minus size={13} />}
+              {quantity === 1 ? <Trash2 size={13} className="text-rose-500" /> : <Minus size={13} />}
             </button>
-            <span className="w-4 text-center text-xs font-bold text-slate-900 dark:text-zinc-100">
+            <span className="w-4 text-center text-xs font-black text-emerald-900 dark:text-emerald-100">
               {quantity}
             </span>
             <button
               onClick={() => handleQtyChange(quantity + 1)}
               id={`inc-qty-${product.id}`}
-              className="px-2.5 text-slate-400 transition-colors hover:text-[var(--lime-dark)]"
+              className="px-2.5 text-emerald-700 transition-colors hover:text-emerald-900 dark:text-emerald-300"
             >
               <Plus size={13} />
             </button>
           </div>
         ) : (
           <div className="text-right">
-            <div className="text-base font-black text-slate-900 dark:text-zinc-100">
+            <div className="text-base font-black text-slate-900 dark:text-white">
               {product.base_price !== null ? `₦${product.base_price.toLocaleString()}` : '—'}
             </div>
-            <div className="text-[10px] font-black uppercase tracking-tighter text-green-600 dark:text-green-400">
+            <div className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-[var(--lime-base)]">
               Verified Price
             </div>
           </div>
@@ -158,3 +158,4 @@ export function ProductRow({ product, businessSlug, businessName }: ProductRowPr
     </div>
   )
 }
+

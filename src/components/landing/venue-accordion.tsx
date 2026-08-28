@@ -7,20 +7,11 @@ import { ButtonLink } from '@/components/ui/button'
 
 const VENUES = [
   {
-    id: 'retail',
-    icon: Store,
-    title: 'Supermarkets & Grocery Retail',
-    description:
-      'Durable acrylic shelf-edge tags displaying real-time prices in Naira (₦). Eliminates shelf-to-register price mismatches and speed up customer scanning.',
-    tag: 'Retail Suite',
-    metric: '99.8% Accuracy',
-  },
-  {
     id: 'dining',
     icon: Utensils,
     title: 'Restaurants & Dining Cafés',
     description:
-      'A6 table tent cards & QR stickers. Customers scan to view full digital menus with item photos, dietary badges, and live prices without downloading an app.',
+      'A6 table tent cards & QR stickers. Customers scan from dining tables in Bodija, Ring Road, or Victoria Island to view full digital menus with dish photos, dietary badges, and live prices without downloading an app.',
     tag: 'Dining Suite',
     metric: 'Zero App Download',
   },
@@ -29,23 +20,32 @@ const VENUES = [
     icon: Ticket,
     title: 'Pop-Up Vendors & Festival Stalls',
     description:
-      'Day-pass QR tags for temporary festival vendors, pop-up markets, and exhibition booths across Lagos, Abuja, and Port Harcourt.',
+      'Instant digital catalogs for weekend pop-up markets, food festivals, and exhibition booths across Ibadan, Lagos, and Abuja. Customers scan your booth standee and share items straight to WhatsApp.',
     tag: 'Event Pass',
-    metric: '5-Min Setup',
+    metric: '2-Min Setup',
+  },
+  {
+    id: 'retail',
+    icon: Store,
+    title: 'Supermarkets & Grocery Retail',
+    description:
+      'Durable acrylic shelf-edge tags displaying real-time prices in Naira (₦). Eliminates shelf-to-register price mismatches and speeds up customer shelf checkout.',
+    tag: 'Retail Suite',
+    metric: '99.8% Accuracy',
   },
   {
     id: 'boutique',
     icon: ShoppingBag,
     title: 'Boutique Fashion & Lifestyle',
     description:
-      'Elegant clothing tag stickers & glass display standees. Show full item specifications, color options, and verified prices in 1 camera tap.',
+      'Elegant clothing tag stickers & glass counter standees. Show full size availability, color options, and verified Naira prices in 1 camera tap.',
     tag: 'Fashion Suite',
     metric: 'Instant View',
   },
 ]
 
 export function VenueAccordion() {
-  const [activeId, setActiveId] = useState('retail')
+  const [activeId, setActiveId] = useState('dining')
 
   return (
     <section className="bg-[#031d14] text-white py-20 sm:py-28 relative overflow-hidden">
@@ -60,11 +60,11 @@ export function VenueAccordion() {
           </div>
 
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white leading-tight">
-            Seamless Price Transparency Across Nigeria
+            Tailored For Physical Venues Across Nigeria
           </h2>
 
           <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed">
-            Whether running a 500-item supermarket or a weekend festival food stall, SurePrice adapts to your physical workflow.
+            Whether running a bustling restaurant in Ibadan, a weekend food festival booth, or a 500-item supermarket, SurePrice adapts to your physical workflow in minutes.
           </p>
         </div>
 
@@ -92,28 +92,28 @@ export function VenueAccordion() {
 
                 <div className="space-y-1">
                   <p className="text-lg sm:text-xl font-black text-white">
-                    {activeId === 'retail' && 'Spaghetti Pasta 500g'}
-                    {activeId === 'dining' && 'Jollof Rice & Grilled Chicken'}
-                    {activeId === 'popups' && 'Craft Leather Tote Bag'}
+                    {activeId === 'retail' && 'Whole Wheat Bread 800g'}
+                    {activeId === 'dining' && 'Jollof Rice & Grilled Tilapia'}
+                    {activeId === 'popups' && 'Smokey Suya Special Combo'}
                     {activeId === 'boutique' && 'Vintage Oversized Blazer'}
                   </p>
                   <p className="text-3xl font-black text-[var(--lime-base)]">
-                    {activeId === 'retail' && '₦1,250'}
-                    {activeId === 'dining' && '₦4,500'}
-                    {activeId === 'popups' && '₦18,000'}
+                    {activeId === 'retail' && '₦2,500'}
+                    {activeId === 'dining' && '₦6,500'}
+                    {activeId === 'popups' && '₦4,500'}
                     {activeId === 'boutique' && '₦25,000'}
                   </p>
                 </div>
 
                 <div className="pt-2 border-t border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
-                  <span>Updated Today via Merchant App</span>
-                  <span className="font-mono text-emerald-400">0.3s camera load</span>
+                  <span>Updated via Merchant App</span>
+                  <span className="font-mono text-emerald-400">0.4s camera load</span>
                 </div>
               </div>
 
               {/* Bottom CTA Button */}
-              <ButtonLink href="/login" id="venue-section-cta" size="md" className="w-full">
-                <span>Merchant Sign In</span>
+              <ButtonLink href="/onboarding" id="venue-section-cta" size="md" className="w-full">
+                <span>Start Free Storefront Pilot</span>
               </ButtonLink>
             </div>
           </div>

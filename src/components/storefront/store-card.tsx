@@ -107,12 +107,12 @@ export function StoreCard({ business, className }: StoreCardProps) {
     <Link
       href={`/s/${business.slug}`}
       id={`store-card-${business.id}`}
-      className={`group relative flex flex-row items-center gap-3.5 overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-slate-300 active:scale-[0.99] dark:border-slate-800 dark:bg-slate-900 ${
+      className={`group relative flex flex-row items-center gap-3.5 overflow-hidden rounded-2xl border border-slate-200/90 bg-white/95 p-3 shadow-md backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:border-slate-300 active:scale-[0.98] dark:border-slate-800/90 dark:bg-slate-900/90 dark:hover:border-slate-700/90 ${
         className || 'w-full'
       }`}
     >
       {/* Left Image Thumbnail Container */}
-      <div className="relative h-28 w-28 sm:w-36 shrink-0 overflow-hidden rounded-xl bg-slate-100 border border-slate-200/60 dark:bg-slate-950 dark:border-slate-800">
+      <div className="relative h-28 w-28 sm:w-36 shrink-0 overflow-hidden rounded-xl bg-slate-100 border border-slate-200/80 dark:bg-slate-950 dark:border-slate-800">
         {displayImage ? (
           <Image
             src={displayImage}
@@ -150,7 +150,7 @@ export function StoreCard({ business, className }: StoreCardProps) {
         <div>
           {/* Top Line: Name & Open/Closed Status */}
           <div className="flex items-start justify-between gap-1.5">
-            <h3 className="truncate text-sm sm:text-base font-black text-slate-900 dark:text-white group-hover:text-[var(--lime-dark)] dark:group-hover:text-[var(--lime-base)] transition-colors">
+            <h3 className="truncate text-sm sm:text-base font-black text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-[var(--lime-base)] transition-colors">
               {business.name}
             </h3>
 
@@ -203,3 +203,4 @@ export function StoreCard({ business, className }: StoreCardProps) {
     </Link>
   )
 }
+

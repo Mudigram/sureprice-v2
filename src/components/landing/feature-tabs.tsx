@@ -10,12 +10,12 @@ const TABS = [
   {
     id: 'scan',
     number: '01',
-    title: 'Zero-Friction Camera Scan',
-    shortBody: 'Shoppers point native iOS/Android camera at shelf tag — instant verified price display.',
+    title: 'Zero-App Digital Menus & Tags',
+    shortBody: 'Customers point native phone camera at your table standee or shelf tag — instant high-res digital menu with zero download.',
     badge: 'Sub-Second Load',
     badgeTone: 'emerald',
     stat: '0.4s',
-    statLabel: 'Average scan load speed',
+    statLabel: 'Average scan-to-menu speed',
     imageSrc: '/images/zero_webview_friction.jpg',
     imageAlt: 'Zero Friction Mobile Scan Interface showing product details in Naira',
     highlights: ['No App Store Download', 'Works on any smartphone camera', 'Verified Naira (₦) Pricing'],
@@ -23,28 +23,28 @@ const TABS = [
   {
     id: 'sync',
     number: '02',
-    title: '1-Tap Cloud Price Sync',
-    shortBody: 'Business owners update item prices across multiple store locations instantly from mobile.',
+    title: '1-Tap Live Catalog & Price Updates',
+    shortBody: 'Add daily chef specials, toggle sold-out items, or adjust prices instantly from your mobile phone in seconds.',
     badge: 'Real-Time Sync',
     badgeTone: 'blue',
-    stat: '100%',
-    statLabel: 'Price accuracy across shelves',
+    stat: '1-Tap',
+    statLabel: 'Instant phone-to-tag updates',
     imageSrc: '/images/instant_price_update.jpg',
     imageAlt: 'Instant Real-Time Price Update on Merchant Mobile App',
-    highlights: ['Instant 1-Tap Price Updates', 'Multi-Store Network Sync', 'Eliminates Checkout Disputes'],
+    highlights: ['Instant 1-Tap Updates', 'Toggle Out-of-Stock Items', 'No Expensive Menu Reprints'],
   },
   {
     id: 'hardware',
     number: '03',
-    title: 'Durable Waterproof Hardware',
-    shortBody: 'Heavy-duty acrylic shelf tags and A6 restaurant tent cards built for high-traffic Nigerian stores.',
-    badge: 'Localized Hardware',
+    title: 'Ready-to-Print Hardware & WhatsApp Sharing',
+    shortBody: 'Print A6 table tent cards, acrylic standees, and shelf tags. Customers can share items directly to WhatsApp.',
+    badge: 'Hardware Ready',
     badgeTone: 'amber',
     stat: '₦0',
-    statLabel: 'Maintenance fee for tags',
+    statLabel: 'Hardware lock-in or POS fees',
     imageSrc: '/images/waterproof_qr_tags_naira.jpg',
     imageAlt: 'Durable Waterproof QR Tags displaying prices in Nigerian Naira',
-    highlights: ['High-Traffic Acrylic Shelf Tags', 'A6 Restaurant Table Standees', 'Outdoor Festival Stall Passes'],
+    highlights: ['A6 Restaurant Table Standees', 'Acrylic Shelf & Counter Tags', 'Direct WhatsApp Item Sharing'],
   },
 ]
 
@@ -57,11 +57,11 @@ export function FeatureTabs() {
       {/* Section Header */}
       <div className="text-center max-w-2xl mx-auto space-y-3 mb-12 sm:mb-16">
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 leading-tight">
-          How SurePrice Powers Physical Stores
+          How SurePrice Powers Physical Venues
         </h2>
 
         <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
-          Combining durable physical QR hardware tags with lightning-fast cloud price synchronization across Nigeria.
+          Bridging physical dining tables, pop-up stalls, and retail shelves with lightning-fast live digital menus across Ibadan and Nigeria.
         </p>
       </div>
 
@@ -173,3 +173,5 @@ export function FeatureTabs() {
     </section>
   )
 }
+
+

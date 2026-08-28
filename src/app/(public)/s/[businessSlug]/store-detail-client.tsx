@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import Link from 'next/link'
 import { useState, useMemo, useEffect } from 'react'
 import { DishCard } from '@/components/storefront/dish-card'
 import {
@@ -23,6 +24,10 @@ import {
   LayoutGrid,
   List,
   Star,
+  ClipboardList,
+  ArrowRight,
+  Store,
+  ChevronLeft,
 } from 'lucide-react'
 import { SearchInput } from '@/components/storefront/search-input'
 import { ProductRow } from '@/components/storefront/product-row'
@@ -56,27 +61,63 @@ function getCategoryGradient(name?: string): string {
   return 'from-emerald-500/15 via-teal-500/10 to-slate-950/30'
 }
 
-// ─── Ambient Banner (Non-blocking QR Scan Welcome) ────────────────────────
+// ─── Ambient Banner (Non-blocking QR Scan Welcome per Venue Type) ────────
 
-function RestaurantAmbientBanner({
+function VenueAmbientBanner({
   businessName,
+  businessType,
   onDismiss,
 }: {
   businessName: string
+  businessType: string
   onDismiss: () => void
 }) {
+  const isRestaurant = businessType === 'restaurant'
+  const isCafe = businessType === 'cafe'
+  const isEvent = businessType === 'popup_vendor' || businessType === 'event_vendor'
+
+  const bannerConfig = isRestaurant
+    ? {
+        title: 'Verified Digital Dining Menu',
+        subtitle: 'All dish prices verified in ₦ · Zero hidden fees',
+        bg: 'bg-amber-50 border-amber-200 text-amber-900 dark:bg-amber-950/40 dark:border-amber-800/80 dark:text-amber-300',
+        iconBg: 'bg-amber-100 text-amber-700 dark:bg-amber-900/60 dark:text-amber-300',
+      }
+    : isCafe
+    ? {
+        title: 'Counter Queue Speed Menu',
+        subtitle: 'Scan & decide in seconds · Freshly brewed',
+        bg: 'bg-amber-50 border-amber-200 text-amber-900 dark:bg-amber-950/40 dark:border-amber-800/80 dark:text-amber-300',
+        iconBg: 'bg-amber-100 text-amber-700 dark:bg-amber-900/60 dark:text-amber-300',
+      }
+    : isEvent
+    ? {
+        title: 'Pop-Up Stall Menu',
+        subtitle: 'Contactless pricing · WhatsApp ordering ready',
+        bg: 'bg-purple-50 border-purple-200 text-purple-900 dark:bg-purple-950/40 dark:border-purple-800/80 dark:text-purple-300',
+        iconBg: 'bg-purple-100 text-purple-700 dark:bg-purple-900/60 dark:text-purple-300',
+      }
+    : {
+        title: 'Live Shelf Price Verifier',
+        subtitle: 'Official shelf tags synced in real-time · No register price shock',
+        bg: 'bg-blue-50 border-blue-200 text-blue-900 dark:bg-blue-950/40 dark:border-blue-800/80 dark:text-blue-300',
+        iconBg: 'bg-blue-100 text-blue-700 dark:bg-blue-900/60 dark:text-blue-300',
+      }
+
   return (
-    <div className="mb-3 flex items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-rose-500/15 via-amber-500/10 to-rose-500/15 p-3.5 border border-amber-500/30 backdrop-blur-md">
-      <div className="flex items-center gap-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-500 border border-amber-500/30">
-          <CategoryPlateSvg size={20} />
+    <div className={`mb-2.5 flex items-center justify-between gap-2.5 rounded-2xl ${bannerConfig.bg} p-2.5 sm:p-3 border backdrop-blur-md transition-all`}>
+      <div className="flex items-center gap-2.5 min-w-0">
+        <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${bannerConfig.iconBg}`}>
+          <Sparkles size={14} />
         </div>
-        <div className="min-w-0">
-          <p className="text-xs font-bold text-slate-900 dark:text-white leading-tight">
-            Verified Digital Dining Menu
+        <div className="min-w-0 flex-1">
+          <p className="text-[11px] font-black leading-tight flex items-center gap-1.5 truncate">
+            <span>{bannerConfig.title}</span>
+            <span className="hidden sm:inline opacity-40">•</span>
+            <span className="hidden sm:inline text-[10px] font-medium opacity-80">{bannerConfig.subtitle}</span>
           </p>
-          <p className="text-[11px] text-slate-600 dark:text-slate-300 truncate">
-            All dish prices verified in Nigerian Naira (₦)
+          <p className="sm:hidden text-[10px] font-medium opacity-85 truncate">
+            {bannerConfig.subtitle}
           </p>
         </div>
       </div>
@@ -84,10 +125,10 @@ function RestaurantAmbientBanner({
       <button
         type="button"
         onClick={onDismiss}
-        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all"
+        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full opacity-70 hover:opacity-100 transition-opacity"
         aria-label="Dismiss banner"
       >
-        <X size={14} />
+        <X size={13} />
       </button>
     </div>
   )
@@ -109,7 +150,7 @@ export function StoreDetailClient({ business, items, businessSlug }: Props) {
   const [selectedItem, setSelectedItem] = useState<StorefrontItem | null>(null)
   const [copiedLink, setCopiedLink] = useState(false)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
-  const { isInList } = useCart()
+  const { isInList, totalCount } = useCart()
 
   const isRestaurant = business.business_type === 'restaurant' || business.business_type === 'cafe'
   const isEvent = business.business_type === 'popup_vendor' || business.business_type === 'event_vendor'
@@ -159,17 +200,34 @@ export function StoreDetailClient({ business, items, businessSlug }: Props) {
   const logoUrl = rawLogoUrl ? resolveUrl(rawLogoUrl) : null
   const coverUrl = rawCoverUrl ? resolveUrl(rawCoverUrl) : null
   const tagline = typeof storefrontTheme.tagline === 'string' ? storefrontTheme.tagline : null
+  const announcement = typeof storefrontTheme.announcement === 'string' ? storefrontTheme.announcement : null
   const highlights = Array.isArray(storefrontTheme.highlights) ? (storefrontTheme.highlights as string[]) : []
+
+  // Special & featured items
+  const specialItems = useMemo(() => {
+    return items.filter((item) => {
+      const attrs = item.attributes && typeof item.attributes === 'object' && !Array.isArray(item.attributes)
+        ? (item.attributes as Record<string, string>)
+        : {}
+      return (
+        attrs.special === 'true' ||
+        attrs.Special === 'true' ||
+        attrs.bestseller === 'true' ||
+        attrs.Bestseller === 'true' ||
+        attrs.featured === 'true' ||
+        attrs.limited === 'true'
+      )
+    })
+  }, [items])
 
   // Show ambient welcome banner on first visit
   useEffect(() => {
-    if (!isRestaurant) return
     const key = `sureprice_visited_${businessSlug}`
     if (typeof window !== 'undefined' && !localStorage.getItem(key)) {
       setShowBanner(true)
       localStorage.setItem(key, new Date().toISOString())
     }
-  }, [isRestaurant, businessSlug])
+  }, [businessSlug])
 
   // Derive categories
   const categories = useMemo(() => {
@@ -241,9 +299,10 @@ export function StoreDetailClient({ business, items, businessSlug }: Props) {
         {/* ─── DYNAMIC HERO HEADER ────────────────────────────────────────────── */}
 
         <div className="px-5 pt-3">
-          {showBanner && isRestaurant && (
-            <RestaurantAmbientBanner
+          {showBanner && (
+            <VenueAmbientBanner
               businessName={business.name}
+              businessType={business.business_type}
               onDismiss={() => setShowBanner(false)}
             />
           )}
@@ -298,6 +357,14 @@ export function StoreDetailClient({ business, items, businessSlug }: Props) {
               <MapPin size={13} className="shrink-0 text-slate-400" />
               <span className="truncate">{addressText}</span>
             </p>
+
+            {/* Merchant Custom Announcement Banner (from storefront theme) */}
+            {announcement && (
+              <div className="mt-2.5 flex items-center gap-2 rounded-2xl bg-amber-500/10 border border-amber-500/20 px-3.5 py-2.5 text-xs font-bold text-amber-900 dark:text-amber-300 backdrop-blur-md">
+                <span className="text-sm">📢</span>
+                <p className="min-w-0 flex-1 truncate">{announcement}</p>
+              </div>
+            )}
           </div>
 
           {/* Reference Match: Segmented Tab Selector [ Menu | About ] */}
@@ -406,6 +473,42 @@ export function StoreDetailClient({ business, items, businessSlug }: Props) {
                 onChange={setSearch}
               />
 
+              {/* ─── TODAY'S SPECIALS & CHEF PICKS SHOWCASE ─────────────────── */}
+              {!search && !activeCategory && specialItems.length > 0 && (
+                <section className="mb-1">
+                  <div className="mb-2 flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <span className="flex h-2 w-2 rounded-full bg-rose-500 animate-ping" />
+                      <h2 className="text-sm font-black text-slate-900 dark:text-white">
+                        {isRestaurant
+                          ? "🔥 Chef's Specials & Highlights"
+                          : business.business_type === 'cafe'
+                          ? "☕ Fresh Brews & Daily Specials"
+                          : isEvent
+                          ? "🎪 Limited Event Drops"
+                          : "⭐ Featured Weekly Deals"}
+                      </h2>
+                    </div>
+                    <span className="rounded-full bg-rose-500/10 px-2 py-0.5 text-[10px] font-black text-rose-600 dark:text-rose-400">
+                      {specialItems.length} featured
+                    </span>
+                  </div>
+
+                  <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 pt-0.5 -mx-5 px-5">
+                    {specialItems.map((item) => (
+                      <div key={`special-${item.id}`} className="w-[270px] sm:w-[300px] shrink-0">
+                        <DishCard
+                          product={item}
+                          businessSlug={businessSlug}
+                          businessName={business.name}
+                          onOpenSheet={() => setSelectedItem(item)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
               {/* ─── HORIZONTAL CATEGORY FILTER PILLS ──────────────────────── */}
               {!search && categories.length > 0 && (
                 <section>
@@ -487,7 +590,7 @@ export function StoreDetailClient({ business, items, businessSlug }: Props) {
                 ) : (
                   <div className="flex flex-col gap-3">
                     {filtered.map((item) => (
-                      isRestaurant ? (
+                      isRestaurant || isEvent || business.business_type === 'cafe' ? (
                         <DishCard
                           key={item.id}
                           product={item}

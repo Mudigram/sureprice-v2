@@ -54,7 +54,7 @@ export function TrendingItemsCarousel({ items }: TrendingItemsCarouselProps) {
               key={item.id}
               href={`/s/${item.businessSlug}/${item.id}`}
               id={`trending-item-${item.id}`}
-              className="group flex w-[220px] shrink-0 flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-slate-300 active:scale-[0.98] dark:border-slate-800 dark:bg-slate-900"
+              className="group flex w-[220px] shrink-0 flex-col overflow-hidden rounded-2xl border border-slate-200/90 bg-white/95 shadow-md backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:border-slate-300 active:scale-[0.98] dark:border-slate-800/90 dark:bg-slate-900/90 dark:hover:border-slate-700/90"
             >
               {/* Item Photo Container */}
               <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100 dark:bg-slate-950">
@@ -74,7 +74,7 @@ export function TrendingItemsCarousel({ items }: TrendingItemsCarouselProps) {
 
                 {/* Parent Store Badge */}
                 <div className="absolute left-2 top-2 z-10">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-slate-950/80 backdrop-blur-md px-2 py-0.5 text-[9px] font-extrabold text-white border border-white/20 shadow-sm">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-slate-950/85 backdrop-blur-md px-2 py-0.5 text-[9px] font-extrabold text-white border border-white/20 shadow-sm">
                     <StoreIcon size={10} className="text-[var(--lime-base)]" />
                     <span className="truncate max-w-[110px]">{item.businessName}</span>
                   </span>
@@ -92,25 +92,45 @@ export function TrendingItemsCarousel({ items }: TrendingItemsCarouselProps) {
                       {item.description}
                     </p>
                   ) : (
-                    <p className="mt-0.5 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                    <p className="mt-0.5 text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                       Verified Tag
                     </p>
                   )}
                 </div>
 
                 {/* Price & Action Row */}
-                <div className="mt-2 flex items-center justify-between border-t border-slate-100 pt-2 dark:border-slate-800">
-                  <span className="text-sm font-black text-slate-900 dark:text-white">
-                    {item.base_price !== null ? `₦${item.base_price.toLocaleString()}` : 'Ask Price'}
-                  </span>
+                <div className="mt-2 flex items-center justify-between border-t border-slate-100 pt-2 dark:border-slate-800/80">
+                  <div>
+                    <span className="text-sm font-black text-slate-900 dark:text-white">
+                      {item.base_price !== null ? `₦${item.base_price.toLocaleString()}` : 'Ask Price'}
+                    </span>
+                  </div>
 
-                  <span className="flex items-center gap-0.5 text-[10px] font-extrabold text-emerald-700 dark:text-[var(--lime-base)]">
-                    <span>View</span>
-                    <ChevronRight size={12} />
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      title="Share to WhatsApp"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        const shareText = `Check out ${item.name} at ${item.businessName} (₦${item.base_price?.toLocaleString() || ''}) on SurePrice!`
+                        const url = typeof window !== 'undefined' ? `${window.location.origin}/s/${item.businessSlug}/${item.id}` : ''
+                        window.open(`https://wa.me/?text=${encodeURIComponent(`${shareText} ${url}`)}`, '_blank')
+                      }}
+                      className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/70 dark:text-emerald-300 transition-colors"
+                    >
+                      <span className="text-[10px] font-black">WA</span>
+                    </button>
+
+                    <span className="flex items-center gap-0.5 text-[10px] font-extrabold text-emerald-600 dark:text-[var(--lime-base)]">
+                      <span>View</span>
+                      <ChevronRight size={12} className="transition-transform group-hover:translate-x-0.5" />
+                    </span>
+                  </div>
                 </div>
               </div>
             </Link>
+
           )
         })}
       </div>

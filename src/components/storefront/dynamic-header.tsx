@@ -39,42 +39,54 @@ export function DynamicHeader() {
   }
 
   const handleBack = () => {
-    if (typeof window !== 'undefined' && window.history.length <= 2) {
-      // Direct QR code deep-link landing fallback
-      const parts = pathname.split('/')
-      if (parts.length >= 3 && parts[1] === 's') {
-        router.push(`/s/${parts[2]}`)
-        return
-      }
+    const parts = pathname.split('/')
+    if (parts.length >= 4 && parts[1] === 's') {
+      // On item detail page: always go back to store menu
+      router.push(`/s/${parts[2]}`)
+      return
+    }
+    if (parts.length === 3 && parts[1] === 's') {
+      // On store menu page: go back to stores directory
       router.push('/stores')
       return
     }
-    router.back()
+    if (typeof window !== 'undefined' && window.history.length > 2) {
+      router.back()
+      return
+    }
+    router.push('/home')
   }
 
+  const backLabel = (() => {
+    const parts = pathname.split('/')
+    if (parts.length >= 4 && parts[1] === 's') return 'Menu'
+    if (parts.length === 3 && parts[1] === 's') return 'Stores'
+    return 'Back'
+  })()
+
   return (
-    <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-gray-100 bg-white/80 px-5 shadow-sm backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-950/80">
+    <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-slate-200/80 bg-white/90 px-5 shadow-sm backdrop-blur-xl dark:border-slate-800/90 dark:bg-slate-950/90">
       {/* Left: Back or brand logo */}
       {!isHome ? (
         <button
           onClick={handleBack}
           id="header-back-btn"
-          aria-label="Go Back"
-          className="flex items-center gap-1 font-bold text-[var(--lime-dark)] transition-opacity hover:opacity-80 active:scale-95"
+          aria-label={`Go back to ${backLabel}`}
+          className="flex items-center gap-1 font-black text-emerald-600 dark:text-[var(--lime-base)] transition-all hover:opacity-85 active:scale-95"
         >
           <ChevronLeft size={22} strokeWidth={2.5} />
-          <span className="text-sm font-semibold">Back</span>
+          <span className="text-xs font-black uppercase tracking-wider">{backLabel}</span>
         </button>
       ) : (
-        <span className="text-xl font-black tracking-tight text-[var(--lime-dark)]">
-          SurePrice
+        <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-1">
+          <span className="text-emerald-600 dark:text-[var(--lime-base)]">Sure</span>Price
         </span>
       )}
 
       {/* Center: Dynamic page title */}
       <div className="flex flex-1 justify-center overflow-hidden px-2">
         {title && !isHome && (
-          <span className="truncate text-base font-bold text-slate-800 dark:text-zinc-100">
+          <span className="truncate text-sm font-black text-slate-900 dark:text-white">
             {title}
           </span>
         )}
@@ -88,7 +100,7 @@ export function DynamicHeader() {
           onClick={toggleTheme}
           aria-label="Toggle Dark Mode"
           title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-slate-50 text-slate-700 transition-all hover:bg-slate-100 active:scale-90 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200/80 bg-slate-100/80 text-slate-700 transition-all hover:bg-slate-200 active:scale-90 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
         >
           {theme === 'dark' ? (
             <Sun size={16} className="text-amber-400" />
@@ -102,15 +114,15 @@ export function DynamicHeader() {
             id="header-refresh-btn"
             onClick={() => router.refresh()}
             aria-label="Refresh"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-all hover:text-[var(--lime-dark)] active:rotate-180 active:duration-500"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200/80 bg-slate-100/80 text-slate-500 transition-all hover:text-emerald-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:text-[var(--lime-base)] active:rotate-180 active:duration-500"
           >
-            <RefreshCcw size={18} />
+            <RefreshCcw size={16} />
           </button>
         ) : (
           <button
             id="header-notifications-btn"
             aria-label="Notifications"
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white text-slate-500 transition-colors hover:text-slate-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200/80 bg-slate-100/80 text-slate-500 transition-all hover:text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:text-white"
           >
             <Bell size={16} />
           </button>
@@ -119,3 +131,4 @@ export function DynamicHeader() {
     </header>
   )
 }
+

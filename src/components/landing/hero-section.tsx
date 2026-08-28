@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ScanLine, ChevronRight } from 'lucide-react'
+import { ScanLine, Sparkles, ArrowRight, Store, Smartphone } from 'lucide-react'
 import { ButtonLink } from '@/components/ui/button'
 
 export function HeroSection() {
@@ -19,7 +19,7 @@ export function HeroSection() {
           className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 text-xs font-extrabold text-emerald-800 shadow-sm"
         >
           <span className="h-2.5 w-2.5 rounded-full bg-[var(--lime-base)] animate-pulse" />
-          <span>Scan it. Know it. · Lagos, Nigeria Pilot</span>
+          <span>Live Digital Storefronts & QR Menus · Ibadan & Across Nigeria</span>
         </motion.div>
 
         {/* Main Display Headline */}
@@ -29,9 +29,9 @@ export function HeroSection() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="text-4xl sm:text-6xl lg:text-7xl font-black leading-[1.08] tracking-tight text-slate-900"
         >
-          Know the exact price before you{' '}
+          Turn your physical venue into a{' '}
           <span className="inline-block text-slate-900 underline decoration-[var(--lime-base)] decoration-4 sm:decoration-8 underline-offset-8">
-            reach checkout
+            digital storefront
           </span>
         </motion.h1>
 
@@ -42,7 +42,7 @@ export function HeroSection() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="mx-auto max-w-xl text-sm sm:text-base leading-relaxed text-slate-600 font-medium"
         >
-          Digital price tag & menu layer over physical supermarkets, dining cafés, and festival pop-ups across Nigeria. Zero app install required.
+          Live QR table menus, shelf tags, and instant WhatsApp catalogs for restaurants, cafés, retail shops, and pop-up vendors. Zero app download required for customers.
         </motion.p>
 
         {/* Hero CTAs */}
@@ -52,15 +52,28 @@ export function HeroSection() {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="flex flex-wrap items-center justify-center gap-3 pt-2"
         >
-          <ButtonLink href="/scan" id="hero-scan-cta" size="lg">
-            <ScanLine size={18} strokeWidth={2.5} />
-            <span>Try Scanning Now</span>
+          <ButtonLink href="/onboarding" id="hero-start-pilot-cta" size="lg">
+            <Sparkles size={18} className="text-black" />
+            <span>Start Free Storefront Pilot</span>
+            <ArrowRight size={16} />
           </ButtonLink>
 
-          <ButtonLink href="/login" id="hero-owner-cta" variant="outline" size="lg">
-            <span>Merchant Sign In</span>
-            <ChevronRight size={16} />
+          <ButtonLink href="/scan" id="hero-scan-cta" variant="outline" size="lg">
+            <ScanLine size={17} strokeWidth={2.5} />
+            <span>Try Demo Scanner</span>
           </ButtonLink>
+        </motion.div>
+
+        {/* Quick Micro-Trust Signals */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.35 }}
+          className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-slate-500 font-semibold pt-1"
+        >
+          <span className="flex items-center gap-1.5">✓ 2-Minute Setup</span>
+          <span className="flex items-center gap-1.5">✓ No POS Integration Needed</span>
+          <span className="flex items-center gap-1.5">✓ Print-Ready QR Templates</span>
         </motion.div>
 
         {/* Mobile Phone Mockup Interactive Graphic */}
@@ -68,7 +81,7 @@ export function HeroSection() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="pt-8"
+          className="pt-6"
         >
           <div className="relative mx-auto w-64 sm:w-72">
             <div className="relative overflow-hidden rounded-[2.5rem] border-4 border-slate-900 bg-slate-900 shadow-2xl shadow-slate-900/40">
@@ -84,25 +97,26 @@ export function HeroSection() {
                 <div className="rounded-2xl border border-[var(--lime-base)]/50 bg-slate-950 p-3.5 shadow-md">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--lime-base)]/20 text-[var(--lime-base)]">
-                      <ScanLine size={20} />
+                      <Store size={20} />
                     </div>
                     <div>
-                      <p className="font-black text-xs text-white">Scanning Shelf QR</p>
-                      <p className="text-[10px] text-slate-400 font-medium">Camera Aligned</p>
+                      <p className="font-black text-xs text-white">The Palms Bistro · Bodija</p>
+                      <p className="text-[10px] text-slate-400 font-medium">Table 04 Digital Menu</p>
                     </div>
                   </div>
                 </div>
 
                 <div className="mt-3.5 rounded-2xl border border-slate-800 bg-slate-950 p-4 space-y-2">
                   <span className="inline-block rounded-full bg-[var(--lime-base)]/20 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-[var(--lime-base)] border border-[var(--lime-base)]/30">
-                    ✓ Verified Price
+                    ✓ Live Menu Item
                   </span>
-                  <p className="text-sm font-black text-white pt-0.5">Whole Wheat Bread 800g</p>
+                  <p className="text-sm font-black text-white pt-0.5">Smokey Jollof & Grilled Tilapia</p>
                   <p className="text-2xl font-black text-white">
-                    ₦1,250<span className="ml-1 inline-block h-2 w-2 rounded-full bg-[var(--lime-base)] animate-pulse" />
+                    ₦6,500<span className="ml-1 inline-block h-2 w-2 rounded-full bg-[var(--lime-base)] animate-pulse" />
                   </p>
-                  <p className="text-[10px] font-medium text-slate-400 border-t border-slate-900 pt-2">
-                    ✓ Verified today at Spar VI, Lagos
+                  <p className="text-[10px] font-medium text-slate-400 border-t border-slate-900 pt-2 flex items-center justify-between">
+                    <span>Freshly prepared · In Stock</span>
+                    <span className="text-emerald-400 font-bold">WhatsApp Ready</span>
                   </p>
                 </div>
               </div>
@@ -115,3 +129,5 @@ export function HeroSection() {
     </section>
   )
 }
+
+

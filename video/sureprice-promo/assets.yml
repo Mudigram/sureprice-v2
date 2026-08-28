@@ -1,0 +1,48 @@
+# Diffusion Studio asset library. Edited by the app; hand edits are read on the next load.
+version: 1
+folders: []
+assets:
+  - id: 7d5b4b010c77f89a
+    path: images/zero_webview_friction.jpg
+    source: assets/images/zero_webview_friction.jpg
+    createdAt: 2026-08-27T21:50:31.412Z
+    mimeType: image/jpeg
+    stat:
+      size: 723735
+      mtime: 1787862859322
+    type: IMAGE
+    width: 1376
+    height: 768
+  - id: 238e13adce17a967
+    path: images/waterproof_qr_tags_naira.jpg
+    source: assets/images/waterproof_qr_tags_naira.jpg
+    createdAt: 2026-08-27T21:50:31.280Z
+    mimeType: image/jpeg
+    stat:
+      size: 778433
+      mtime: 1787862859308
+    type: IMAGE
+    width: 1376
+    height: 768
+  - id: 494d9e1ef01ee355
+    path: images/instant_price_update.jpg
+    source: assets/images/instant_price_update.jpg
+    createdAt: 2026-08-27T21:50:31.150Z
+    mimeType: image/jpeg
+    stat:
+      size: 760758
+      mtime: 1787862859295
+    type: IMAGE
+    width: 1376
+    height: 768
+  - id: e55314c6673b2b22
+    path: images/hand-scan.jpeg
+    source: assets/images/hand-scan.jpeg
+    createdAt: 2026-08-27T21:50:30.524Z
+    mimeType: image/jpeg
+    stat:
+      size: 1844817
+      mtime: 1787862858949
+    type: IMAGE
+    width: 2048
+    height: 2048
