@@ -23,7 +23,6 @@ import {
   Share2,
   LayoutGrid,
   List,
-  Star,
   ClipboardList,
   ArrowRight,
   Store,
@@ -335,21 +334,35 @@ export function StoreDetailClient({ business, items, businessSlug }: Props) {
 
           {/* Reference Match: Restaurant Title & Info Block */}
           <div className="mt-3.5 space-y-1.5">
-            <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
-              {business.name}
-            </h1>
+            <div className="flex items-start justify-between gap-2">
+              <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
+                {business.name}
+              </h1>
+              {phoneNumber && (
+                <a
+                  href={`https://wa.me/${phoneNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hello ${business.name}, I found you on SurePrice!`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex shrink-0 items-center gap-1.5 rounded-full bg-emerald-500 px-3 py-1.5 text-xs font-black text-white shadow-md shadow-emerald-500/25 active:scale-95 transition-all"
+                >
+                  <span>💬</span>
+                  <span>Chat</span>
+                </a>
+              )}
+            </div>
 
-            {/* Rating / Prep Time Row */}
-            <div className="flex flex-wrap items-center gap-3 text-xs font-bold text-slate-600 dark:text-slate-300">
-              <span className="inline-flex items-center gap-1 text-amber-500">
-                <Star size={13} className="fill-amber-500 text-amber-500" />
-                <span>4.8 (1.2k reviews)</span>
+            {/* Verified Merchant Stamp */}
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-emerald-700 dark:text-emerald-400 font-bold">
+                <CheckCircle2 size={11} />
+                <span>Verified Merchant</span>
               </span>
-              <span>•</span>
-              <span className="inline-flex items-center gap-1 text-slate-500 dark:text-slate-400">
-                <Clock size={13} />
-                <span>15-25 Min Wait</span>
-              </span>
+              {statusInfo.isOpen && (
+                <span className="inline-flex items-center gap-1 text-slate-500 dark:text-slate-400">
+                  <Clock size={11} />
+                  <span>Open Now</span>
+                </span>
+              )}
             </div>
 
             {/* Address Row */}
@@ -433,6 +446,17 @@ export function StoreDetailClient({ business, items, businessSlug }: Props) {
 
               {/* Quick Actions */}
               <div className="flex items-center gap-2.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+                {phoneNumber && (
+                  <a
+                    href={`https://wa.me/${phoneNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hello ${business.name}, I found you on SurePrice and would like to inquire!`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 py-3 text-xs font-extrabold text-emerald-900 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900 active:scale-95 transition-all"
+                  >
+                    <span>💬</span>
+                    <span>WhatsApp</span>
+                  </a>
+                )}
                 {phoneNumber && (
                   <a
                     href={`tel:${phoneNumber}`}

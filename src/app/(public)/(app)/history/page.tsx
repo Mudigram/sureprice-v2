@@ -422,28 +422,47 @@ export default function HistoryPage() {
                           {item.base_price !== null ? `₦${item.base_price.toLocaleString()}` : 'Price on request'}
                         </span>
 
-                        <button
-                          type="button"
-                          onClick={(e) => handleToggleScannedItemCart(item, e)}
-                          className={`flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-extrabold transition-all active:scale-95 border ${
-                            isNoted
-                              ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
-                              : 'bg-slate-100 text-slate-800 border-slate-200 hover:bg-slate-200 dark:bg-slate-800 dark:text-white dark:border-slate-700 dark:hover:bg-slate-700'
-                          }`}
-                        >
-                          {isNoted ? (
-                            <>
-                              <Check size={13} strokeWidth={3} />
-                              <span>Noted ({notedQty})</span>
-                            </>
-                          ) : (
-                            <>
-                              <Plus size={13} strokeWidth={3} />
-                              <span>Note</span>
-                            </>
-                          )}
-                        </button>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              const text = `Hello, I previously checked the price for ${item.name}${item.base_price ? ` (₦${item.base_price.toLocaleString()})` : ''} at ${item.businessName} on SurePrice. I'd like to inquire!`
+                              window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
+                            }}
+                            className="flex items-center justify-center h-8 w-8 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 transition-all active:scale-95 dark:bg-emerald-950/40 dark:border-emerald-900 dark:text-emerald-400"
+                            title="Inquire on WhatsApp"
+                          >
+                            <span className="text-sm">💬</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={(e) => handleToggleScannedItemCart(item, e)}
+                            className={`flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-extrabold transition-all active:scale-95 border ${
+                              isNoted
+                                ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                                : 'bg-slate-100 text-slate-800 border-slate-200 hover:bg-slate-200 dark:bg-slate-800 dark:text-white dark:border-slate-700 dark:hover:bg-slate-700'
+                            }`}
+                          >
+                            {isNoted ? (
+                              <>
+                                <Check size={13} strokeWidth={3} />
+                                <span>Noted ({notedQty})</span>
+                              </>
+                            ) : (
+                              <>
+                                <Plus size={13} strokeWidth={3} />
+                                <span>Note</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
                       </div>
+
+                      <p className="mt-1.5 text-[10px] font-bold text-slate-400 dark:text-slate-500">
+                        Prices change daily · Tap to re-check →
+                      </p>
                     </div>
                   </div>
                 )

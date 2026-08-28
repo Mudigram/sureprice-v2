@@ -343,6 +343,23 @@ export function MenuItemSheet({ item, business, businessSlug, open, onClose }: P
           See Full Details & Photo Gallery
         </Link>
 
+        {/* WhatsApp Quick Order Button */}
+        <button
+          type="button"
+          onClick={() => {
+            const text = `Hello ${business.name}, I saw ${item.name}${item.base_price ? ` (₦${item.base_price.toLocaleString()})` : ''} on your SurePrice menu. I'd like to order or inquire!`
+            const phone = business.locations?.[0]?.phone ? business.locations[0].phone.replace(/[^0-9]/g, '') : ''
+            const url = `${window.location.origin}/s/${businessSlug}/${item.id}`
+            const waUrl = phone
+              ? `https://wa.me/${phone}?text=${encodeURIComponent(text)}`
+              : `https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`
+            window.open(waUrl, '_blank')
+          }}
+          className="flex items-center justify-center gap-2 w-full rounded-2xl border border-emerald-500/30 bg-emerald-50/80 py-3 text-xs font-black text-emerald-900 shadow-sm transition-all hover:bg-emerald-100 active:scale-95 dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300"
+        >
+          <span>💬 Order / Inquire via WhatsApp</span>
+        </button>
+
         {/* Quantity + Note CTA */}
         <div className="flex items-center gap-3 pt-1">
           <div className="flex h-14 items-center gap-4 rounded-2xl border border-gray-200 bg-white px-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">

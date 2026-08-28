@@ -130,7 +130,7 @@ export function BusinessAdminNav({ business, currentSection }: BusinessAdminNavP
   ]
 
   return (
-    <div className="mb-6 space-y-4 rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
+    <div className="sticky top-0 z-30 mb-6 space-y-3.5 rounded-2xl border border-slate-200/90 bg-white/95 backdrop-blur-md p-4 sm:p-5 shadow-md transition-all">
       {/* Breadcrumb Trail & Quick Back Navigation */}
       <div className="flex items-center justify-between border-b border-slate-100 pb-3 text-xs">
         <div className="flex items-center gap-1.5 font-medium text-slate-500">

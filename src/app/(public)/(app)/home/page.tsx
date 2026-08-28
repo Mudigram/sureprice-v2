@@ -18,6 +18,7 @@ import { MerchantGrowthCard } from '@/components/storefront/merchant-growth-card
 import { HomeStoresSection } from './home-stores-section'
 import { RecentStoreUpdates } from './recent-store-updates'
 import { TrendingItemsCarousel } from './trending-items-carousel'
+import { RecentScansHomeRail } from './recent-scans-rail'
 import { getPublishedBusinesses, getFeaturedCatalogItems } from '@/features/storefront/queries'
 
 export const dynamic = 'force-dynamic'
@@ -155,7 +156,8 @@ export default function HomePage() {
       </div>
 
       {/* Dynamic Stores & Items Data Section */}
-      <div className="px-5">
+      <div className="px-5 space-y-6">
+        <RecentScansHomeRail />
         <Suspense fallback={<SectionSkeleton />}>
           <DynamicHomepageContent />
         </Suspense>
