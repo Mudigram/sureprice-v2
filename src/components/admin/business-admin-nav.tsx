@@ -18,6 +18,7 @@ import {
   Coffee,
   Ticket,
   Store,
+  ArrowLeft,
 } from 'lucide-react'
 import type { StorefrontBusiness } from '@/features/storefront/types'
 import { getBrandFallbackSvgIcon } from '@/components/icons'
@@ -129,16 +130,47 @@ export function BusinessAdminNav({ business, currentSection }: BusinessAdminNavP
   ]
 
   return (
-    <div className="mb-6 space-y-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div className="mb-6 space-y-4 rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
+      {/* Breadcrumb Trail & Quick Back Navigation */}
+      <div className="flex items-center justify-between border-b border-slate-100 pb-3 text-xs">
+        <div className="flex items-center gap-1.5 font-medium text-slate-500">
+          <Link href="/dashboard" className="hover:text-slate-900 transition-colors">
+            Dashboard
+          </Link>
+          <span className="text-slate-300">/</span>
+          <Link href="/dashboard" className="hover:text-slate-900 transition-colors">
+            Stores
+          </Link>
+          <span className="text-slate-300">/</span>
+          <span className="font-bold text-slate-900 truncate max-w-[140px] sm:max-w-none">
+            {business.name}
+          </span>
+          {currentSection && (
+            <>
+              <span className="text-slate-300">/</span>
+              <span className="capitalize font-bold text-emerald-700">{currentSection.replace('-', ' ')}</span>
+            </>
+          )}
+        </div>
+
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-1 font-bold text-slate-600 hover:text-slate-900 transition-colors"
+        >
+          <ArrowLeft size={13} />
+          <span>All Stores</span>
+        </Link>
+      </div>
+
       {/* Top Header: Store Info & Quick Actions */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3.5 min-w-0">
           {/* Logo Avatar */}
-          <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800">
+          <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
             {logoUrl ? (
               <Image src={logoUrl} alt={business.name} fill className="object-cover" sizes="48px" />
             ) : (
-              <div className="flex h-full w-full items-center justify-center text-slate-500 dark:text-slate-400">
+              <div className="flex h-full w-full items-center justify-center text-slate-500">
                 {getBrandFallbackSvgIcon(business.business_type, { size: 24 })}
               </div>
             )}
@@ -147,15 +179,15 @@ export function BusinessAdminNav({ business, currentSection }: BusinessAdminNavP
           {/* Store Name & Type Badge */}
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <h1 className="truncate text-xl font-black tracking-tight text-slate-900 dark:text-white">
+              <h1 className="truncate text-xl font-black tracking-tight text-slate-900">
                 {business.name}
               </h1>
-              <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-700 border border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 shrink-0">
+              <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-700 border border-slate-200 shrink-0">
                 <TypeIcon size={11} />
                 {typeLabel}
               </span>
             </div>
-            <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400 truncate">
+            <p className="mt-0.5 text-xs text-slate-500 truncate font-medium">
               Store ID: <span className="font-mono">{business.id.slice(0, 8)}...</span> • Slug: <span className="font-mono">{business.slug}</span>
             </p>
           </div>
@@ -167,7 +199,7 @@ export function BusinessAdminNav({ business, currentSection }: BusinessAdminNavP
             href={`/s/${business.slug}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-all dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 dark:hover:text-white"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-all"
           >
             <span>View Public Storefront</span>
             <ExternalLink size={13} />
@@ -175,16 +207,16 @@ export function BusinessAdminNav({ business, currentSection }: BusinessAdminNavP
 
           <Link
             href={`/businesses/${business.id}/catalog-items/new`}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--lime-base)] px-4 py-2 text-xs font-black text-black shadow-sm hover:bg-[var(--lime-dark)] active:scale-95 transition-all"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-slate-800 active:scale-[0.98] transition-all"
           >
-            <Plus size={14} strokeWidth={3} />
+            <Plus size={14} strokeWidth={3} className="text-[var(--lime-base)]" />
             <span>New Item</span>
           </Link>
         </div>
       </div>
 
       {/* Navigation Tabs Bar */}
-      <div className="flex gap-1 overflow-x-auto no-scrollbar pt-2 border-t border-slate-100 dark:border-slate-800/80">
+      <div className="flex gap-1 overflow-x-auto no-scrollbar pt-2 border-t border-slate-100">
         {navTabs.map((tab) => {
           const Icon = tab.icon
           return (
@@ -192,13 +224,13 @@ export function BusinessAdminNav({ business, currentSection }: BusinessAdminNavP
               key={tab.id}
               href={tab.href}
               id={`admin-nav-${tab.id}`}
-              className={`flex shrink-0 items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-extrabold transition-all active:scale-95 ${
+              className={`flex shrink-0 items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${
                 tab.active
-                  ? 'bg-slate-900 text-white shadow-sm dark:bg-slate-100 dark:text-slate-900'
-                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white'
+                  ? 'bg-slate-900 text-white shadow-sm'
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
-              <Icon size={15} />
+              <Icon size={15} className={tab.active ? 'text-[var(--lime-base)]' : 'text-slate-500'} />
               <span>{tab.label}</span>
             </Link>
           )
@@ -207,3 +239,5 @@ export function BusinessAdminNav({ business, currentSection }: BusinessAdminNavP
     </div>
   )
 }
+
+

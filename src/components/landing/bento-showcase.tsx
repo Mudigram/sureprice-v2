@@ -72,7 +72,7 @@ export function BentoShowcase() {
           <div className="sm:w-1/2 p-6 space-y-4 flex flex-col justify-between">
             <div className="space-y-2.5">
               <Badge tone={feature.badgeTone}>{feature.badge}</Badge>
-              <CardTitle className="leading-snug">{feature.title}</CardTitle>
+              <CardTitle className="leading-snug text-slate-900">{feature.title}</CardTitle>
               <p className="text-xs leading-relaxed text-slate-600 font-medium">
                 {feature.description}
               </p>
@@ -95,7 +95,7 @@ export function BentoShowcase() {
                 viewport={{ once: true, amount: 0.2 }}
                 transition={{ duration: 0.4, delay: 0.1 * (i + 1) }}
               >
-                <Card className="group h-full p-6 shadow-sm transition-all duration-300 hover:border-slate-300 hover:shadow-xl flex gap-5">
+                <Card className="group h-full p-6 shadow-sm transition-all duration-300 border-slate-200/80 bg-white hover:border-slate-300 hover:shadow-xl flex gap-5">
                   <div className="relative w-28 sm:w-36 shrink-0 overflow-hidden rounded-2xl bg-slate-100">
                     <Image
                       src={card.imageSrc}
@@ -106,7 +106,7 @@ export function BentoShowcase() {
                   </div>
                   <div className="space-y-2.5 min-w-0">
                     <Badge tone={card.badgeTone}>{card.badge}</Badge>
-                    <CardTitle className="text-sm leading-snug">{card.title}</CardTitle>
+                    <CardTitle className="text-sm leading-snug text-slate-900">{card.title}</CardTitle>
                     <p className="text-xs leading-relaxed text-slate-600 font-medium line-clamp-3">
                       {card.description}
                     </p>
@@ -120,3 +120,5 @@ export function BentoShowcase() {
     </section>
   )
 }
+
+

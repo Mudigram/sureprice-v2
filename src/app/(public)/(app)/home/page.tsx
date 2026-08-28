@@ -13,6 +13,8 @@ import {
 } from 'lucide-react'
 import { TickerBanner } from '@/components/storefront/ticker-banner'
 import { VenueTypeGrid } from '@/components/storefront/venue-type-grid'
+import { HomeSearchBar } from '@/components/storefront/home-search-bar'
+import { MerchantGrowthCard } from '@/components/storefront/merchant-growth-card'
 import { HomeStoresSection } from './home-stores-section'
 import { RecentStoreUpdates } from './recent-store-updates'
 import { TrendingItemsCarousel } from './trending-items-carousel'
@@ -50,7 +52,10 @@ async function DynamicHomepageContent() {
       {/* 2. Promoted Partner Stores with Quick Filters */}
       <HomeStoresSection businesses={businesses} />
 
-      {/* 3. Recent Live Store Price Updates Feed */}
+      {/* 3. In-App Merchant Acquisition Flywheel Card */}
+      <MerchantGrowthCard />
+
+      {/* 4. Recent Live Store Price Updates Feed */}
       <RecentStoreUpdates businesses={businesses} />
     </div>
   )
@@ -135,11 +140,16 @@ export default function HomePage() {
       </section>
 
       {/* Marquee Ticker */}
-      <div className="px-5">
+      {/* <div className="px-5">
         <TickerBanner />
+      </div> */}
+
+      {/* 2. Top Search & Neighborhood Filter Bar */}
+      <div className="px-5">
+        <HomeSearchBar />
       </div>
 
-      {/* 2. Venue Type Explorer Bar (Positioned Top) */}
+      {/* 3. Venue Type Explorer Bar */}
       <div className="px-5">
         <VenueTypeGrid />
       </div>
@@ -151,7 +161,7 @@ export default function HomePage() {
         </Suspense>
       </div>
 
-      {/* 3-Step How-It-Works Visual Bar */}
+      {/* 4. 3-Step How-It-Works Visual Bar */}
       <section className="px-5 pt-2">
         <div className="grid grid-cols-3 gap-2 rounded-3xl border border-slate-200/80 bg-white p-4 shadow-sm text-center dark:border-slate-800 dark:bg-slate-900">
           <div className="flex flex-col items-center gap-1.5">

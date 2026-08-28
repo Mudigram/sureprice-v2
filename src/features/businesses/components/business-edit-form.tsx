@@ -1,15 +1,18 @@
 'use client'
 
+import { useState, useTransition } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useTransition } from 'react'
-import { Building2, Link2, Store, Save, Loader2 } from 'lucide-react'
+import { Building2, Link2, Store, Save, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { updateBusinessSchema, type UpdateBusinessInput } from '../schema'
 import { updateBusiness } from '../actions'
 import { BUSINESS_TYPES, type Business } from '../types'
 
 export function BusinessEditForm({ business }: { business: Business }) {
   const [isPending, startTransition] = useTransition()
+  const [formError, setFormError] = useState<string | null>(null)
+  const [isSuccess, setIsSuccess] = useState(false)
+
   const {
     register,
     handleSubmit,
@@ -24,13 +27,42 @@ export function BusinessEditForm({ business }: { business: Business }) {
   })
 
   const onSubmit = (data: UpdateBusinessInput) => {
-    startTransition(() => {
-      updateBusiness(business.id, data)
+    setFormError(null)
+    setIsSuccess(false)
+
+    startTransition(async () => {
+      try {
+        await updateBusiness(business.id, data)
+        setIsSuccess(true)
+      } catch (err: any) {
+        console.error('Business update error:', err)
+        setFormError(err?.message || 'Failed to update store details. Please check your slug or network and try again.')
+      }
     })
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-slate-900 dark:text-white">
+    <div className="space-y-4 text-slate-900">
+      {/* Explicit Error State Banner */}
+      {formError && (
+        <div className="flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-xs font-medium text-rose-800 animate-in fade-in">
+          <AlertCircle size={18} className="shrink-0 text-rose-600 mt-0.5" />
+          <div className="space-y-1">
+            <p className="font-bold text-rose-900">Unable to Save Changes</p>
+            <p>{formError}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Visual Success Feedback Banner */}
+      {isSuccess && (
+        <div className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-xs font-bold text-emerald-800 animate-in fade-in">
+          <CheckCircle2 size={18} className="shrink-0 text-emerald-600" />
+          <span>Store details saved successfully!</span>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {/* Business Name Field */}
       <div className="space-y-1.5">
         <label htmlFor="edit-biz-name" className="text-xs font-extrabold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
@@ -100,6 +132,7 @@ export function BusinessEditForm({ business }: { business: Business }) {
           </>
         )}
       </button>
-    </form>
+      </form>
+    </div>
   )
 }

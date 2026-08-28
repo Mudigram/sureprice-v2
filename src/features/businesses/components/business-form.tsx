@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Store, Zap, Sparkles, MapPin, ArrowRight, Loader2, Link2, Building2 } from 'lucide-react'
+import { Store, Zap, Sparkles, MapPin, ArrowRight, Loader2, Link2, Building2, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { createBusinessSchema, type CreateBusinessInput } from '../schema'
 import { createBusiness } from '../actions'
 import { BUSINESS_TYPES } from '../types'
@@ -21,6 +21,8 @@ export function BusinessForm({ organizationId }: { organizationId: string }) {
   const [isPending, startTransition] = useTransition()
   const [isCustomSlug, setIsCustomSlug] = useState(false)
   const [onboardingNotice, setOnboardingNotice] = useState<string | null>(null)
+  const [formError, setFormError] = useState<string | null>(null)
+  const [isSuccess, setIsSuccess] = useState(false)
 
   const {
     register,
@@ -71,16 +73,44 @@ export function BusinessForm({ organizationId }: { organizationId: string }) {
   }, [watchedName, isCustomSlug, setValue])
 
   const onSubmit = (data: CreateBusinessInput) => {
-    startTransition(() => {
-      createBusiness(data)
+    setFormError(null)
+    setIsSuccess(false)
+
+    startTransition(async () => {
+      try {
+        await createBusiness(data)
+        setIsSuccess(true)
+      } catch (err: any) {
+        console.error('Business creation error:', err)
+        setFormError(err?.message || 'Failed to create store business. Please check your slug or network and try again.')
+      }
     })
   }
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-6 text-slate-900 dark:text-white">
+    <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-6 text-slate-900">
+      {/* Explicit Error State Banner */}
+      {formError && (
+        <div className="flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-xs font-medium text-rose-800 animate-in fade-in">
+          <AlertCircle size={18} className="shrink-0 text-rose-600 mt-0.5" />
+          <div className="space-y-1">
+            <p className="font-bold text-rose-900">Unable to Register Store</p>
+            <p>{formError}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Visual Success Feedback Banner */}
+      {isSuccess && (
+        <div className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-xs font-bold text-emerald-800 animate-in fade-in">
+          <CheckCircle2 size={18} className="shrink-0 text-emerald-600" />
+          <span>Business store created successfully! Redirecting...</span>
+        </div>
+      )}
+
       {onboardingNotice && (
-        <div className="flex items-center gap-2.5 rounded-2xl bg-[var(--lime-base)]/15 p-3.5 border border-[var(--lime-base)]/30 text-xs font-bold text-slate-900 dark:text-[var(--lime-base)]">
-          <Sparkles size={16} className="shrink-0 text-emerald-700 dark:text-[var(--lime-base)]" />
+        <div className="flex items-center gap-2.5 rounded-2xl bg-emerald-50 p-3.5 border border-emerald-200 text-xs font-bold text-emerald-800">
+          <Sparkles size={16} className="shrink-0 text-emerald-600" />
           <span>{onboardingNotice}</span>
         </div>
       )}

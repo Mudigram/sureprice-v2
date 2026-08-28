@@ -52,8 +52,10 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
   const { addItem, isInList } = useCart()
   const alreadyNoted = isInList(item.id)
 
-  const isRestaurant = business.business_type === 'restaurant' || business.business_type === 'cafe'
+  const isRestaurant = business.business_type === 'restaurant'
+  const isCafe = business.business_type === 'cafe'
   const isEvent = business.business_type === 'popup_vendor' || business.business_type === 'event_vendor'
+  const isRetail = business.business_type === 'retail'
 
   // Parse attributes
   const attributes: AttributeEntry[] = (() => {
@@ -212,22 +214,27 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
 
       {/* Main Content Area */}
       <div className="mt-4 space-y-5 px-5">
-        {/* Business Type Badge */}
+        {/* Business Type Psychological Badge */}
         <div className="flex items-center justify-between">
           {isRestaurant ? (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-900 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-900">
               <Utensils size={13} />
-              Digital Menu Item
+              Verified Dining Dish
+            </span>
+          ) : isCafe ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-900 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-900">
+              <Sparkles size={13} />
+              Freshly Brewed & Prepared
             </span>
           ) : isEvent ? (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-100 px-3 py-1 text-xs font-bold text-purple-900 border border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-900">
               <Ticket size={13} />
-              Event Vendor Item
+              🎪 Limited Event Batch
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-900 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-900">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-900 border border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-900">
               <CheckCircle2 size={13} />
-              Verified Shelf Price
+              100% Verified Shelf Price
             </span>
           )}
 
@@ -364,6 +371,22 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
             </p>
           </div>
         </div>
+
+        {/* WhatsApp Direct Order / Inquiry Button */}
+        <button
+          type="button"
+          onClick={() => {
+            const text = `Hello ${business.name}, I saw ${item.name} (${item.base_price ? `₦${item.base_price.toLocaleString()}` : ''}) on your SurePrice digital menu. I'd like to order / inquire!`
+            const phone = business.locations?.[0]?.phone ? business.locations[0].phone.replace(/[^0-9]/g, '') : ''
+            const waUrl = phone
+              ? `https://wa.me/${phone}?text=${encodeURIComponent(text)}`
+              : `https://wa.me/?text=${encodeURIComponent(text + ' ' + (typeof window !== 'undefined' ? window.location.href : ''))}`
+            window.open(waUrl, '_blank')
+          }}
+          className="flex items-center justify-center gap-2 w-full rounded-2xl border border-emerald-500/30 bg-emerald-50/80 py-3 text-xs font-black text-emerald-900 shadow-sm transition-all hover:bg-emerald-100 active:scale-95 dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300"
+        >
+          <span>💬 Order / Inquire via WhatsApp</span>
+        </button>
 
         {/* Quantity + Note Price CTA */}
         <div className="flex items-center gap-3 pt-2">

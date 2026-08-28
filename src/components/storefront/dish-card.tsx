@@ -72,7 +72,7 @@ export function DishCard({
     }
   }
 
-  // Parse attributes for dietary / spicy tags if present
+  // Parse attributes for dietary, bestseller, prep time, freshness, or scarcity tags
   const attributes = product.attributes && typeof product.attributes === 'object' && !Array.isArray(product.attributes)
     ? (product.attributes as Record<string, string>)
     : {}
@@ -80,18 +80,21 @@ export function DishCard({
   const spicyTag = attributes.spicy || attributes.Spicy || attributes.spice
   const vegTag = attributes.vegetarian || attributes.veg || attributes.Dietary === 'Vegetarian'
   const halalTag = attributes.halal || attributes.Halal
+  const bestsellerTag = attributes.bestseller || attributes.popular || attributes.favorite || attributes.recommended
+  const prepTimeTag = attributes.prep_time || attributes.time || attributes.wait_time
+  const limitedTag = attributes.limited || attributes.batch || attributes.event_exclusive
 
   return (
     <div
       onClick={onOpenSheet}
-      className={`group relative flex flex-row items-center gap-3.5 overflow-hidden rounded-2xl border p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md cursor-pointer ${
+      className={`group relative flex flex-row items-center gap-3.5 overflow-hidden rounded-2xl border p-3 shadow-md backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl cursor-pointer active:scale-[0.98] ${
         inList
-          ? 'border-emerald-300 bg-emerald-50/40 dark:border-emerald-900/50 dark:bg-emerald-950/20'
-          : 'border-slate-200/80 bg-white hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900'
+          ? 'border-emerald-500/50 bg-emerald-950/30 dark:border-emerald-500/40 dark:bg-emerald-950/40 shadow-emerald-500/5'
+          : 'border-slate-200/90 bg-white/95 hover:border-slate-300 dark:border-slate-800/90 dark:bg-slate-900/90 dark:hover:border-slate-700/90'
       }`}
     >
       {/* Left Food Image Container */}
-      <div className="relative h-28 w-28 sm:w-36 shrink-0 overflow-hidden rounded-xl bg-slate-100 border border-slate-200/60 dark:bg-slate-950 dark:border-slate-800">
+      <div className="relative h-28 w-28 sm:w-36 shrink-0 overflow-hidden rounded-xl bg-slate-100 border border-slate-200/80 dark:bg-slate-950 dark:border-slate-800">
         {imageUrl ? (
           <Image
             src={imageUrl}
@@ -101,31 +104,44 @@ export function DishCard({
             sizes="(max-width: 640px) 112px, 144px"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-amber-500/15 via-rose-500/10 to-slate-950/30 text-amber-600 dark:text-amber-400">
+          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-amber-500/15 via-slate-900/40 to-slate-950 text-amber-500 dark:text-amber-400">
             {getCategorySvgIcon(product.category?.name ?? product.name, { size: 36 })}
           </div>
         )}
 
-        {/* Dietary / Spicy micro-badge over image */}
-        {(spicyTag || vegTag || halalTag) && (
-          <div className="absolute left-1.5 top-1.5 z-10 flex flex-wrap gap-1">
-            {spicyTag && (
-              <span className="rounded-full bg-rose-500/90 px-1.5 py-0.5 text-[8px] font-black text-white backdrop-blur-md shadow-sm">
-                🌶️ Spicy
-              </span>
-            )}
-            {vegTag && (
-              <span className="rounded-full bg-emerald-500/90 px-1.5 py-0.5 text-[8px] font-black text-white backdrop-blur-md shadow-sm">
-                🌱 Veg
-              </span>
-            )}
-            {halalTag && (
-              <span className="rounded-full bg-amber-500/90 px-1.5 py-0.5 text-[8px] font-black text-white backdrop-blur-md shadow-sm">
-                 Halal
-              </span>
-            )}
-          </div>
-        )}
+        {/* Psychological Badges (Dietary, Bestseller, Urgency, Prep Time) over image */}
+        <div className="absolute left-1.5 top-1.5 z-10 flex flex-wrap gap-1">
+          {bestsellerTag && (
+            <span className="rounded-full bg-amber-500/95 px-1.5 py-0.5 text-[8px] font-black text-black backdrop-blur-md shadow-sm border border-amber-300/40">
+              ⭐ Bestseller
+            </span>
+          )}
+          {limitedTag && (
+            <span className="rounded-full bg-purple-600/90 px-1.5 py-0.5 text-[8px] font-black text-white backdrop-blur-md shadow-sm border border-purple-400/30">
+              🎪 Limited
+            </span>
+          )}
+          {prepTimeTag && (
+            <span className="rounded-full bg-slate-950/80 px-1.5 py-0.5 text-[8px] font-black text-white backdrop-blur-md shadow-sm border border-white/20">
+              ⏱️ {prepTimeTag}
+            </span>
+          )}
+          {spicyTag && (
+            <span className="rounded-full bg-rose-500/90 px-1.5 py-0.5 text-[8px] font-black text-white backdrop-blur-md shadow-sm border border-rose-400/30">
+              🌶️ Spicy
+            </span>
+          )}
+          {vegTag && (
+            <span className="rounded-full bg-emerald-500/90 px-1.5 py-0.5 text-[8px] font-black text-white backdrop-blur-md shadow-sm border border-emerald-400/30">
+              🌱 Veg
+            </span>
+          )}
+          {halalTag && (
+            <span className="rounded-full bg-amber-500/90 px-1.5 py-0.5 text-[8px] font-black text-white backdrop-blur-md shadow-sm border border-amber-400/30">
+              Halal
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Right Content Column */}
@@ -135,7 +151,7 @@ export function DishCard({
           <Link
             href={`/s/${businessSlug}/${product.id}`}
             onClick={(e) => e.stopPropagation()}
-            className="truncate text-sm sm:text-base font-black text-slate-900 dark:text-white group-hover:text-rose-600 dark:group-hover:text-amber-400 transition-colors block"
+            className="truncate text-sm sm:text-base font-black text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-[var(--lime-base)] transition-colors block"
           >
             {product.name}
           </Link>
@@ -153,11 +169,11 @@ export function DishCard({
           )}
         </div>
 
-        {/* Dual-Section Price + Action Pill (Reference Design Match) */}
+        {/* Dual-Section Price + Action Pill */}
         <div className="mt-2.5 flex items-center justify-between gap-2">
           {inList ? (
             /* Stepper Controls when item is added */
-            <div className="flex h-8 items-center overflow-hidden rounded-xl border border-emerald-300 bg-emerald-50 shadow-sm dark:border-emerald-900 dark:bg-emerald-950/60">
+            <div className="flex h-8 items-center overflow-hidden rounded-xl border border-emerald-500/40 bg-emerald-50 shadow-sm dark:border-emerald-800 dark:bg-emerald-950/80">
               <button
                 type="button"
                 onClick={(e) => handleQtyChange(e, quantity - 1)}
@@ -179,21 +195,21 @@ export function DishCard({
               </button>
             </div>
           ) : (
-            /* Dual-Section Price + Add Button Pill (Reference Match) */
+            /* Glassmorphic Lime Action Pill */
             <button
               type="button"
               onClick={handleToggleCart}
-              className="flex items-center overflow-hidden rounded-xl bg-gradient-to-r from-rose-500 to-amber-500 text-white shadow-md shadow-rose-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="flex items-center overflow-hidden rounded-xl bg-[var(--lime-base)] text-black shadow-md shadow-[var(--lime-base)]/20 transition-all hover:bg-[var(--lime-dark)] active:scale-[0.97]"
             >
               {/* Left Price Half */}
-              <span className="px-2.5 py-1.5 text-xs font-black bg-black/15">
+              <span className="px-2.5 py-1.5 text-xs font-black bg-black/10">
                 {product.base_price !== null ? `₦${product.base_price.toLocaleString()}` : 'Ask Price'}
               </span>
 
               {/* Right CTA Action Half */}
-              <span className="flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-extrabold border-l border-white/20">
-                <Plus size={12} />
-                <span>Note</span>
+              <span className="flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-black uppercase tracking-wider border-l border-black/15">
+                <Plus size={12} strokeWidth={3} />
+                <span>Add</span>
               </span>
             </button>
           )}
@@ -211,3 +227,4 @@ export function DishCard({
     </div>
   )
 }
+
