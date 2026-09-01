@@ -13,9 +13,32 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { businessSlug } = await params
   const business = await getStorefrontBusiness(businessSlug)
   if (!business) return {}
+
+  const typeLabel = business.business_type === 'restaurant'
+    ? 'Digital Menu'
+    : business.business_type === 'cafe'
+    ? 'Café & Menu'
+    : business.business_type === 'popup_vendor'
+    ? 'Pop-Up Stall'
+    : 'Store & Live Prices'
+
+  const title = `${business.name} · ${typeLabel}`
+  const description = `Browse verified products, menu items, and real-time prices in Naira at ${business.name} on SurePrice.`
+
   return {
-    title: `${business.name} — SurePrice`,
-    description: `Browse products and prices at ${business.name}.`,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      siteName: 'SurePrice',
+    },
+    twitter: {
+      card: 'summary',
+      title,
+      description,
+    },
   }
 }
 
@@ -38,5 +61,52 @@ export default async function StorefrontPage({ params }: Props) {
 
   const items = await getStorefrontItems(business.id)
 
-  return <StoreDetailClient business={business} items={items} businessSlug={businessSlug} />
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://sureprice.app'
+  const storeUrl = `${siteUrl}/s/${businessSlug}`
+
+  const schemaType =
+    business.business_type === 'restaurant'
+      ? 'Restaurant'
+      : business.business_type === 'cafe'
+      ? 'CafeOrCoffeeShop'
+      : 'Store'
+
+  const localBusinessJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': schemaType,
+    name: business.name,
+    url: storeUrl,
+    description: `Verified prices and catalog for ${business.name}.`,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: business.locations?.[0]?.address_text || undefined,
+      addressCountry: 'NG',
+    },
+    telephone: business.locations?.[0]?.phone || undefined,
+    currenciesAccepted: 'NGN',
+    hasMenu: business.business_type === 'restaurant' || business.business_type === 'cafe' ? storeUrl : undefined,
+    itemListElement: items.slice(0, 15).map((item, idx) => ({
+      '@type': 'ListItem',
+      position: idx + 1,
+      item: {
+        '@type': 'Product',
+        name: item.name,
+        offers: {
+          '@type': 'Offer',
+          priceCurrency: 'NGN',
+          price: item.base_price ?? undefined,
+        },
+      },
+    })),
+  }
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
+      />
+      <StoreDetailClient business={business} items={items} businessSlug={businessSlug} />
+    </>
+  )
 }
