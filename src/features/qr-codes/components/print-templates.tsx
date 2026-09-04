@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react'
 import QRCode from 'qrcode'
 import { getScanUrl } from '@/lib/qr/scan-url'
-import { ScanLine, Utensils, Tag, ShieldCheck, Camera, Sparkles } from 'lucide-react'
+import { ScanLine, Utensils, Tag, ShieldCheck, Camera, Sparkles, Wifi } from 'lucide-react'
 
-export type PrintPreset = 'shelf_tag' | 'sticker' | 'table_standee' | 'batch_a4' | 'storefront_master'
+export type PrintPreset = 'shelf_tag' | 'sticker' | 'table_standee' | 'batch_a4' | 'storefront_master' | 'wifi_combo'
 
 export interface PrintableItem {
   id: string
@@ -18,6 +18,8 @@ export interface PrintableItem {
   locationName?: string | null
   customUrl?: string | null
   tagline?: string | null
+  wifiSsid?: string | null
+  wifiPassword?: string | null
 }
 
 interface PrintTemplateProps {
@@ -308,6 +310,62 @@ export function PrintTemplates({
                   <ShieldCheck size={14} className="text-emerald-600" />
                   <span>100% Price Verified</span>
                 </span>
+                <span>Powered by SurePrice.ng</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── PRESET 6: WI-FI & MENU COMBO TABLE STANDEE (A5 TENT) ── */}
+      {preset === 'wifi_combo' && (
+        <div className="flex flex-col items-center">
+          {items.map((item) => (
+            <div
+              key={item.id}
+              className="flex flex-col items-center justify-between rounded-3xl border-4 border-slate-900 bg-white p-7 text-center text-slate-900 w-full max-w-md mx-auto shadow-md relative overflow-hidden my-4"
+            >
+              {/* Header */}
+              <div className="space-y-1">
+                <span className="text-[11px] font-black uppercase tracking-widest text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+                  Welcome to {item.businessName}
+                </span>
+                <h3 className="text-2xl font-black text-slate-900 pt-2 tracking-tight">Free Guest Wi-Fi & Live Menu</h3>
+              </div>
+
+              {/* Wi-Fi Credentials Pill */}
+              <div className="my-4 w-full rounded-2xl border-2 border-slate-900 bg-slate-50 p-4 space-y-2 text-left">
+                <div className="flex items-center gap-2 text-xs font-black text-slate-900">
+                  <Wifi size={18} className="text-emerald-600" />
+                  <span>Connect to In-Store Wi-Fi</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+                  <div className="bg-white p-2 rounded-xl border border-slate-200">
+                    <span className="text-[9px] font-bold text-slate-400 block uppercase">Network (SSID)</span>
+                    <span className="font-extrabold text-slate-900 truncate block">{item.wifiSsid || `${item.businessName}_Guest`}</span>
+                  </div>
+                  <div className="bg-white p-2 rounded-xl border border-slate-200">
+                    <span className="text-[9px] font-bold text-slate-400 block uppercase">Password</span>
+                    <span className="font-extrabold text-slate-900 truncate block">{item.wifiPassword || 'sureprice'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Central QR Code */}
+              <div className="p-4 border-4 border-slate-900 rounded-3xl bg-white shadow-sm flex flex-col items-center">
+                {dataUrls[item.id] ? (
+                  <img src={dataUrls[item.id]} alt="Menu QR" className="h-48 w-48 block rounded-2xl" />
+                ) : (
+                  <div className="h-48 w-48 bg-slate-100 flex items-center justify-center text-base font-bold">QR</div>
+                )}
+                <span className="mt-2 text-xs font-mono font-black text-slate-700">
+                  Scan for Live Menu & Prices
+                </span>
+              </div>
+
+              {/* Footer */}
+              <div className="mt-4 pt-3 border-t border-slate-200 w-full flex items-center justify-between text-[10px] font-black text-slate-500">
+                <span>Zero App Install Required</span>
                 <span>Powered by SurePrice.ng</span>
               </div>
             </div>

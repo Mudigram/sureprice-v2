@@ -1,10 +1,9 @@
-import type { ScanAnalyticsSummary, HourlyScanPoint } from '../types'
-import { ScanLine, TrendingUp, Clock, Award, Package, MessageCircle, Tag, Flame, Moon, Sun, Sunrise } from 'lucide-react'
-import { AnalyticsZeroIllustration } from '@/components/illustrations'
+'use client'
 
-interface AnalyticsOverviewProps {
-  summary: ScanAnalyticsSummary
-}
+import { useState } from 'react'
+import type { ScanAnalyticsSummary, HourlyScanPoint } from '../types'
+import { ScanLine, TrendingUp, Clock, Award, Package, MessageCircle, Tag, Flame, Download, Bell, BellOff } from 'lucide-react'
+import { AnalyticsZeroIllustration } from '@/components/illustrations'
 
 // ── Rush period definitions for Ibadan physical merchants ──
 const RUSH_PERIODS = [
@@ -36,14 +35,89 @@ function formatHour(h: number): string {
   return `${h - 12}pm`
 }
 
+interface AnalyticsOverviewProps {
+  summary: ScanAnalyticsSummary
+}
+
 export function AnalyticsOverview({ summary }: AnalyticsOverviewProps) {
+  const [dateRange, setDateRange] = useState<'today' | '7d' | '30d' | 'all'>('30d')
+  const [chimeEnabled, setChimeEnabled] = useState(false)
+
   const maxScans = summary.topItems[0]?.scanCount ?? 1
   const rushPeriods = getPeakRushPeriods(summary.hourlyScanDistribution)
   const peakRush = rushPeriods[0]
   const maxHourlyScan = Math.max(...summary.hourlyScanDistribution.map((h) => h.scanCount), 1)
 
+  const exportCsvReport = () => {
+    const headers = ['Metric', 'Value']
+    const rows = [
+      ['Total Lifetime Scans', summary.totalScans],
+      ['In-Store Scans Today', summary.todayScans],
+      ['Estimated WhatsApp Inquiries', summary.whatsappEstimate.estimatedInquiries],
+      ['Estimated Prices Noted', summary.whatsappEstimate.estimatedPriceNotes],
+      ['Peak Rush Period', peakRush?.label || 'N/A'],
+    ]
+    summary.topItems.forEach((item) => {
+      rows.push([`Top Item: ${item.name}`, item.scanCount])
+    })
+
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n')
+    const encodedUri = encodeURI(csvContent)
+    const link = document.createElement('a')
+    link.setAttribute('href', encodedUri)
+    link.setAttribute('download', `sureprice-scan-analytics-${dateRange}.csv`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   return (
     <div className="space-y-6 text-slate-900">
+      {/* ── Control Toolbar: Date Filter & CSV Export ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+          <span className="text-xs font-bold text-slate-400 mr-1 uppercase tracking-wider">Range:</span>
+          {(['today', '7d', '30d', 'all'] as const).map((range) => (
+            <button
+              key={range}
+              type="button"
+              onClick={() => setDateRange(range)}
+              className={`rounded-xl px-3 py-1.5 text-xs font-bold transition-all ${
+                dateRange === range
+                  ? 'bg-slate-900 text-white shadow-2xs'
+                  : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+              }`}
+            >
+              {range === 'today' ? 'Today' : range === '7d' ? 'Last 7 Days' : range === '30d' ? 'Last 30 Days' : 'All Time'}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setChimeEnabled(!chimeEnabled)}
+            className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold transition-all ${
+              chimeEnabled
+                ? 'border-emerald-300 bg-emerald-50 text-emerald-800'
+                : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+            }`}
+          >
+            {chimeEnabled ? <Bell size={13} className="text-emerald-600 animate-bounce" /> : <BellOff size={13} />}
+            <span>{chimeEnabled ? 'Scan Chime Active' : 'Enable Chime'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={exportCsvReport}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-900 px-3.5 py-1.5 text-xs font-bold text-white shadow-2xs hover:bg-slate-800 transition-all"
+          >
+            <Download size={13} className="text-emerald-400" />
+            <span>Export CSV</span>
+          </button>
+        </div>
+      </div>
+
       {/* ── Metric Cards ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="flex items-center gap-4 rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">

@@ -60,33 +60,49 @@ export default async function BusinessDetailPage({
       {/* Unified Business Admin Header Bar */}
       <BusinessAdminNav business={business} currentSection="overview" />
 
-      {/* Overview Metric Ribbon */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-1">
-          <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
-            Total Locations
-          </span>
-          <p className="text-2xl font-black text-slate-900 dark:text-white">{locations.length}</p>
-        </div>
+      {/* ── Store QR Placement Banner ── */}
+      <div className="rounded-3xl border border-emerald-200/90 bg-emerald-50/70 p-6 shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-900 text-white shadow-sm">
+              <ScanLine size={22} className="text-emerald-400" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-black text-slate-900">
+                  {business.business_type === 'restaurant' || business.business_type === 'cafe'
+                    ? '1-Scan Storefront Menu QR Code'
+                    : 'Master Storefront & Physical Tags'}
+                </h2>
+                <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-bold text-emerald-800 border border-emerald-200">
+                  Ready to Print
+                </span>
+              </div>
+              <p className="text-xs text-slate-600 font-medium mt-0.5 max-w-2xl leading-relaxed">
+                {business.business_type === 'restaurant' || business.business_type === 'cafe' || business.business_type === 'popup_vendor'
+                  ? 'Place 1 master QR standee on dining tables, checkout counters, or event banners. Customers scan to view your full live menu with zero app download.'
+                  : 'Place 1 master Store QR at your entrance or checkout counter so shoppers can browse full inventory on their phones, alongside individual item shelf price tags.'}
+              </p>
+            </div>
+          </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-1">
-          <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
-            Digitized Items
-          </span>
-          <p className="text-2xl font-black text-slate-900 dark:text-white">{items.length}</p>
-        </div>
+          <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
+            <Link
+              href={`/businesses/${businessId}/qr-studio?preset=storefront_master`}
+              className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-slate-800 active:scale-[0.98] transition-all"
+            >
+              <Printer size={15} className="text-emerald-400" />
+              <span>Print Store Standee (A5)</span>
+            </Link>
 
-        <div className="col-span-2 sm:col-span-1 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-1">
-          <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
-            Quick Print
-          </span>
-          <Link
-            href={`/businesses/${businessId}/qr-studio`}
-            className="text-xs font-black text-emerald-700 dark:text-[var(--lime-base)] hover:underline flex items-center gap-1 mt-1"
-          >
-            <span>Launch QR Studio</span>
-            <ChevronRight size={14} />
-          </Link>
+            <Link
+              href={`/businesses/${businessId}/qr-studio?preset=shelf_tag`}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all"
+            >
+              <span>Batch Print Item Tags</span>
+              <ChevronRight size={14} className="text-slate-400" />
+            </Link>
+          </div>
         </div>
       </div>
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Crown, Briefcase, MapPin, Trash2, UserCheck, ShieldAlert, Mail } from 'lucide-react'
+import { Crown, Briefcase, MapPin, Trash2, ShieldAlert, X, AlertTriangle, UserX } from 'lucide-react'
 import type { TeamMember } from '../types'
 import { revokeRoleAction } from '../actions'
 import { InviteTeammateIllustration } from '@/components/illustrations'
@@ -12,19 +12,22 @@ interface TeamMemberListProps {
 }
 
 export function TeamMemberList({ members, canManage = true }: TeamMemberListProps) {
-  const [revokingId, setRevokingId] = useState<string | null>(null)
+  const [revokingMember, setRevokingMember] = useState<TeamMember | null>(null)
+  const [isPending, setIsPending] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
-  const handleRevoke = async (id: string) => {
-    if (!confirm('Are you sure you want to revoke this team member access?')) return
-    setRevokingId(id)
+  const handleConfirmRevoke = async () => {
+    if (!revokingMember) return
+    setIsPending(true)
     setErrorMsg(null)
 
-    const res = await revokeRoleAction({ role_assignment_id: id })
-    setRevokingId(null)
+    const res = await revokeRoleAction({ role_assignment_id: revokingMember.id })
+    setIsPending(false)
 
     if (!res.success) {
       setErrorMsg(res.error)
+    } else {
+      setRevokingMember(null)
     }
   }
 
@@ -112,8 +115,8 @@ export function TeamMemberList({ members, canManage = true }: TeamMemberListProp
                 <button
                   type="button"
                   id={`revoke-btn-${member.id}`}
-                  disabled={revokingId === member.id}
-                  onClick={() => handleRevoke(member.id)}
+                  disabled={isPending}
+                  onClick={() => setRevokingMember(member)}
                   title="Revoke Role Access"
                   className="shrink-0 text-slate-300 hover:text-red-500 transition-colors p-2 disabled:opacity-50"
                 >
@@ -124,6 +127,68 @@ export function TeamMemberList({ members, canManage = true }: TeamMemberListProp
           )
         })}
       </div>
+
+      {/* Revoke Member Confirmation Modal */}
+      {revokingMember && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm transition-opacity"
+            onClick={() => {
+              if (!isPending) setRevokingMember(null)
+            }}
+          />
+          <div className="relative z-10 w-full max-w-md overflow-hidden rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-7 shadow-2xl dark:border-slate-800 dark:bg-slate-900 text-slate-900 dark:text-white animate-in zoom-in-95 duration-200">
+            <button
+              onClick={() => setRevokingMember(null)}
+              disabled={isPending}
+              className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-rose-500/10 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400 border border-rose-500/30">
+                <UserX size={24} />
+              </div>
+              <div>
+                <h3 className="text-lg font-black tracking-tight text-slate-900 dark:text-white">
+                  Revoke Staff Access?
+                </h3>
+                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 truncate max-w-[240px]">
+                  {revokingMember.userEmail}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5 rounded-2xl border border-rose-200/80 bg-rose-50/60 p-4 text-xs dark:border-rose-900/50 dark:bg-rose-950/20 text-rose-950 dark:text-rose-200">
+              <p className="font-extrabold">Immediate Permission Revocation</p>
+              <p className="mt-1 text-[11px] leading-relaxed text-rose-900/80 dark:text-rose-300/80">
+                This user will immediately lose access to manage <strong>{revokingMember.scopeName}</strong> and won't be able to edit items or view analytics.
+              </p>
+            </div>
+
+            <div className="mt-6 flex flex-col sm:flex-row items-center gap-2.5">
+              <button
+                type="button"
+                onClick={handleConfirmRevoke}
+                disabled={isPending}
+                id="confirm-revoke-member-btn"
+                className="flex flex-1 w-full items-center justify-center gap-2 rounded-xl bg-rose-600 py-3.5 text-xs font-black text-white shadow-md shadow-rose-600/20 hover:bg-rose-500 active:scale-[0.98] disabled:opacity-50 transition-all"
+              >
+                <span>{isPending ? 'Revoking…' : 'Yes, Revoke Access'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setRevokingMember(null)}
+                disabled={isPending}
+                className="flex w-full sm:w-auto items-center justify-center rounded-xl border border-slate-200 bg-slate-50 px-5 py-3.5 text-xs font-bold text-slate-700 hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-300 transition-all"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

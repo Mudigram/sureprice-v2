@@ -25,6 +25,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = `${business.name} · ${typeLabel}`
   const description = `Browse verified products, menu items, and real-time prices in Naira at ${business.name} on SurePrice.`
 
+  const coverUrl = (() => {
+    const st = business.storefront as Record<string, unknown> | null
+    if (!st) return undefined
+    const candidates = [
+      st.cover_url,
+      (st.theme as Record<string, unknown> | null)?.cover_url,
+      (st.theme as Record<string, unknown> | null)?.coverUrl,
+    ]
+    const raw = candidates.find((c) => typeof c === 'string') as string | undefined
+    if (!raw) return undefined
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
+    if (raw.startsWith('http')) return raw
+    return `${supabaseUrl}/storage/v1/object/public/catalog-media/${raw}`
+  })()
+
   return {
     title,
     description,
@@ -33,11 +48,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       type: 'website',
       siteName: 'SurePrice',
+      ...(coverUrl ? { images: [{ url: coverUrl, width: 1200, height: 630, alt: `${business.name} — Verified Menu` }] } : {}),
     },
     twitter: {
-      card: 'summary',
+      card: coverUrl ? 'summary_large_image' : 'summary',
       title,
       description,
+      ...(coverUrl ? { images: [coverUrl] } : {}),
     },
   }
 }

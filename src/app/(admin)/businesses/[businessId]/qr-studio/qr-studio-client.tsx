@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import {
   Printer,
   CheckSquare,
@@ -32,10 +33,26 @@ export function QrStudioClient({
   catalogItems,
   existingQrCodes,
 }: QrStudioClientProps) {
+  const searchParams = useSearchParams()
+  const initialPresetParam = searchParams.get('preset') as PrintPreset | null
+
+  const isDiningOrEvent =
+    business.business_type === 'restaurant' ||
+    business.business_type === 'cafe' ||
+    business.business_type === 'popup_vendor' ||
+    business.business_type === 'event_vendor'
+
+  const defaultPreset: PrintPreset =
+    initialPresetParam && ['shelf_tag', 'sticker', 'table_standee', 'batch_a4', 'storefront_master'].includes(initialPresetParam)
+      ? initialPresetParam
+      : isDiningOrEvent
+      ? 'storefront_master'
+      : 'shelf_tag'
+
   const [selectedIds, setSelectedIds] = useState<string[]>(
     catalogItems.map((i) => i.id)
   )
-  const [preset, setPreset] = useState<PrintPreset>('shelf_tag')
+  const [preset, setPreset] = useState<PrintPreset>(defaultPreset)
   const [isPreparing, setIsPreparing] = useState(false)
   const [printableItems, setPrintableItems] = useState<PrintableItem[]>([])
 
@@ -44,6 +61,8 @@ export function QrStudioClient({
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [currentPage, setCurrentPage] = useState(1)
   const ITEMS_PER_PAGE = 8
+  const [wifiSsid, setWifiSsid] = useState(`${business.name}_Guest`)
+  const [wifiPassword, setWifiPassword] = useState('sureprice')
 
   const toggleSelect = (id: string) => {
     setSelectedIds((prev) =>
@@ -113,7 +132,7 @@ export function QrStudioClient({
   const handleLaunchPrint = async () => {
     setIsPreparing(true)
 
-    if (preset === 'storefront_master') {
+    if (preset === 'storefront_master' || preset === 'wifi_combo') {
       const themeTagline = (business.storefront?.theme && typeof business.storefront.theme === 'object')
         ? (business.storefront.theme as Record<string, string>).tagline
         : null
@@ -127,6 +146,8 @@ export function QrStudioClient({
           businessName: business.name,
           customUrl: storeUrl,
           tagline: themeTagline || 'Scan to browse our live prices & menu',
+          wifiSsid: wifiSsid,
+          wifiPassword: wifiPassword,
         },
       ])
 
@@ -293,8 +314,69 @@ export function QrStudioClient({
                 <p className={`text-[10px] ${preset === 'batch_a4' ? 'text-slate-300' : 'text-slate-500'}`}>8 tags per paper sheet</p>
               </div>
             </button>
+
+            <button
+              type="button"
+              onClick={() => setPreset('wifi_combo')}
+              className={`flex flex-col items-start gap-1.5 rounded-xl border p-4 text-left transition-all ${
+                preset === 'wifi_combo'
+                  ? 'border-slate-900 bg-slate-900 text-white shadow-sm'
+                  : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
+              }`}
+            >
+              <Utensils size={18} className={preset === 'wifi_combo' ? 'text-emerald-400' : 'text-slate-500'} />
+              <div>
+                <p className="font-bold text-xs">Wi-Fi + Menu Combo</p>
+                <p className={`text-[10px] ${preset === 'wifi_combo' ? 'text-slate-300' : 'text-slate-500'}`}>Guest Wi-Fi & Menu A5</p>
+              </div>
+            </button>
           </div>
         </div>
+
+        {/* Wi-Fi Credentials Settings Box */}
+        {preset === 'wifi_combo' && (
+          <div className="space-y-4 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-6 shadow-sm">
+            <div className="flex items-center gap-2">
+              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-600 text-white font-bold">
+                📶
+              </span>
+              <div>
+                <h3 className="text-sm font-black text-slate-900">In-Store Wi-Fi Credentials</h3>
+                <p className="text-xs text-slate-500 font-medium">
+                  Enter the Wi-Fi details printed on your A5 Table Standee so dining guests can connect instantly.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+              <div>
+                <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1">
+                  Wi-Fi Network Name (SSID)
+                </label>
+                <input
+                  type="text"
+                  value={wifiSsid}
+                  onChange={(e) => setWifiSsid(e.target.value)}
+                  placeholder="e.g. Cafe_Guest_WiFi"
+                  className="h-11 w-full rounded-xl border border-emerald-300 bg-white px-3.5 text-xs font-mono font-bold text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:outline-none shadow-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1">
+                  Wi-Fi Password
+                </label>
+                <input
+                  type="text"
+                  value={wifiPassword}
+                  onChange={(e) => setWifiPassword(e.target.value)}
+                  placeholder="e.g. sureprice2026"
+                  className="h-11 w-full rounded-xl border border-emerald-300 bg-white px-3.5 text-xs font-mono font-bold text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:outline-none shadow-sm"
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Step 2: Item Selector with Search & Pagination */}
         {preset !== 'storefront_master' && (

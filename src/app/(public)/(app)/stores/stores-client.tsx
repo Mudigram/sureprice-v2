@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Store as StoreIcon, Search, Clock, RotateCcw } from 'lucide-react'
 import { StoreCard } from '@/components/storefront/store-card'
-import { computeIsOpen, type StorefrontBusiness } from '@/features/storefront/types'
+import { computeIsOpen, type StorefrontBusiness, type WeeklyOperatingHours, type StatusOverride } from '@/features/storefront/types'
 
 const VENUE_FILTERS = [
   { label: 'All Businesses', value: 'all' },
@@ -59,8 +59,12 @@ export function StoresClient({ businesses }: StoresClientProps) {
       (selectedType === 'popup_vendor' && (b.business_type === 'popup_vendor' || b.business_type === 'event_vendor'))
 
     const primaryLocation = b.locations?.[0]
-    const hours = primaryLocation?.location_hours
-    const { isOpen } = computeIsOpen(hours)
+    const theme = (b.storefront?.theme && typeof b.storefront.theme === 'object')
+      ? (b.storefront.theme as Record<string, unknown>)
+      : {}
+    const themeHours = theme.operating_hours as WeeklyOperatingHours | undefined
+    const themeStatusOverride = theme.status_override as StatusOverride | undefined
+    const { isOpen } = computeIsOpen(themeHours || primaryLocation?.location_hours, themeStatusOverride)
     const matchesOpen = !openOnly || isOpen
 
     return matchesSearch && matchesArea && matchesType && matchesOpen

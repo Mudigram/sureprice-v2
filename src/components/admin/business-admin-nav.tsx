@@ -19,13 +19,14 @@ import {
   Ticket,
   Store,
   ArrowLeft,
+  ChevronDown,
 } from 'lucide-react'
 import type { StorefrontBusiness } from '@/features/storefront/types'
 import { getBrandFallbackSvgIcon } from '@/components/icons'
 
 interface BusinessAdminNavProps {
   business: StorefrontBusiness
-  currentSection?: 'overview' | 'catalog' | 'categories' | 'qr-studio' | 'analytics' | 'team' | 'edit'
+  currentSection?: 'overview' | 'catalog' | 'categories' | 'storefront' | 'qr-studio' | 'analytics' | 'team' | 'edit'
 }
 
 export function BusinessAdminNav({ business, currentSection }: BusinessAdminNavProps) {
@@ -98,6 +99,13 @@ export function BusinessAdminNav({ business, currentSection }: BusinessAdminNavP
       href: `/businesses/${business.id}/categories`,
       icon: FolderTree,
       active: pathname.includes('/categories'),
+    },
+    {
+      id: 'storefront',
+      label: 'Storefront Studio',
+      href: `/businesses/${business.id}/storefront`,
+      icon: Store,
+      active: pathname.includes('/storefront'),
     },
     {
       id: 'qr-studio',
@@ -176,12 +184,23 @@ export function BusinessAdminNav({ business, currentSection }: BusinessAdminNavP
             )}
           </div>
 
-          {/* Store Name & Type Badge */}
+          {/* Store Name & Type Badge with Quick Store Switcher */}
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <h1 className="truncate text-xl font-black tracking-tight text-slate-900">
-                {business.name}
-              </h1>
+            <div className="flex items-center gap-2 flex-wrap">
+              <Link
+                href="/dashboard"
+                className="group inline-flex items-center gap-1.5 rounded-xl hover:bg-slate-100 p-1 -m-1 transition-all"
+                title="Switch Business Store"
+              >
+                <h1 className="truncate text-xl font-black tracking-tight text-slate-900 group-hover:text-emerald-700 transition-colors">
+                  {business.name}
+                </h1>
+                <span className="inline-flex items-center gap-0.5 rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-500 group-hover:bg-emerald-100 group-hover:text-emerald-800 transition-colors">
+                  <span>Switch</span>
+                  <ChevronDown size={11} />
+                </span>
+              </Link>
+
               <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-700 border border-slate-200 shrink-0">
                 <TypeIcon size={11} />
                 {typeLabel}
@@ -194,7 +213,16 @@ export function BusinessAdminNav({ business, currentSection }: BusinessAdminNavP
         </div>
 
         {/* Right CTA Actions */}
-        <div className="flex items-center gap-2.5 shrink-0">
+        <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
+          <Link
+            href={`/businesses/${business.id}/qr-studio?preset=storefront_master`}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-800 hover:bg-emerald-100 transition-all"
+            title="Print Master Storefront QR Standee"
+          >
+            <Printer size={13} className="text-emerald-700" />
+            <span>Store QR Code</span>
+          </Link>
+
           <Link
             href={`/s/${business.slug}`}
             target="_blank"
@@ -209,14 +237,14 @@ export function BusinessAdminNav({ business, currentSection }: BusinessAdminNavP
             href={`/businesses/${business.id}/catalog-items/new`}
             className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-slate-800 active:scale-[0.98] transition-all"
           >
-            <Plus size={14} strokeWidth={3} className="text-[var(--lime-base)]" />
+            <Plus size={14} strokeWidth={3} className="text-emerald-400" />
             <span>New Item</span>
           </Link>
         </div>
       </div>
 
       {/* Navigation Tabs Bar */}
-      <div className="flex gap-1 overflow-x-auto no-scrollbar pt-2 border-t border-slate-100">
+      <div className="flex gap-1 overflow-x-auto touch-pan-x scrollbar-thin scrollbar-thumb-slate-200 hover:scrollbar-thumb-slate-300 pt-2 border-t border-slate-100">
         {navTabs.map((tab) => {
           const Icon = tab.icon
           return (

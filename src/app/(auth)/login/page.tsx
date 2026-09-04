@@ -152,6 +152,13 @@ function LoginContent() {
             <span>Sign In to Dashboard</span>
             <ArrowRight size={16} />
           </button>
+
+          <div className="text-center pt-2 text-xs text-slate-500 font-medium">
+            New store owner with pilot code?{' '}
+            <Link href="/register" className="text-emerald-700 font-black hover:underline">
+              Register here
+            </Link>
+          </div>
         </form>
       )}
 

@@ -14,13 +14,16 @@ import {
   Tag,
   ArrowRight,
   Filter,
+  Star,
+  Sparkles,
+  Camera,
 } from 'lucide-react'
 import { BusinessAdminNav } from '@/components/admin/business-admin-nav'
 import { ConciergeOnboardingCard } from '@/components/admin/concierge-onboarding-card'
 import { WhatsAppStoryModal } from '@/features/marketing/components/whatsapp-story-modal'
 import type { StorefrontBusiness, StorefrontItem } from '@/features/storefront/types'
 import { getCategorySvgIcon } from '@/components/icons'
-import { Sparkles, Camera } from 'lucide-react'
+import { quickUpdateCatalogItem } from '@/features/catalog-items/actions'
 
 interface CatalogItemsClientProps {
   business: StorefrontBusiness
@@ -31,6 +34,9 @@ export function CatalogItemsClient({ business, items }: CatalogItemsClientProps)
   const [search, setSearch] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [isStoryModalOpen, setIsStoryModalOpen] = useState(false)
+  const [editingItemId, setEditingItemId] = useState<string | null>(null)
+  const [editPriceInput, setEditPriceInput] = useState<string>('')
+  const [isSaving, setIsSaving] = useState(false)
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
   const resolveUrl = (path: string | null | undefined): string => {
@@ -60,14 +66,18 @@ export function CatalogItemsClient({ business, items }: CatalogItemsClientProps)
   // Filtered items
   const filtered = useMemo(() => {
     return items.filter((item) => {
-      const q = search.toLowerCase()
-      const matchesSearch =
-        !search ||
-        item.name.toLowerCase().includes(q) ||
-        (item.sku && item.sku.toLowerCase().includes(q))
+      const q = search.toLowerCase().trim()
+      if (!q) {
+        return selectedCategory === 'all' || item.category?.id === selectedCategory
+      }
+      const matchesName = item.name.toLowerCase().includes(q)
+      const matchesSku = (item as unknown as { sku?: string }).sku?.toLowerCase().includes(q)
+      const matchesDesc = item.description?.toLowerCase().includes(q)
+      const matchesPrice = item.base_price !== null && item.base_price.toString().includes(q)
       const matchesCategory =
         selectedCategory === 'all' || item.category?.id === selectedCategory
-      return matchesSearch && matchesCategory
+
+      return (matchesName || matchesSku || matchesDesc || matchesPrice) && matchesCategory
     })
   }, [items, search, selectedCategory])
 
@@ -157,7 +167,7 @@ export function CatalogItemsClient({ business, items }: CatalogItemsClientProps)
 
           {/* Category Pills */}
           {categories.length > 0 && (
-            <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+            <div className="flex gap-2 overflow-x-auto pb-1.5 touch-pan-x scrollbar-thin scrollbar-thumb-slate-200 hover:scrollbar-thumb-slate-300">
               <button
                 type="button"
                 onClick={() => handleCategorySelect('all')}
@@ -244,44 +254,159 @@ export function CatalogItemsClient({ business, items }: CatalogItemsClientProps)
                     <div className="flex min-w-0 flex-1 flex-col justify-between self-stretch py-0.5">
                       <div>
                         <div className="flex items-start justify-between gap-2">
-                          <h3 className="truncate text-sm font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
-                            {item.name}
-                          </h3>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <h3 className="truncate text-sm font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
+                                {item.name}
+                              </h3>
+                              {Boolean((item.attributes as Record<string, unknown> | null)?.is_featured) && (
+                                <span className="inline-flex items-center gap-0.5 rounded-md bg-amber-50 px-1.5 py-0.5 text-[9px] font-black text-amber-800 border border-amber-200">
+                                  <Star size={10} className="fill-amber-500 text-amber-500" />
+                                  <span>Featured</span>
+                                </span>
+                              )}
+                              {(item.attributes as Record<string, unknown> | null)?.in_stock === false && (
+                                <span className="inline-flex items-center rounded-md bg-rose-50 px-1.5 py-0.5 text-[9px] font-extrabold text-rose-700 border border-rose-200">
+                                  Sold Out
+                                </span>
+                              )}
+                            </div>
+                            {item.sku && (
+                              <p className="mt-0.5 font-mono text-[10px] text-slate-400">
+                                SKU: {item.sku}
+                              </p>
+                            )}
+                          </div>
 
-                          {item.category && (
-                            <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-slate-600 border border-slate-200">
-                              {item.category.name}
-                            </span>
+                          <div className="flex items-center gap-1 shrink-0">
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                const attrs = (item.attributes && typeof item.attributes === 'object') ? { ...(item.attributes as Record<string, unknown>) } : {}
+                                attrs.is_featured = !Boolean(attrs.is_featured)
+                                await quickUpdateCatalogItem(item.id, business.id, { attributes: attrs })
+                              }}
+                              className={`p-1.5 rounded-lg border transition-all ${
+                                (item.attributes as Record<string, unknown> | null)?.is_featured
+                                  ? 'bg-amber-50 border-amber-300 text-amber-600'
+                                  : 'bg-white border-slate-200 text-slate-400 hover:text-amber-500 hover:border-amber-300'
+                              }`}
+                              title={(item.attributes as Record<string, unknown> | null)?.is_featured ? 'Unpin from Bestsellers' : 'Pin to Bestsellers'}
+                            >
+                              <Star size={13} className={(item.attributes as Record<string, unknown> | null)?.is_featured ? 'fill-amber-500' : ''} />
+                            </button>
+
+                            {item.category && (
+                              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-slate-600 border border-slate-200">
+                                {item.category.name}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Price, Stock & Action Row */}
+                      <div className="mt-2 flex items-center justify-between border-t border-slate-100 pt-2 flex-wrap gap-2">
+                        <div className="flex items-center gap-2">
+                          {editingItemId === item.id ? (
+                            <div className="flex items-center gap-1">
+                              <span className="text-xs font-bold text-slate-500">₦</span>
+                              <input
+                                type="number"
+                                value={editPriceInput}
+                                onChange={(e) => setEditPriceInput(e.target.value)}
+                                className="h-8 w-24 rounded-lg border border-emerald-400 bg-white px-2 text-xs font-extrabold text-slate-900 focus:outline-none"
+                                autoFocus
+                              />
+                              <button
+                                type="button"
+                                onClick={async () => {
+                                  setIsSaving(true)
+                                  const p = editPriceInput.trim() ? parseFloat(editPriceInput) : null
+                                  await quickUpdateCatalogItem(item.id, business.id, { base_price: p })
+                                  setIsSaving(false)
+                                  setEditingItemId(null)
+                                }}
+                                disabled={isSaving}
+                                className="rounded-lg bg-emerald-600 px-2 py-1 text-[10px] font-bold text-white hover:bg-emerald-700"
+                              >
+                                Save
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setEditingItemId(null)}
+                                className="rounded-lg bg-slate-100 px-2 py-1 text-[10px] font-bold text-slate-600 hover:bg-slate-200"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingItemId(item.id)
+                                setEditPriceInput(item.base_price !== null ? String(item.base_price) : '')
+                              }}
+                              className="group/price inline-flex items-center gap-1 rounded-lg hover:bg-emerald-50 px-1.5 py-0.5 -ml-1 transition-all"
+                              title="Click to quick-edit price"
+                            >
+                              <span className="text-sm font-black text-emerald-700">
+                                {item.base_price !== null ? `₦${item.base_price.toLocaleString()}` : 'Price on request'}
+                              </span>
+                              <Edit size={10} className="text-emerald-500 opacity-0 group-hover/price:opacity-100 transition-opacity" />
+                            </button>
                           )}
                         </div>
 
-                        {item.sku && (
-                          <p className="mt-0.5 font-mono text-[10px] text-slate-400">
-                            SKU: {item.sku}
-                          </p>
-                        )}
-                      </div>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              const attrs = (item.attributes && typeof item.attributes === 'object') ? { ...(item.attributes as Record<string, unknown>) } : {}
+                              const currentlyInStock = attrs.in_stock !== false
+                              attrs.in_stock = !currentlyInStock
+                              await quickUpdateCatalogItem(item.id, business.id, { attributes: attrs })
+                            }}
+                            className={`rounded-lg px-2 py-1 text-[10px] font-bold border transition-colors ${
+                              (item.attributes as Record<string, unknown> | null)?.in_stock === false
+                                ? 'border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100'
+                                : 'border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100'
+                            }`}
+                            title="Toggle Stock Availability"
+                          >
+                            {(item.attributes as Record<string, unknown> | null)?.in_stock === false ? 'Mark In Stock' : 'In Stock'}
+                          </button>
 
-                      {/* Price & Action Row */}
-                      <div className="mt-2 flex items-center justify-between border-t border-slate-100 pt-2">
-                        <span className="text-sm font-black text-emerald-700">
-                          {item.base_price !== null ? `₦${item.base_price.toLocaleString()}` : 'Price on request'}
-                        </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const cleanName = encodeURIComponent(item.name)
+                              const priceStr = item.base_price ? ` (₦${item.base_price.toLocaleString()})` : ''
+                              const text = encodeURIComponent(`Hi, I would like to inquire/order ${item.name}${priceStr} seen on ${business.name}.`)
+                              const waUrl = `https://wa.me/?text=${text}`
+                              navigator.clipboard.writeText(waUrl)
+                              alert(`WhatsApp pre-filled order link copied to clipboard!\n\n${waUrl}`)
+                            }}
+                            className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1 text-[10px] font-bold text-emerald-800 hover:bg-emerald-100 transition-colors"
+                            title="Copy Pre-filled WhatsApp Order Link"
+                          >
+                            <Camera size={11} className="text-emerald-700" />
+                            <span>WhatsApp Link</span>
+                          </button>
 
-                        <div className="flex items-center gap-2">
                           <Link
                             href={`/businesses/${business.id}/catalog-items/${item.id}`}
-                            className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:bg-slate-100 transition-colors"
+                            className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:bg-slate-100 transition-colors"
                           >
-                            <Edit size={12} />
+                            <Edit size={11} />
                             <span>Edit</span>
                           </Link>
 
                           <Link
                             href={`/businesses/${business.id}/qr-studio`}
-                            className="inline-flex items-center gap-1 rounded-xl bg-slate-900 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-slate-800 transition-colors"
+                            className="inline-flex items-center gap-1 rounded-lg bg-slate-900 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-slate-800 transition-colors"
                           >
-                            <ScanLine size={12} className="text-emerald-400" />
+                            <ScanLine size={11} className="text-emerald-400" />
                             <span>QR Tag</span>
                           </Link>
                         </div>
