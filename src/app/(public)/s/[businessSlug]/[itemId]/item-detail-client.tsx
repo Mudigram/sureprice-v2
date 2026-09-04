@@ -20,6 +20,7 @@ import {
   Barcode,
   Images,
   Maximize2,
+  ArrowRight,
 } from 'lucide-react'
 import { addToHistory } from '@/lib/storefront/local-storage'
 import { useCart } from '@/context/CartContext'
@@ -371,6 +372,27 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
             </p>
           </div>
         </div>
+
+        {/* Browse Full Store CTA */}
+        <Link
+          href={`/s/${businessSlug}`}
+          className="flex items-center justify-between rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 group transition-all hover:border-slate-300 active:scale-[0.98]"
+        >
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300">
+              <Store size={18} />
+            </div>
+            <div>
+              <p className="text-xs font-black text-slate-900 dark:text-zinc-100">
+                Browse full menu at {business.name}
+              </p>
+              <p className="text-[10px] text-slate-400 dark:text-zinc-500 font-medium">
+                See all items, specials &amp; categories
+              </p>
+            </div>
+          </div>
+          <ArrowRight size={16} className="text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+        </Link>
 
         {/* WhatsApp Direct Order / Inquiry Button */}
         <button

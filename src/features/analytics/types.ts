@@ -3,6 +3,18 @@ export interface ScanAnalyticsSummary {
   todayScans: number
   topItems: TopScannedItem[]
   recentActivity: RecentScanEvent[]
+  hourlyScanDistribution: HourlyScanPoint[]
+  whatsappEstimate: WhatsAppConversionEstimate
+}
+
+export interface HourlyScanPoint {
+  hour: number          // 0-23
+  scanCount: number
+}
+
+export interface WhatsAppConversionEstimate {
+  estimatedInquiries: number   // totalScans * assumed inquiry rate
+  estimatedPriceNotes: number  // totalScans * assumed price-noted rate
 }
 
 export interface TopScannedItem {

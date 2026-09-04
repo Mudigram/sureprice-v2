@@ -570,6 +570,32 @@ export default function CartPage() {
               </span>
             </div>
 
+            {/* WhatsApp Share Full Price List */}
+            <button
+              type="button"
+              onClick={() => {
+                let text = `🛒 My SurePrice Shopping List\n`
+                text += `${'\u2500'.repeat(28)}\n`
+                for (const group of storeGroups) {
+                  const storeTotal = group.items.reduce((sum, i) => sum + (i.base_price ?? 0) * i.quantity, 0)
+                  text += `\n📍 ${group.name}\n`
+                  for (const i of group.items) {
+                    const priceStr = i.base_price ? ` — ₦${(i.base_price * i.quantity).toLocaleString()}` : ''
+                    text += `• ${i.name} (x${i.quantity})${priceStr}\n`
+                  }
+                  text += `Subtotal: ₦${storeTotal.toLocaleString()}\n`
+                }
+                text += `\n${'\u2500'.repeat(28)}\n`
+                text += `Grand Total: ₦${grandTotal.toLocaleString()}\n`
+                text += `Verified via SurePrice`
+                const waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`
+                window.open(waUrl, '_blank')
+              }}
+              className="flex items-center justify-center gap-2 w-full rounded-2xl border border-emerald-500/30 bg-emerald-50/80 py-3 text-xs font-black text-emerald-900 shadow-sm transition-all hover:bg-emerald-100 active:scale-95 dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300"
+            >
+              <span>💬 Share Price List on WhatsApp</span>
+            </button>
+
             <div className="rounded-2xl bg-blue-50/70 p-3 text-center border border-blue-200/80 dark:bg-blue-950/30 dark:border-blue-900/50">
               <p className="text-xs font-extrabold text-blue-950 dark:text-blue-200">
                 Show these store reference lists at physical checkout or use them to guide your shopping trip.

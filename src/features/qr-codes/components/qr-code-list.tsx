@@ -1,10 +1,12 @@
 'use client'
 
-import { useTransition } from 'react'
+import { useState, useTransition } from 'react'
 import { RefreshCcw, ShieldOff, ScanLine } from 'lucide-react'
 import { regenerateQrCode, revokeQrCode } from '../actions'
 import type { QrCode } from '../types'
 import { getScanUrl } from '@/lib/qr/scan-url'
+import { RegenerateQrModal } from './regenerate-qr-modal'
+import { RevokeQrModal } from './revoke-qr-modal'
 
 interface QrCodeListProps {
   codes: QrCode[]
@@ -13,6 +15,24 @@ interface QrCodeListProps {
 
 export function QrCodeList({ codes }: QrCodeListProps) {
   const [isPending, startTransition] = useTransition()
+  const [activeRegenQr, setActiveRegenQr] = useState<QrCode | null>(null)
+  const [activeRevokeQr, setActiveRevokeQr] = useState<QrCode | null>(null)
+
+  const handleConfirmRegenerate = () => {
+    if (!activeRegenQr) return
+    startTransition(async () => {
+      await regenerateQrCode(activeRegenQr.id)
+      setActiveRegenQr(null)
+    })
+  }
+
+  const handleConfirmRevoke = () => {
+    if (!activeRevokeQr) return
+    startTransition(async () => {
+      await revokeQrCode(activeRevokeQr.id)
+      setActiveRevokeQr(null)
+    })
+  }
 
   if (codes.length === 0) {
     return (
@@ -72,30 +92,24 @@ export function QrCodeList({ codes }: QrCodeListProps) {
             {!isArchived && (
               <div className="flex items-center gap-2 shrink-0">
                 <button
-                  onClick={() =>
-                    startTransition(async () => {
-                      await regenerateQrCode(qr.id)
-                    })
-                  }
+                  type="button"
+                  onClick={() => setActiveRegenQr(qr)}
                   disabled={isPending}
                   id={`regen-qr-${qr.id}`}
-                  className="flex items-center gap-1 rounded-xl border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-900 hover:bg-blue-100 transition-colors disabled:opacity-50 dark:border-blue-900/50 dark:bg-blue-950/40 dark:text-blue-300"
+                  className="flex items-center gap-1 rounded-xl border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-900 hover:bg-amber-100 transition-colors disabled:opacity-50 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-300"
                 >
-                  <RefreshCcw size={13} />
+                  <RefreshCcw size={13} className={isPending && activeRegenQr?.id === qr.id ? 'animate-spin' : ''} />
                   <span>Regenerate</span>
                 </button>
 
                 <button
-                  onClick={() =>
-                    startTransition(async () => {
-                      await revokeQrCode(qr.id)
-                    })
-                  }
+                  type="button"
+                  onClick={() => setActiveRevokeQr(qr)}
                   disabled={isPending}
                   id={`revoke-qr-${qr.id}`}
                   className="flex items-center gap-1 rounded-xl border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-bold text-red-900 hover:bg-red-100 transition-colors disabled:opacity-50 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300"
                 >
-                  <ShieldOff size={13} />
+                  <ShieldOff size={13} className={isPending && activeRevokeQr?.id === qr.id ? 'animate-spin' : ''} />
                   <span>Revoke</span>
                 </button>
               </div>
@@ -103,6 +117,29 @@ export function QrCodeList({ codes }: QrCodeListProps) {
           </div>
         )
       })}
+
+      {/* Regenerate Confirmation Modal */}
+      {activeRegenQr && (
+        <RegenerateQrModal
+          isOpen={activeRegenQr !== null}
+          qrCode={activeRegenQr.code}
+          scanCount={activeRegenQr.scan_count}
+          isPending={isPending}
+          onConfirm={handleConfirmRegenerate}
+          onClose={() => setActiveRegenQr(null)}
+        />
+      )}
+
+      {/* Revoke Confirmation Modal */}
+      {activeRevokeQr && (
+        <RevokeQrModal
+          isOpen={activeRevokeQr !== null}
+          qrCode={activeRevokeQr.code}
+          isPending={isPending}
+          onConfirm={handleConfirmRevoke}
+          onClose={() => setActiveRevokeQr(null)}
+        />
+      )}
     </div>
   )
 }

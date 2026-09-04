@@ -44,11 +44,11 @@ export default function NoAccessPage() {
         {/* Actions */}
         <div className="space-y-2 pt-2">
           <Link
-            href="/businesses/new"
+            href="/register"
             className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--lime-base)] py-3.5 text-xs font-black text-black shadow-md shadow-[var(--lime-base)]/25 transition-transform active:scale-95"
           >
             <Building2 size={16} />
-            <span>Create New Business / Organization</span>
+            <span>Register Store Organization (Pilot Access)</span>
             <ArrowRight size={14} />
           </Link>
 

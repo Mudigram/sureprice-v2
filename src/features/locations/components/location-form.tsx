@@ -30,6 +30,14 @@ export function LocationForm({ businessId }: { businessId: string }) {
         await createLocation(data)
         setIsSuccess(true)
       } catch (err: any) {
+        // Next.js redirect throws a special NEXT_REDIRECT error which is expected
+        if (
+          err?.digest?.startsWith('NEXT_REDIRECT') ||
+          err?.message === 'NEXT_REDIRECT' ||
+          (typeof err === 'object' && err !== null && 'digest' in err && String(err.digest).startsWith('NEXT_REDIRECT'))
+        ) {
+          return
+        }
         console.error('Location creation error:', err)
         setFormError(err?.message || 'Failed to create location. Please check your network and try again.')
       }

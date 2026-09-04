@@ -6,6 +6,7 @@ import { getOrCreateActiveQrCode, regenerateQrCode } from '../actions'
 import type { QrCode } from '../types'
 import { getScanUrl } from '@/lib/qr/scan-url'
 import { RefreshCcw, Download, ExternalLink, ScanLine } from 'lucide-react'
+import { RegenerateQrModal } from './regenerate-qr-modal'
 
 interface QrPanelProps {
   itemId: string
@@ -19,6 +20,7 @@ export function QrPanel({ itemId, businessId, initialQrCode }: QrPanelProps) {
   const [qrCode, setQrCode] = useState<QrCode | null>(initialQrCode)
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
   const [isGenerating, setIsGenerating] = useState(false)
+  const [isRegenModalOpen, setIsRegenModalOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const publicUrl = qrCode ? getScanUrl(qrCode.code) : null
@@ -53,17 +55,17 @@ export function QrPanel({ itemId, businessId, initialQrCode }: QrPanelProps) {
     }
   }
 
-  const handleRegenerate = async () => {
+  const handleConfirmRegenerate = async () => {
     if (!qrCode) return
-    if (!confirm('Regenerate QR code? Old printed code will stop resolving, but scan count history will be preserved.')) return
 
     setIsGenerating(true)
     setError(null)
     try {
       const fresh = await regenerateQrCode(qrCode.id)
       setQrCode(fresh)
+      setIsRegenModalOpen(false)
     } catch {
-      setError('Failed to regenerate QR code.')
+      setError('Failed to regenerate QR code. Please try again.')
     } finally {
       setIsGenerating(false)
     }
@@ -152,12 +154,13 @@ export function QrPanel({ itemId, businessId, initialQrCode }: QrPanelProps) {
 
               <button
                 id="regen-item-qr-btn"
-                onClick={handleRegenerate}
+                type="button"
+                onClick={() => setIsRegenModalOpen(true)}
                 disabled={isGenerating}
-                className="flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-bold text-blue-900 transition-colors hover:bg-blue-100 dark:border-blue-900/50 dark:bg-blue-950/40 dark:text-blue-300"
+                className="flex items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-900 transition-colors hover:bg-amber-100 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-300"
               >
-                <RefreshCcw size={14} />
-                <span>Regenerate</span>
+                <RefreshCcw size={14} className={isGenerating ? 'animate-spin' : ''} />
+                <span>Regenerate Tag</span>
               </button>
 
               <a
@@ -179,6 +182,17 @@ export function QrPanel({ itemId, businessId, initialQrCode }: QrPanelProps) {
         <p className="mt-2 text-xs font-bold text-red-500" role="alert">
           {error}
         </p>
+      )}
+
+      {qrCode && (
+        <RegenerateQrModal
+          isOpen={isRegenModalOpen}
+          qrCode={qrCode.code}
+          scanCount={qrCode.scan_count}
+          isPending={isGenerating}
+          onConfirm={handleConfirmRegenerate}
+          onClose={() => setIsRegenModalOpen(false)}
+        />
       )}
     </div>
   )

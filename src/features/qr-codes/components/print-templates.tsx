@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react'
 import QRCode from 'qrcode'
 import { getScanUrl } from '@/lib/qr/scan-url'
-import { ScanLine, Utensils, Tag, ShieldCheck, Camera, Sparkles } from 'lucide-react'
+import { ScanLine, Utensils, Tag, ShieldCheck, Camera, Sparkles, Wifi } from 'lucide-react'
 
-export type PrintPreset = 'shelf_tag' | 'sticker' | 'table_standee' | 'batch_a4'
+export type PrintPreset = 'shelf_tag' | 'sticker' | 'table_standee' | 'batch_a4' | 'storefront_master' | 'wifi_combo'
 
 export interface PrintableItem {
   id: string
@@ -16,6 +16,10 @@ export interface PrintableItem {
   categoryName?: string | null
   sku?: string | null
   locationName?: string | null
+  customUrl?: string | null
+  tagline?: string | null
+  wifiSsid?: string | null
+  wifiPassword?: string | null
 }
 
 interface PrintTemplateProps {
@@ -37,7 +41,7 @@ export function PrintTemplates({
     async function generateAll() {
       const map: Record<string, string> = {}
       for (const item of items) {
-        const url = getScanUrl(item.code)
+        const url = item.customUrl || getScanUrl(item.code)
         try {
           map[item.id] = await QRCode.toDataURL(url, {
             width: 400,
@@ -256,6 +260,113 @@ export function PrintTemplates({
                   <div className="h-20 w-20 bg-slate-100 rounded-lg flex items-center justify-center text-xs font-bold">QR</div>
                 )}
                 <span className="text-[9px] font-mono font-bold block text-slate-500 mt-0.5">{item.code}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      {/* ── PRESET 5: MASTER STOREFRONT TABLE & COUNTER STANDEE (A5 / 5.8" x 8.3") ── */}
+      {preset === 'storefront_master' && (
+        <div className="grid grid-cols-1 gap-8 print:grid-cols-1 max-w-md mx-auto w-full">
+          {items.map((item) => (
+            <div
+              key={item.id}
+              className="flex flex-col items-center justify-between rounded-[40px] border-4 border-slate-900 bg-white p-8 text-center text-slate-900 w-full mx-auto print:border-black shadow-xl relative"
+            >
+              {/* Header Badge */}
+              <div className="space-y-1.5 w-full">
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-4 py-1.5 text-xs font-black uppercase tracking-widest text-[var(--lime-base)]">
+                  <Utensils size={14} />
+                  <span>Verified Digital Menu & Shelf</span>
+                </div>
+                <h3 className="text-3xl font-black text-slate-900 pt-2 tracking-tight">{item.businessName}</h3>
+                <p className="text-xs text-slate-500 font-bold">{item.tagline || 'Scan to browse our live prices & order'}</p>
+              </div>
+
+              {/* Central Enlarged QR Code */}
+              <div className="my-6 p-5 border-4 border-slate-900 rounded-3xl bg-white shadow-sm flex flex-col items-center">
+                {dataUrls[item.id] ? (
+                  <img src={dataUrls[item.id]} alt="Storefront QR" className="h-56 w-56 block rounded-2xl" />
+                ) : (
+                  <div className="h-56 w-56 bg-slate-100 flex items-center justify-center text-base font-bold">QR</div>
+                )}
+                <span className="mt-2 text-xs font-mono font-black text-slate-700 tracking-wider">
+                  {item.customUrl ? item.customUrl.replace(/^https?:\/\//, '') : `TAG #${item.code}`}
+                </span>
+              </div>
+
+              {/* Scan Instructions */}
+              <div className="space-y-2 w-full">
+                <div className="flex items-center justify-center gap-2 text-xs font-black text-slate-800 bg-slate-100 py-3 px-5 rounded-2xl">
+                  <Camera size={16} className="text-emerald-600" />
+                  <span>Point Phone Camera to Open Menu & Prices</span>
+                </div>
+                <p className="text-[10px] text-slate-400 font-bold">Zero App Download Needed • Fast Mobile Web</p>
+              </div>
+
+              {/* Footer */}
+              <div className="mt-6 pt-4 border-t border-slate-200 w-full flex items-center justify-between text-[11px] font-black text-slate-600">
+                <span className="flex items-center gap-1">
+                  <ShieldCheck size={14} className="text-emerald-600" />
+                  <span>100% Price Verified</span>
+                </span>
+                <span>Powered by SurePrice.ng</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── PRESET 6: WI-FI & MENU COMBO TABLE STANDEE (A5 TENT) ── */}
+      {preset === 'wifi_combo' && (
+        <div className="flex flex-col items-center">
+          {items.map((item) => (
+            <div
+              key={item.id}
+              className="flex flex-col items-center justify-between rounded-3xl border-4 border-slate-900 bg-white p-7 text-center text-slate-900 w-full max-w-md mx-auto shadow-md relative overflow-hidden my-4"
+            >
+              {/* Header */}
+              <div className="space-y-1">
+                <span className="text-[11px] font-black uppercase tracking-widest text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+                  Welcome to {item.businessName}
+                </span>
+                <h3 className="text-2xl font-black text-slate-900 pt-2 tracking-tight">Free Guest Wi-Fi & Live Menu</h3>
+              </div>
+
+              {/* Wi-Fi Credentials Pill */}
+              <div className="my-4 w-full rounded-2xl border-2 border-slate-900 bg-slate-50 p-4 space-y-2 text-left">
+                <div className="flex items-center gap-2 text-xs font-black text-slate-900">
+                  <Wifi size={18} className="text-emerald-600" />
+                  <span>Connect to In-Store Wi-Fi</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+                  <div className="bg-white p-2 rounded-xl border border-slate-200">
+                    <span className="text-[9px] font-bold text-slate-400 block uppercase">Network (SSID)</span>
+                    <span className="font-extrabold text-slate-900 truncate block">{item.wifiSsid || `${item.businessName}_Guest`}</span>
+                  </div>
+                  <div className="bg-white p-2 rounded-xl border border-slate-200">
+                    <span className="text-[9px] font-bold text-slate-400 block uppercase">Password</span>
+                    <span className="font-extrabold text-slate-900 truncate block">{item.wifiPassword || 'sureprice'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Central QR Code */}
+              <div className="p-4 border-4 border-slate-900 rounded-3xl bg-white shadow-sm flex flex-col items-center">
+                {dataUrls[item.id] ? (
+                  <img src={dataUrls[item.id]} alt="Menu QR" className="h-48 w-48 block rounded-2xl" />
+                ) : (
+                  <div className="h-48 w-48 bg-slate-100 flex items-center justify-center text-base font-bold">QR</div>
+                )}
+                <span className="mt-2 text-xs font-mono font-black text-slate-700">
+                  Scan for Live Menu & Prices
+                </span>
+              </div>
+
+              {/* Footer */}
+              <div className="mt-4 pt-3 border-t border-slate-200 w-full flex items-center justify-between text-[10px] font-black text-slate-500">
+                <span>Zero App Install Required</span>
+                <span>Powered by SurePrice.ng</span>
               </div>
             </div>
           ))}

@@ -65,6 +65,41 @@ export async function createCatalogItem(input: CreateCatalogItemInput) {
   redirect(`/businesses/${parsed.business_id}/catalog-items/${data.id}`)
 }
 
+export async function quickUpdateCatalogItem(
+  itemId: string,
+  businessId: string,
+  updates: {
+    base_price?: number | null
+    attributes?: Record<string, unknown>
+    status?: 'active' | 'archived'
+  }
+) {
+  await requireBusinessManage(businessId)
+
+  const supabase = await createClient()
+  const payload: {
+    base_price?: number | null
+    attributes?: Json
+    status?: 'active' | 'archived'
+  } = {}
+
+  if (updates.base_price !== undefined) payload.base_price = updates.base_price
+  if (updates.attributes !== undefined) payload.attributes = updates.attributes as Json
+  if (updates.status !== undefined) payload.status = updates.status
+
+  const { error } = await supabase
+    .from('catalog_items')
+    .update(payload)
+    .eq('id', itemId)
+    .eq('business_id', businessId)
+
+  if (error) throw error
+
+  revalidatePath(`/businesses/${businessId}/catalog-items`)
+  revalidatePath(`/businesses/${businessId}`)
+  return { success: true }
+}
+
 export async function deleteCatalogItem(itemId: string, businessId: string) {
   await requireBusinessManage(businessId)
 

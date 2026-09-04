@@ -3,15 +3,18 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { requireBusinessManage } from '@/lib/auth/require-access'
-import { updateStorefrontBrandingSchema, type UpdateStorefrontBrandingInput } from './schema'
+import {
+  updateStorefrontStudioSchema,
+  type UpdateStorefrontStudioInput,
+} from './schema'
 
-export async function updateStorefrontBranding(
+export async function updateStorefrontStudio(
   businessId: string,
-  rawInput: UpdateStorefrontBrandingInput
+  rawInput: UpdateStorefrontStudioInput
 ) {
   await requireBusinessManage(businessId)
 
-  const parsed = updateStorefrontBrandingSchema.parse(rawInput)
+  const parsed = updateStorefrontStudioSchema.parse(rawInput)
 
   const supabase = await createClient()
 
@@ -34,16 +37,28 @@ export async function updateStorefrontBranding(
     .maybeSingle()
 
   const currentTheme = (existingStorefront?.theme && typeof existingStorefront.theme === 'object')
-    ? existingStorefront.theme as Record<string, unknown>
+    ? (existingStorefront.theme as Record<string, unknown>)
     : {}
 
   const updatedTheme = {
     ...currentTheme,
     logo_url: parsed.logo_url ?? null,
+    cover_url: parsed.cover_url ?? null,
     tagline: parsed.tagline ?? null,
     primary_color: parsed.primary_color ?? null,
     highlights: parsed.highlights ?? [],
-    cover_url: parsed.cover_url ?? null,
+    status_override: {
+      mode: parsed.status_mode,
+      notice: parsed.status_notice ?? null,
+    },
+    operating_hours: parsed.operating_hours ?? null,
+    announcement: {
+      enabled: parsed.announcement_enabled,
+      text: parsed.announcement_text ?? '',
+    },
+    ordering: {
+      whatsapp_phone: parsed.whatsapp_phone ?? null,
+    },
   }
 
   if (existingStorefront) {
@@ -74,7 +89,7 @@ export async function updateStorefrontBranding(
     if (error) throw error
   }
 
-  // If cover_url provided, record in media table for target_type = 'business'
+  // Record cover in media table if provided
   if (parsed.cover_url) {
     try {
       const { data: user } = await supabase.auth.getUser()
@@ -105,8 +120,12 @@ export async function updateStorefrontBranding(
   }
 
   revalidatePath(`/businesses/${businessId}`)
+  revalidatePath(`/businesses/${businessId}/storefront`)
   revalidatePath(`/businesses/${businessId}/edit`)
   revalidatePath(`/s/${business.slug}`)
 
   return { success: true }
 }
+
+// Legacy alias
+export const updateStorefrontBranding = updateStorefrontStudio

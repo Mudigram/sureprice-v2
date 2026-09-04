@@ -12,7 +12,7 @@ import {
   Clock,
   CheckCircle2,
 } from 'lucide-react'
-import { computeIsOpen, type StorefrontBusiness } from '@/features/storefront/types'
+import { computeIsOpen, type StorefrontBusiness, type WeeklyOperatingHours, type StatusOverride } from '@/features/storefront/types'
 import { getBrandFallbackSvgIcon } from '@/components/icons'
 
 interface StoreCardProps {
@@ -62,8 +62,12 @@ export function StoreCard({ business, className }: StoreCardProps) {
   const primaryLocation = business.locations?.[0]
   const addressText = primaryLocation?.address_text ?? primaryLocation?.name ?? 'Nigeria'
 
-  const hours = primaryLocation?.location_hours
-  const { isOpen, text: statusText } = computeIsOpen(hours)
+  const themeConfig = (business.storefront?.theme && typeof business.storefront.theme === 'object')
+    ? (business.storefront.theme as Record<string, unknown>)
+    : {}
+  const themeHours = themeConfig.operating_hours as WeeklyOperatingHours | undefined
+  const themeStatusOverride = themeConfig.status_override as StatusOverride | undefined
+  const { isOpen, text: statusText } = computeIsOpen(themeHours || primaryLocation?.location_hours, themeStatusOverride)
 
   const isRestaurant = business.business_type === 'restaurant' || business.business_type === 'cafe'
   const isEvent = business.business_type === 'popup_vendor' || business.business_type === 'event_vendor'
