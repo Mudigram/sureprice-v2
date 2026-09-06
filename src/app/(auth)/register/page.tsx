@@ -56,13 +56,31 @@ function RegisterContent() {
       {/* Header */}
       <div className="space-y-1 text-center">
         <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800 border border-emerald-200 mb-1">
-          <Sparkles size={13} className="text-emerald-600" /> Instant Pilot Onboarding
+          <Sparkles size={13} className="text-emerald-600" /> Ibadan Pilot Onboarding
         </div>
         <h1 className="text-xl font-black text-slate-900 tracking-tight">
           Register New Store Owner
         </h1>
         <p className="text-xs text-slate-500 font-medium">
           Create your merchant organization and start generating physical QR price tags in seconds.
+        </p>
+      </div>
+
+      {/* Manual Code Notice */}
+      <div className="rounded-2xl bg-amber-50 p-3.5 border border-amber-200 text-xs text-amber-900 space-y-1">
+        <p className="font-black flex items-center gap-1.5">
+          <span>🔑</span>
+          <span>Need a Pilot Access Code?</span>
+        </p>
+        <p className="text-[11px] leading-relaxed text-amber-800">
+          Registration for the Ibadan pilot is invite-only. To list your restaurant or store,{' '}
+          <a
+            href="mailto:onboarding@sureprice.app?subject=Request%20Ibadan%20Pilot%20Code"
+            className="font-bold underline text-amber-950"
+          >
+            email onboarding@sureprice.app
+          </a>{' '}
+          to receive an access code.
         </p>
       </div>
 
@@ -89,7 +107,7 @@ function RegisterContent() {
             name="storeName"
             type="text"
             required
-            placeholder="e.g. Palms Supermarket (Lekki)"
+            placeholder="e.g. The Ibadan Kitchen (Bodija)"
             className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:outline-none transition-colors"
           />
         </div>

@@ -143,7 +143,7 @@ export function FeatureTabs() {
                   <div>
                     <p className="text-xs font-bold text-slate-300">{activeTab.statLabel}</p>
                     <p className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1 mt-0.5">
-                      <CheckCircle2 size={12} /> Verified across Lagos stores
+                      <CheckCircle2 size={12} /> Verified across Ibadan venues
                     </p>
                   </div>
                 </div>

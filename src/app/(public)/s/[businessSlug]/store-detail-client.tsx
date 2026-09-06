@@ -20,18 +20,22 @@ import {
   Phone,
   Share2,
   ClipboardList,
+  ArrowRight,
 } from 'lucide-react'
 import { SearchInput } from '@/components/storefront/search-input'
 import { ProductRow } from '@/components/storefront/product-row'
 import { MenuItemSheet } from './menu-item-sheet'
 import {
   computeIsOpen,
+  getEventStatus,
+  formatEventPillDate,
   type StorefrontBusiness,
   type StorefrontItem,
   type StorefrontCategory,
   type StorefrontLocation,
   type WeeklyOperatingHours,
   type StatusOverride,
+  type PopupEventConfig,
 } from '@/features/storefront/types'
 import { useCart } from '@/context/CartContext'
 import { ItemUnavailableIllustration } from '@/components/illustrations'
@@ -166,6 +170,73 @@ export function StoreDetailClient({ business, items, businessSlug }: Props) {
     })
   }, [items])
 
+  // One-time pop-up event lifecycle check
+  const eventConfig = storefrontTheme.event as PopupEventConfig | undefined
+  const eventStatus = getEventStatus(eventConfig)
+
+  const displayStatus = useMemo(() => {
+    if (eventStatus === 'upcoming') {
+      const dateText = formatEventPillDate(eventConfig!.startDate!, eventConfig!.endDate)
+      return {
+        isOpen: false,
+        text: `🎪 Opens ${dateText}`,
+        dotColor: 'bg-amber-400',
+      }
+    }
+    if (eventStatus === 'live') {
+      return {
+        isOpen: true,
+        text: eventConfig?.liveNotice || (isEvent ? '🎪 Open Stall' : 'Open Now'),
+        dotColor: 'bg-emerald-400 animate-pulse',
+      }
+    }
+    return {
+      isOpen: statusInfo.isOpen,
+      text: statusInfo.text,
+      dotColor: statusInfo.isOpen ? 'bg-emerald-400 animate-pulse' : 'bg-rose-400',
+    }
+  }, [eventStatus, eventConfig, isEvent, statusInfo])
+
+  // If one-time event has ended, render full-page fallback and block normal catalog
+  if (eventStatus === 'ended') {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-slate-900 text-center">
+        <div className="max-w-md w-full rounded-3xl border border-slate-200 bg-white p-8 shadow-xl space-y-5">
+          {/* Stall Logo / Icon */}
+          <div className="mx-auto relative h-20 w-20 overflow-hidden rounded-2xl border-2 border-slate-100 bg-slate-50 flex items-center justify-center shadow-md">
+            {logoUrl ? (
+              <Image src={logoUrl} alt={business.name} fill className="object-cover" />
+            ) : (
+              <div className="text-3xl">🎪</div>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-600 uppercase tracking-wide">
+              Event Concluded
+            </span>
+            <h1 className="text-2xl font-black tracking-tight text-slate-900">
+              {business.name}
+            </h1>
+            <p className="text-xs text-slate-500 font-medium leading-relaxed">
+              {eventConfig?.endedNotice || 'This pop-up event has concluded. Thank you for visiting our stall! Catch us at the next edition.'}
+            </p>
+          </div>
+
+          <div className="pt-2">
+            <Link
+              href="/home"
+              className="inline-flex items-center justify-center gap-2 w-full rounded-2xl bg-[var(--lime-base)] py-3.5 text-xs font-black text-black shadow-lg shadow-[var(--lime-base)]/25 hover:bg-[var(--lime-dark)] active:scale-[0.98] transition-all"
+            >
+              <span>Browse Active Venues in Ibadan</span>
+              <ArrowRight size={14} />
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   // Adaptive discovery threshold: only show search + specials carousel for larger menus
   const LARGE_MENU_THRESHOLD = 12
 
@@ -257,19 +328,21 @@ export function StoreDetailClient({ business, items, businessSlug }: Props) {
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/30 to-transparent" />
 
-            {/* Top-Left: Verified by SurePrice */}
+            {/* Top-Left: Verified Seal Sticker */}
             <div className="absolute left-3 top-3 z-10">
-              <span className="inline-flex items-center gap-1 rounded-full bg-slate-950/75 backdrop-blur-md px-2.5 py-1 text-[10px] font-bold text-white border border-white/20 shadow-md">
-                <CheckCircle2 size={10} className="text-[var(--lime-base)]" />
-                Verified by SurePrice
-              </span>
+              <div
+                title="Verified by SurePrice"
+                className="flex h-7 w-7 items-center justify-center rounded-full bg-black/75 backdrop-blur-md border border-white/25 shadow-lg text-[var(--lime-base)]"
+              >
+                <Check size={14} strokeWidth={3.5} />
+              </div>
             </div>
 
             {/* Top-Right: Open/Closed Status */}
             <div className="absolute right-3 top-3 z-10">
               <span className="inline-flex items-center gap-1 rounded-full bg-slate-950/80 backdrop-blur-md px-2.5 py-1 text-[10px] font-bold text-white border border-white/20 shadow-md">
-                <span className={`h-1.5 w-1.5 rounded-full ${statusInfo.isOpen ? 'bg-emerald-400 animate-pulse' : 'bg-rose-400'}`} />
-                {statusInfo.text}
+                <span className={`h-1.5 w-1.5 rounded-full ${displayStatus.dotColor}`} />
+                {displayStatus.text}
               </span>
             </div>
 

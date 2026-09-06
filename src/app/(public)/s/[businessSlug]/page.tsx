@@ -78,7 +78,7 @@ export default async function StorefrontPage({ params }: Props) {
 
   const items = await getStorefrontItems(business.id)
 
-  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://sureprice.app'
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://sureprice.vercel.app'
   const storeUrl = `${siteUrl}/s/${businessSlug}`
 
   const schemaType =

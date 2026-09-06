@@ -115,7 +115,7 @@ export function LocationForm({ businessId }: { businessId: string }) {
             id="location-city-input"
             type="text"
             disabled={isPending}
-            placeholder="e.g. Lagos, Abuja, Port Harcourt"
+            placeholder="e.g. Ibadan (Bodija, Ring Road)"
             className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-xs font-semibold text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900 disabled:opacity-60 transition-all"
           />
           {errors.city && <p className="text-xs font-bold text-rose-500">{errors.city.message}</p>}

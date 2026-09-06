@@ -44,7 +44,7 @@ export function WhatsAppStoryModal({
 
   const storeUrl = typeof window !== 'undefined'
     ? `${window.location.origin}/s/${business.slug}`
-    : `https://sureprice.ng/s/${business.slug}`
+    : (process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/s/${business.slug}` : `https://sureprice.vercel.app/s/${business.slug}`)
 
   // Draw 9:16 canvas (1080x1920)
   useEffect(() => {

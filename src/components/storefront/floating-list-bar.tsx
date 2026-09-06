@@ -59,7 +59,7 @@ export function FloatingListBar() {
           onClick={() => setIsSheetOpen(true)}
           id="floating-list-bar"
           type="button"
-          className="flex w-full max-w-md items-center gap-3.5 rounded-2xl border border-slate-200/90 bg-white/95 px-4 py-3 text-left shadow-xl shadow-slate-900/10 backdrop-blur-2xl transition-all hover:scale-[1.01] active:scale-[0.98] dark:border-[var(--lime-base)]/40 dark:bg-slate-900/95 dark:shadow-black/60"
+          className="flex w-full max-w-md items-center gap-3.5 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left shadow-xl shadow-slate-900/10 backdrop-blur-2xl transition-all hover:scale-[1.01] active:scale-[0.98]"
         >
           {/* Icon + count badge */}
           <div className="relative shrink-0">
@@ -70,23 +70,23 @@ export function FloatingListBar() {
                 <ClipboardList size={20} className="text-black" />
               )}
             </div>
-            <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-slate-900 px-1 text-[10px] font-black text-white shadow-md dark:bg-white dark:text-black">
+            <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-slate-900 px-1 text-[10px] font-black text-white shadow-md">
               {totalCount > 99 ? '99+' : totalCount}
             </span>
           </div>
 
           {/* Label & multi-store detail */}
           <div className="min-w-0 flex-1">
-            <p className="truncate text-xs font-black text-slate-900 dark:text-white">
+            <p className="truncate text-xs font-black text-slate-900">
               {formatStoreLabel()}
             </p>
             <div className="mt-0.5 flex items-center gap-1.5">
               {multiStore && (
-                <span className="rounded bg-emerald-50 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-emerald-800 border border-emerald-200 dark:bg-[var(--lime-base)]/20 dark:text-[var(--lime-base)] dark:border-[var(--lime-base)]/30">
+                <span className="rounded bg-emerald-50 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-emerald-800 border border-emerald-200">
                   {businessNames.length} Stores
                 </span>
               )}
-              <p className="truncate text-[10px] font-medium text-slate-600 dark:text-slate-400">
+              <p className="truncate text-[10px] font-medium text-slate-600">
                 {totalCount} item{totalCount !== 1 ? 's' : ''} noted · Tap to preview list
               </p>
             </div>
@@ -96,20 +96,20 @@ export function FloatingListBar() {
           <div className="flex items-center gap-2 shrink-0">
             {total > 0 && (
               <div className="text-right">
-                <p className="text-base font-black text-emerald-700 dark:text-[var(--lime-base)]">
+                <p className="text-base font-black text-emerald-700">
                   ₦{total.toLocaleString()}
                 </p>
-                <p className="text-[9px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                  Reference Total
-                </p>
+                <p className="text-[9px] font-semibold text-slate-400">Total</p>
               </div>
             )}
-            <ChevronUp size={18} className="text-emerald-700 dark:text-[var(--lime-base)] animate-bounce" />
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-600">
+              <ChevronUp size={16} />
+            </div>
           </div>
         </button>
-
       </div>
 
+      {/* Cart Bottom Sheet Portal */}
       <CartBottomSheet
         isOpen={isSheetOpen}
         onClose={() => setIsSheetOpen(false)}
@@ -117,4 +117,3 @@ export function FloatingListBar() {
     </>
   )
 }
-

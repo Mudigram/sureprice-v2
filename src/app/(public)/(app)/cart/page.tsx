@@ -23,6 +23,7 @@ import {
 import { useCart, type ListItem } from '@/context/CartContext'
 import { saveTrip } from '@/lib/storefront/local-storage'
 import { BottomSheet } from '@/components/ui/bottom-sheet'
+import { groupCartByVenue, cartGrandTotal, type VenueGroup } from '@/features/cart/utils'
 
 export default function CartPage() {
   const {
@@ -41,32 +42,17 @@ export default function CartPage() {
   const [editItem, setEditItem] = useState<ListItem | null>(null)
 
   // Group items by Business / Store
-  const storeGroups = useMemo(() => {
-    const groups = new Map<string, { name: string; slug: string; items: ListItem[] }>()
-    for (const item of items) {
-      const existing = groups.get(item.businessSlug)
-      if (existing) {
-        existing.items.push(item)
-      } else {
-        groups.set(item.businessSlug, {
-          name: item.businessName,
-          slug: item.businessSlug,
-          items: [item],
-        })
-      }
-    }
-    return Array.from(groups.values())
-  }, [items])
+  const storeGroups = useMemo(() => groupCartByVenue(items), [items])
 
   // Combined overall total
-  const grandTotal = items.reduce((sum, item) => sum + (item.base_price ?? 0) * item.quantity, 0)
+  const grandTotal = cartGrandTotal(items)
   const totalCollectedCount = items.filter((i) => i.collected).length
 
   // Keep editItem in sync with cart state
   const liveEditItem = editItem ? items.find((i) => i.id === editItem.id) ?? null : null
 
   // Individualized Store Share
-  const handleShareStore = async (group: { name: string; slug: string; items: ListItem[] }) => {
+  const handleShareStore = async (group: VenueGroup) => {
     const storeTotal = group.items.reduce(
       (sum, i) => sum + (i.base_price ?? 0) * i.quantity,
       0
@@ -99,7 +85,7 @@ export default function CartPage() {
   }
 
   // Individualized Store Save Trip
-  const handleSaveStoreTrip = (group: { name: string; slug: string; items: ListItem[] }) => {
+  const handleSaveStoreTrip = (group: VenueGroup) => {
     const title = `${group.name} Trip`
     saveTrip(title, group.items)
     setSavedStoreSlug(group.slug)
