@@ -36,11 +36,11 @@ export async function updateStorefrontStudio(
     .eq('business_id', businessId)
     .maybeSingle()
 
-  const currentTheme = (existingStorefront?.theme && typeof existingStorefront.theme === 'object')
-    ? (existingStorefront.theme as Record<string, unknown>)
+  const currentTheme = (existingStorefront?.theme && typeof existingStorefront.theme === 'object' && !Array.isArray(existingStorefront.theme))
+    ? (existingStorefront.theme as Record<string, any>)
     : {}
 
-  const updatedTheme = {
+  const updatedTheme: Record<string, any> = {
     ...currentTheme,
     logo_url: parsed.logo_url ?? null,
     cover_url: parsed.cover_url ?? null,
@@ -52,6 +52,13 @@ export async function updateStorefrontStudio(
       notice: parsed.status_notice ?? null,
     },
     operating_hours: parsed.operating_hours ?? null,
+    event: parsed.event ? {
+      mode: parsed.event.mode,
+      startDate: parsed.event.startDate ?? null,
+      endDate: parsed.event.endDate ?? null,
+      liveNotice: parsed.event.liveNotice ?? null,
+      endedNotice: parsed.event.endedNotice ?? null,
+    } : (currentTheme.event ?? null),
     announcement: {
       enabled: parsed.announcement_enabled,
       text: parsed.announcement_text ?? '',

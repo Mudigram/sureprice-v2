@@ -28,7 +28,7 @@ import {
   type UpdateStorefrontStudioInput,
 } from '../schema'
 import { updateStorefrontStudio } from '../actions'
-import type { WeeklyOperatingHours, DayHours } from '../types'
+import type { WeeklyOperatingHours, DayHours, PopupEventConfig } from '../types'
 
 const COLOR_SWATCHES = [
   { name: 'Lime (Default)', hex: '#13ec5b' },
@@ -68,6 +68,7 @@ interface Props {
     status_mode?: 'auto' | 'force_open' | 'force_closed'
     status_notice?: string | null
     operating_hours?: WeeklyOperatingHours | null
+    event?: PopupEventConfig | null
     logo_url?: string | null
     cover_url?: string | null
     tagline?: string | null
@@ -106,6 +107,13 @@ export function StorefrontStudioForm({
       status_mode: initialData.status_mode ?? 'auto',
       status_notice: initialData.status_notice ?? '',
       operating_hours: defaultHours,
+      event: {
+        mode: initialData.event?.mode ?? (businessType === 'popup_vendor' ? 'one_time' : 'recurring'),
+        startDate: initialData.event?.startDate ?? '',
+        endDate: initialData.event?.endDate ?? '',
+        liveNotice: initialData.event?.liveNotice ?? '',
+        endedNotice: initialData.event?.endedNotice ?? '',
+      },
       logo_url: initialData.logo_url ?? null,
       cover_url: initialData.cover_url ?? null,
       tagline: initialData.tagline ?? '',
@@ -119,6 +127,7 @@ export function StorefrontStudioForm({
 
   const isPublished = watch('is_published')
   const statusMode = watch('status_mode')
+  const eventMode = watch('event.mode') ?? 'recurring'
   const logoUrl = watch('logo_url')
   const coverUrl = watch('cover_url')
   const selectedColor = watch('primary_color')
@@ -216,7 +225,7 @@ export function StorefrontStudioForm({
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pb-20 text-slate-900 dark:text-white">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pb-36 md:pb-24 text-slate-900">
       {errorMsg && (
         <div className="rounded-2xl bg-rose-50 p-4 text-xs font-bold text-rose-800 border border-rose-200 flex items-center gap-2">
           <AlertCircle size={16} className="text-rose-600 shrink-0" />
@@ -225,16 +234,16 @@ export function StorefrontStudioForm({
       )}
 
       {saveSuccess && (
-        <div className="flex items-center justify-between gap-2 rounded-2xl bg-emerald-50 p-4 text-xs font-bold text-emerald-900 border border-emerald-200">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-2xl bg-emerald-50 p-4 text-xs font-bold text-emerald-900 border border-emerald-200">
           <div className="flex items-center gap-2">
-            <Check size={16} className="text-emerald-600" />
+            <Check size={16} className="text-emerald-600 shrink-0" />
             <span>Storefront Studio settings saved and published successfully!</span>
           </div>
           <a
             href={`/s/${businessSlug}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-emerald-800 hover:underline"
+            className="inline-flex items-center gap-1 text-emerald-800 hover:underline pt-1 sm:pt-0"
           >
             <span>View Public Store</span>
             <ExternalLink size={12} />
@@ -243,11 +252,11 @@ export function StorefrontStudioForm({
       )}
 
       {/* ─── CARD 1: LIVE STATUS & PUBLISH TOGGLE ──────────────────────────── */}
-      <div className="rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-sm space-y-4">
+      <div className="rounded-3xl border border-slate-200/90 bg-white p-4 sm:p-6 shadow-sm space-y-4">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2">
             <span className="flex h-3 w-3 rounded-full bg-emerald-500 animate-pulse" />
-            <h2 className="text-base font-black text-slate-900">
+            <h2 className="text-sm sm:text-base font-black text-slate-900">
               1. Live Store Status &amp; Visibility
             </h2>
           </div>
@@ -257,20 +266,20 @@ export function StorefrontStudioForm({
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 text-xs font-bold text-slate-500 hover:text-slate-900"
           >
-            <span>Live Preview</span>
+            <span>Preview</span>
             <ExternalLink size={12} />
           </a>
         </div>
 
         {/* Public Storefront Master Switch */}
-        <div className="flex items-center justify-between rounded-2xl bg-slate-50 p-4 border border-slate-200/80">
-          <div>
-            <p className="text-xs font-black text-slate-900">Publish Storefront</p>
-            <p className="text-[11px] text-slate-500 font-medium">
+        <div className="flex items-center justify-between rounded-2xl bg-slate-50 p-3.5 sm:p-4 border border-slate-200/80">
+          <div className="pr-3">
+            <p className="text-xs sm:text-sm font-black text-slate-900">Publish Storefront</p>
+            <p className="text-[11px] text-slate-500 font-medium leading-snug">
               When published, customers can scan QR codes and browse your live catalog.
             </p>
           </div>
-          <label className="relative inline-flex cursor-pointer items-center">
+          <label className="relative inline-flex cursor-pointer items-center shrink-0 min-h-[44px]">
             <input
               type="checkbox"
               {...register('is_published')}
@@ -308,7 +317,7 @@ export function StorefrontStudioForm({
             ].map((opt) => (
               <label
                 key={opt.id}
-                className={`relative flex cursor-pointer flex-col justify-between rounded-2xl border p-3.5 transition-all ${
+                className={`relative flex cursor-pointer flex-col justify-between rounded-2xl border p-3.5 transition-all min-h-[52px] ${
                   statusMode === opt.id
                     ? 'border-slate-900 bg-slate-900 text-white shadow-md'
                     : 'border-slate-200 bg-white text-slate-900 hover:border-slate-300'
@@ -343,7 +352,7 @@ export function StorefrontStudioForm({
             type="text"
             {...register('status_notice')}
             placeholder="e.g. Sold out for lunch! Reopening for dinner at 6:00 PM."
-            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:bg-white focus:outline-none"
+            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:bg-white focus:outline-none min-h-[44px]"
           />
           <p className="mt-1 text-[10px] text-slate-400">
             Displayed directly next to your Open/Closed badge on the public menu.
@@ -351,80 +360,206 @@ export function StorefrontStudioForm({
         </div>
       </div>
 
-      {/* ─── CARD 2: WEEKLY OPERATING HOURS ─────────────────────────────────── */}
-      <div className="rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-sm space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+      {/* ─── CARD 2: OPERATING SCHEDULE & POP-UP EVENTS ──────────────────── */}
+      <div className="rounded-3xl border border-slate-200/90 bg-white p-4 sm:p-6 shadow-sm space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3 flex-wrap gap-2">
           <div className="flex items-center gap-2">
-            <Clock size={16} className="text-blue-600" />
-            <h2 className="text-base font-black text-slate-900">
-              2. Weekly Operating Hours
+            <Clock size={16} className="text-blue-600 shrink-0" />
+            <h2 className="text-sm sm:text-base font-black text-slate-900">
+              2. Operating Schedule &amp; Pop-Up Events
             </h2>
           </div>
-          <button
-            type="button"
-            onClick={copyMondayToAllWeekdays}
-            className="inline-flex items-center gap-1 rounded-xl bg-slate-100 px-2.5 py-1 text-[10px] font-extrabold text-slate-700 hover:bg-slate-200 transition-colors"
-          >
-            <Copy size={11} />
-            <span>Copy Mon to Weekdays</span>
-          </button>
+          {eventMode === 'recurring' && (
+            <button
+              type="button"
+              onClick={copyMondayToAllWeekdays}
+              className="inline-flex items-center gap-1 rounded-xl bg-slate-100 px-2.5 py-1.5 text-[10px] font-extrabold text-slate-700 hover:bg-slate-200 transition-colors min-h-[36px]"
+            >
+              <Copy size={11} />
+              <span>Copy Mon to Weekdays</span>
+            </button>
+          )}
         </div>
 
-        <div className="divide-y divide-slate-100">
-          {DAYS.map(({ key, label }) => {
-            const isClosed = watch(`operating_hours.${key}.closed`)
-            return (
-              <div
-                key={key}
-                className="flex flex-col sm:flex-row sm:items-center justify-between py-2.5 gap-2"
-              >
-                <div className="w-28 shrink-0">
-                  <span className="text-xs font-black text-slate-900">{label}</span>
-                </div>
-
-                <div className="flex items-center gap-2 flex-1">
-                  {!isClosed ? (
-                    <div className="flex items-center gap-2 flex-1">
-                      <input
-                        type="time"
-                        {...register(`operating_hours.${key}.open`)}
-                        className="rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-bold text-slate-800 focus:border-slate-900 focus:outline-none"
-                      />
-                      <span className="text-xs font-bold text-slate-400">to</span>
-                      <input
-                        type="time"
-                        {...register(`operating_hours.${key}.close`)}
-                        className="rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-bold text-slate-800 focus:border-slate-900 focus:outline-none"
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex-1">
-                      <span className="inline-block rounded-xl bg-rose-50 border border-rose-200 px-3 py-1 text-xs font-bold text-rose-700">
-                        Closed All Day
-                      </span>
-                    </div>
-                  )}
-
-                  <label className="flex items-center gap-1.5 cursor-pointer ml-auto shrink-0">
-                    <input
-                      type="checkbox"
-                      {...register(`operating_hours.${key}.closed`)}
-                      className="rounded text-rose-600 focus:ring-0"
-                    />
-                    <span className="text-xs font-bold text-slate-600">Closed</span>
-                  </label>
+        {/* Schedule Mode Switcher */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-black text-slate-900 block">
+            Schedule Type
+          </label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <label
+              className={`flex cursor-pointer items-center justify-between rounded-2xl border p-3.5 transition-all min-h-[52px] ${
+                eventMode === 'recurring'
+                  ? 'border-slate-900 bg-slate-900 text-white shadow-md'
+                  : 'border-slate-200 bg-white text-slate-800 hover:border-slate-300'
+              }`}
+            >
+              <input
+                type="radio"
+                value="recurring"
+                {...register('event.mode')}
+                className="sr-only"
+              />
+              <div className="flex items-center gap-2.5">
+                <span className="text-lg">🔄</span>
+                <div>
+                  <p className="text-xs font-black">Recurring Weekly Schedule</p>
+                  <p className={`text-[10px] ${eventMode === 'recurring' ? 'text-slate-300' : 'text-slate-500'}`}>
+                    Permanent store or regular weekly hours
+                  </p>
                 </div>
               </div>
-            )
-          })}
+            </label>
+
+            <label
+              className={`flex cursor-pointer items-center justify-between rounded-2xl border p-3.5 transition-all min-h-[52px] ${
+                eventMode === 'one_time'
+                  ? 'border-slate-900 bg-slate-900 text-white shadow-md'
+                  : 'border-slate-200 bg-white text-slate-800 hover:border-slate-300'
+              }`}
+            >
+              <input
+                type="radio"
+                value="one_time"
+                {...register('event.mode')}
+                className="sr-only"
+              />
+              <div className="flex items-center gap-2.5">
+                <span className="text-lg">🎪</span>
+                <div>
+                  <p className="text-xs font-black">One-Time Pop-Up Event</p>
+                  <p className={`text-[10px] ${eventMode === 'one_time' ? 'text-slate-300' : 'text-slate-500'}`}>
+                    Festival weekend, trade fair, or pop-up run
+                  </p>
+                </div>
+              </div>
+            </label>
+          </div>
         </div>
+
+        {/* ── MODE: RECURRING WEEKLY SCHEDULE ── */}
+        {eventMode === 'recurring' ? (
+          <div className="divide-y divide-slate-100 pt-2">
+            {DAYS.map(({ key, label }) => {
+              const isClosed = watch(`operating_hours.${key}.closed`)
+              return (
+                <div
+                  key={key}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between py-3 gap-2.5"
+                >
+                  <div className="w-28 shrink-0 flex items-center justify-between sm:block">
+                    <span className="text-xs font-black text-slate-900">{label}</span>
+                    <label className="flex sm:hidden items-center gap-1.5 cursor-pointer bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 min-h-[32px]">
+                      <input
+                        type="checkbox"
+                        {...register(`operating_hours.${key}.closed`)}
+                        className="rounded text-rose-600 focus:ring-0 h-4 w-4"
+                      />
+                      <span className="text-[11px] font-bold text-slate-700">Closed</span>
+                    </label>
+                  </div>
+
+                  <div className="flex items-center gap-2 flex-1">
+                    {!isClosed ? (
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <input
+                          type="time"
+                          {...register(`operating_hours.${key}.open`)}
+                          className="flex-1 min-w-0 rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-bold text-slate-800 focus:border-slate-900 focus:outline-none min-h-[42px]"
+                        />
+                        <span className="text-xs font-bold text-slate-400 shrink-0">to</span>
+                        <input
+                          type="time"
+                          {...register(`operating_hours.${key}.close`)}
+                          className="flex-1 min-w-0 rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-bold text-slate-800 focus:border-slate-900 focus:outline-none min-h-[42px]"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex-1">
+                        <span className="inline-block rounded-xl bg-rose-50 border border-rose-200 px-3 py-2 text-xs font-bold text-rose-700">
+                          Closed All Day
+                        </span>
+                      </div>
+                    )}
+
+                    <label className="hidden sm:flex items-center gap-1.5 cursor-pointer ml-auto shrink-0 min-h-[40px] px-2">
+                      <input
+                        type="checkbox"
+                        {...register(`operating_hours.${key}.closed`)}
+                        className="rounded text-rose-600 focus:ring-0 h-4 w-4"
+                      />
+                      <span className="text-xs font-bold text-slate-600">Closed</span>
+                    </label>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        ) : (
+          /* ── MODE: ONE-TIME POP-UP EVENT ── */
+          <div className="space-y-4 pt-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 block">
+                  Event Start Date
+                </label>
+                <input
+                  type="date"
+                  {...register('event.startDate')}
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-xs sm:text-sm font-bold text-slate-900 focus:border-slate-900 focus:bg-white focus:outline-none min-h-[44px]"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 block">
+                  Event End Date (Inclusive)
+                </label>
+                <input
+                  type="date"
+                  {...register('event.endDate')}
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-xs sm:text-sm font-bold text-slate-900 focus:border-slate-900 focus:bg-white focus:outline-none min-h-[44px]"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-700 block">
+                Live Event Notice / Stall Landmark (Optional)
+              </label>
+              <input
+                type="text"
+                {...register('event.liveNotice')}
+                placeholder="e.g. Catch us at Stall #14, Trans-Amadi Food Fest!"
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:bg-white focus:outline-none min-h-[44px]"
+              />
+              <p className="text-[10px] text-slate-400">
+                Shown alongside your Open badge while the event is live.
+              </p>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-700 block">
+                Event Ended Notice (Optional)
+              </label>
+              <textarea
+                rows={2}
+                {...register('event.endedNotice')}
+                placeholder="e.g. Our pop-up weekend run has concluded! Thank you for stopping by. Catch us at the next edition."
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:bg-white focus:outline-none"
+              />
+              <p className="text-[10px] text-slate-400 leading-relaxed">
+                After the end date, shoppers scanning leftover flyers or standees see this message and a link to browse active venues, preventing stale catalog orders.
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ─── CARD 3: VISUAL BRANDING & MEDIA ────────────────────────────────── */}
-      <div className="rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-sm space-y-4">
+      <div className="rounded-3xl border border-slate-200/90 bg-white p-4 sm:p-6 shadow-sm space-y-4">
         <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
           <Sparkles size={16} className="text-amber-500" />
-          <h2 className="text-base font-black text-slate-900">
+          <h2 className="text-sm sm:text-base font-black text-slate-900">
             3. Visual Branding &amp; Media
           </h2>
         </div>
@@ -446,16 +581,17 @@ export function StorefrontStudioForm({
                 <button
                   type="button"
                   onClick={() => setValue('cover_url', null)}
-                  className="absolute right-2 top-2 rounded-full bg-black/70 p-1.5 text-white hover:bg-black"
+                  className="absolute right-2 top-2 rounded-full bg-black/70 p-2 text-white hover:bg-black min-h-[36px] min-w-[36px] flex items-center justify-center"
+                  aria-label="Remove cover photo"
                 >
-                  <X size={14} />
+                  <X size={16} />
                 </button>
               </>
             ) : (
-              <label className="flex h-full w-full cursor-pointer flex-col items-center justify-center gap-2 p-4 text-slate-400 hover:text-slate-600">
+              <label className="flex h-full w-full cursor-pointer flex-col items-center justify-center gap-2 p-4 text-slate-400 hover:text-slate-600 active:bg-slate-100 transition-colors">
                 <Upload size={24} />
-                <span className="text-xs font-bold">
-                  {uploadingCover ? 'Uploading cover photo...' : 'Click or drop to upload header photo'}
+                <span className="text-xs font-bold text-center">
+                  {uploadingCover ? 'Uploading cover photo...' : 'Tap to upload header banner photo'}
                 </span>
                 <input
                   type="file"
@@ -487,9 +623,10 @@ export function StorefrontStudioForm({
                   <button
                     type="button"
                     onClick={() => setValue('logo_url', null)}
-                    className="absolute right-1 top-1 rounded-full bg-black/70 p-1 text-white hover:bg-black"
+                    className="absolute right-1 top-1 rounded-full bg-black/70 p-1.5 text-white hover:bg-black min-h-[30px] min-w-[30px] flex items-center justify-center"
+                    aria-label="Remove logo"
                   >
-                    <X size={12} />
+                    <X size={14} />
                   </button>
                 </>
               ) : (
@@ -499,7 +636,7 @@ export function StorefrontStudioForm({
               )}
             </div>
 
-            <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors">
+            <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs font-bold text-slate-700 hover:bg-slate-100 active:scale-95 transition-all min-h-[44px]">
               <Upload size={14} />
               <span>{uploadingLogo ? 'Uploading...' : 'Upload Logo'}</span>
               <input
@@ -522,7 +659,7 @@ export function StorefrontStudioForm({
             type="text"
             {...register('tagline')}
             placeholder="e.g. Authentic Charcoal Grills & Chops in Ibadan"
-            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:bg-white focus:outline-none"
+            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:bg-white focus:outline-none min-h-[44px]"
           />
         </div>
 
@@ -537,14 +674,14 @@ export function StorefrontStudioForm({
                 key={swatch.hex}
                 type="button"
                 onClick={() => setValue('primary_color', swatch.hex)}
-                className={`flex items-center gap-2 rounded-xl border px-3 py-1.5 text-xs font-bold transition-all ${
+                className={`flex items-center gap-2 rounded-xl border px-3.5 py-2 text-xs font-bold transition-all min-h-[42px] ${
                   selectedColor === swatch.hex
                     ? 'border-slate-900 bg-slate-900 text-white shadow-sm'
-                    : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+                    : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 active:scale-95'
                 }`}
               >
                 <span
-                  className="h-3 w-3 rounded-full border border-black/20"
+                  className="h-3.5 w-3.5 rounded-full border border-black/20 shrink-0"
                   style={{ backgroundColor: swatch.hex }}
                 />
                 <span>{swatch.name}</span>
@@ -555,15 +692,15 @@ export function StorefrontStudioForm({
       </div>
 
       {/* ─── CARD 4: LIVE ANNOUNCEMENT TICKER ───────────────────────────────── */}
-      <div className="rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-sm space-y-4">
+      <div className="rounded-3xl border border-slate-200/90 bg-white p-4 sm:p-6 shadow-sm space-y-4">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2">
-            <Megaphone size={16} className="text-amber-600" />
-            <h2 className="text-base font-black text-slate-900">
+            <Megaphone size={16} className="text-amber-600 shrink-0" />
+            <h2 className="text-sm sm:text-base font-black text-slate-900">
               4. Live Announcement Ticker
             </h2>
           </div>
-          <label className="relative inline-flex cursor-pointer items-center">
+          <label className="relative inline-flex cursor-pointer items-center shrink-0 min-h-[44px]">
             <input
               type="checkbox"
               {...register('announcement_enabled')}
@@ -573,7 +710,7 @@ export function StorefrontStudioForm({
           </label>
         </div>
 
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-slate-500 leading-relaxed">
           Display a prominent alert bar at the top of your digital menu for daily promos, holiday hours, or special notices.
         </p>
 
@@ -582,9 +719,9 @@ export function StorefrontStudioForm({
             {...register('announcement_text')}
             rows={2}
             placeholder="e.g. Free delivery on orders over ₦15,000 today in Bodija! 🚚"
-            className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:bg-white focus:outline-none"
+            className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:bg-white focus:outline-none"
           />
-          <div className="flex justify-between text-[10px] text-slate-400">
+          <div className="flex justify-between text-[10px] text-slate-400 pt-0.5">
             <span>Will show as 📢 banner on storefront when enabled</span>
             <span>{announcementText.length}/180</span>
           </div>
@@ -592,10 +729,10 @@ export function StorefrontStudioForm({
       </div>
 
       {/* ─── CARD 5: WHATSAPP & STORE PERKS ─────────────────────────────────── */}
-      <div className="rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-sm space-y-4">
+      <div className="rounded-3xl border border-slate-200/90 bg-white p-4 sm:p-6 shadow-sm space-y-4">
         <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-          <Phone size={16} className="text-emerald-600" />
-          <h2 className="text-base font-black text-slate-900">
+          <Phone size={16} className="text-emerald-600 shrink-0" />
+          <h2 className="text-sm sm:text-base font-black text-slate-900">
             5. WhatsApp Routing &amp; Store Perks
           </h2>
         </div>
@@ -608,12 +745,13 @@ export function StorefrontStudioForm({
           <div className="relative">
             <input
               type="tel"
+              inputMode="tel"
               {...register('whatsapp_phone')}
               placeholder="e.g. 2348012345678 or 08012345678"
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:bg-white focus:outline-none"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:bg-white focus:outline-none min-h-[44px]"
             />
           </div>
-          <p className="text-[10px] text-slate-400">
+          <p className="text-[10px] text-slate-400 leading-relaxed">
             When customers tap 💬 WhatsApp Order or Inquiry buttons, messages are routed directly to this number.
           </p>
         </div>
@@ -631,7 +769,7 @@ export function StorefrontStudioForm({
                   key={opt.id}
                   type="button"
                   onClick={() => toggleHighlight(opt.id)}
-                  className={`flex items-center gap-2 rounded-2xl border p-3 text-left transition-all ${
+                  className={`flex items-center gap-2 rounded-2xl border p-3 text-left transition-all min-h-[48px] active:scale-95 ${
                     isSelected
                       ? 'border-emerald-500 bg-emerald-50 text-emerald-950 shadow-sm'
                       : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300'
@@ -648,16 +786,16 @@ export function StorefrontStudioForm({
       </div>
 
       {/* ─── STICKY SAVE ACTION BAR ─────────────────────────────────────────── */}
-      <div className="fixed bottom-4 left-1/6 right-0 mx-auto z-40 w-full max-w-3xl px-4">
-        <div className="flex items-center justify-between gap-4 rounded-3xl border border-slate-200/90 bg-white/95 backdrop-blur-md p-4 shadow-2xl">
+      <div className="fixed bottom-16 md:bottom-6 left-0 right-0 mx-auto z-40 w-full max-w-3xl px-4 pointer-events-none">
+        <div className="flex items-center justify-between gap-3 rounded-3xl border border-slate-200/90 bg-white/95 backdrop-blur-md p-3.5 sm:p-4 shadow-2xl pointer-events-auto">
           <div className="hidden sm:block">
-            <p className="text-xs font-black text-slate-900">Unsaved Storefront Changes</p>
-            <p className="text-[10px] text-slate-500">Updates will reflect live across all customer QR scans.</p>
+            <p className="text-xs font-black text-slate-900">Live Storefront Studio</p>
+            <p className="text-[10px] text-slate-500">Changes reflect instantly when customers scan your QR codes.</p>
           </div>
           <button
             type="submit"
             disabled={isPending}
-            className="flex flex-1 sm:flex-initial items-center justify-center gap-2 rounded-2xl bg-[var(--lime-base)] px-8 py-3.5 text-xs font-black text-black shadow-lg shadow-[var(--lime-base)]/25 hover:bg-[var(--lime-dark)] active:scale-95 transition-all disabled:opacity-60"
+            className="flex flex-1 sm:flex-initial items-center justify-center gap-2 rounded-2xl bg-[var(--lime-base)] px-6 sm:px-8 py-3.5 text-xs font-black text-black shadow-lg shadow-[var(--lime-base)]/25 hover:bg-[var(--lime-dark)] active:scale-95 transition-all disabled:opacity-60 min-h-[48px]"
           >
             {isPending ? (
               <>

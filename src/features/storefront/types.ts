@@ -30,6 +30,16 @@ export type StatusOverride = {
   notice?: string | null
 }
 
+export type EventMode = 'recurring' | 'one_time'
+
+export interface PopupEventConfig {
+  mode: EventMode
+  startDate?: string // ISO date string / YYYY-MM-DD
+  endDate?: string   // ISO date string / YYYY-MM-DD, inclusive
+  liveNotice?: string
+  endedNotice?: string
+}
+
 export type StorefrontLocation = Tables<'locations'> & {
   location_hours?: LocationHours[]
   address_text?: string | null
@@ -48,6 +58,7 @@ export type StorefrontThemeConfig = {
   } | string | null
   status_override?: StatusOverride | null
   operating_hours?: WeeklyOperatingHours | null
+  event?: PopupEventConfig | null
   ordering?: {
     whatsapp_phone?: string | null
   } | null
@@ -78,6 +89,76 @@ export type StorefrontItemDetail = Tables<'catalog_items'> & {
 export type AttributeEntry = { key: string; value: string }
 
 const DAY_KEYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const
+
+/**
+ * Computes event lifecycle status for one-time pop-up events.
+ * Recurring stalls always return "recurring".
+ */
+export function getEventStatus(
+  config?: PopupEventConfig | null,
+  now = new Date()
+): 'recurring' | 'upcoming' | 'live' | 'ended' {
+  if (!config || config.mode !== 'one_time' || !config.startDate || !config.endDate) {
+    return 'recurring'
+  }
+
+  const startParts = config.startDate.split('-').map(Number)
+  const endParts = config.endDate.split('-').map(Number)
+
+  if (startParts.length !== 3 || endParts.length !== 3) {
+    return 'recurring'
+  }
+
+  const [startYear, startMonth, startDay] = startParts
+  const [endYear, endMonth, endDay] = endParts
+
+  if (isNaN(startYear) || isNaN(endYear)) {
+    return 'recurring'
+  }
+
+  const start = new Date(startYear, startMonth - 1, startDay, 0, 0, 0, 0)
+  const end = new Date(endYear, endMonth - 1, endDay, 23, 59, 59, 999)
+
+  const currentTime = now.getTime()
+  if (currentTime < start.getTime()) {
+    return 'upcoming'
+  }
+  if (currentTime <= end.getTime()) {
+    return 'live'
+  }
+  return 'ended'
+}
+
+/**
+ * Formats a short date string for upcoming event pills (e.g. "Mar 14" or "Mar 14–15")
+ */
+export function formatEventPillDate(startDateStr: string, endDateStr?: string): string {
+  try {
+    const startParts = startDateStr.split('-').map(Number)
+    if (startParts.length !== 3) return startDateStr
+    const start = new Date(startParts[0], startParts[1] - 1, startParts[2])
+    const month = start.toLocaleString('en-US', { month: 'short' })
+    const day = start.getDate()
+
+    if (endDateStr) {
+      const endParts = endDateStr.split('-').map(Number)
+      if (endParts.length === 3) {
+        const end = new Date(endParts[0], endParts[1] - 1, endParts[2])
+        if (end.getMonth() === start.getMonth() && end.getDate() !== day) {
+          return `${month} ${day}–${end.getDate()}`
+        }
+        if (end.getMonth() !== start.getMonth()) {
+          const endMonth = end.toLocaleString('en-US', { month: 'short' })
+          return `${month} ${day} – ${endMonth} ${end.getDate()}`
+        }
+      }
+    }
+
+    return `${month} ${day}`
+  } catch {
+    return startDateStr
+  }
+}
 
 /**
  * Computes whether a store location or business is currently open based on operating hours or status override

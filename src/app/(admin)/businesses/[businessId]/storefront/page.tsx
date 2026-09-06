@@ -7,7 +7,7 @@ import {
 } from '@/features/storefront/queries'
 import { StorefrontStudioForm } from '@/features/storefront/components/storefront-studio-form'
 import { BusinessAdminNav } from '@/components/admin/business-admin-nav'
-import type { WeeklyOperatingHours, StatusOverride } from '@/features/storefront/types'
+import type { WeeklyOperatingHours, StatusOverride, PopupEventConfig } from '@/features/storefront/types'
 
 export const metadata: Metadata = {
   title: 'Storefront Studio | SurePrice Admin',
@@ -51,17 +51,21 @@ export default async function StorefrontStudioPage({
     ? (theme.ordering as { whatsapp_phone?: string })
     : null
 
+  const eventConfig = (theme.event && typeof theme.event === 'object')
+    ? (theme.event as PopupEventConfig)
+    : null
+
   return (
-    <div className="mx-auto max-w-5xl p-4 sm:p-8 space-y-6 text-slate-900 dark:text-white">
+    <div className="mx-auto max-w-5xl p-4 sm:p-8 space-y-6 text-slate-900">
       {/* Unified Store Admin Navigation Header */}
       <BusinessAdminNav business={business} currentSection="storefront" />
 
       <div className="mx-auto max-w-3xl space-y-6">
         <div>
-          <h1 className="text-xl font-black text-slate-900 dark:text-white">
+          <h1 className="text-xl font-black text-slate-900">
             Storefront Studio
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-500 mt-0.5">
             Control your live opening hours, status banners, branding, and customer WhatsApp routing for {business.name}.
           </p>
         </div>
@@ -75,6 +79,7 @@ export default async function StorefrontStudioPage({
             status_mode: statusOverride?.mode ?? 'auto',
             status_notice: statusOverride?.notice ?? '',
             operating_hours: operatingHours,
+            event: eventConfig,
             logo_url: typeof theme.logo_url === 'string' ? theme.logo_url : null,
             cover_url: typeof theme.cover_url === 'string' ? theme.cover_url : null,
             tagline: typeof theme.tagline === 'string' ? theme.tagline : null,

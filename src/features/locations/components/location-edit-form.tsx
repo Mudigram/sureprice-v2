@@ -123,7 +123,7 @@ export function LocationEditForm({ location }: { location: Location }) {
             id="edit-location-city"
             type="text"
             disabled={isPending}
-            placeholder="e.g. Lagos, Abuja, Ibadan"
+            placeholder="e.g. Ibadan (Bodija, Ring Road)"
             className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-xs font-semibold text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-emerald-600 focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-600 disabled:opacity-60 transition-all"
           />
           {errors.city && <p className="text-xs font-bold text-rose-500">{errors.city.message}</p>}

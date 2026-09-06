@@ -7,8 +7,10 @@ const outfit = Outfit({
   subsets: ["latin"],
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://sureprice.vercel.app'
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://sureprice.app'),
+  metadataBase: new URL(siteUrl),
   title: {
     default: "SurePrice · Know Before You Buy",
     template: "%s | SurePrice",
@@ -18,7 +20,7 @@ export const metadata: Metadata = {
   keywords: [
     "SurePrice",
     "Digital Price Tag Nigeria",
-    "QR Code Menu Lagos",
+    "QR Code Menu Ibadan",
     "Physical Retail Price Check",
     "Store Navigation",
     "Retail SaaS Nigeria",
@@ -29,7 +31,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_NG",
-    url: "https://sureprice.app",
+    url: siteUrl,
     siteName: "SurePrice",
     title: "SurePrice · Know Before You Buy",
     description:

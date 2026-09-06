@@ -58,7 +58,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
         {/* Footer for Desktop */}
         <footer className="hidden md:block border-t border-slate-200/80 py-6 text-center text-xs text-slate-500 font-medium bg-white">
-          SurePrice Enterprise Console · Pilot Partner Environment · Lagos, Nigeria
+          SurePrice Enterprise Console · Pilot Partner Environment · Ibadan, Nigeria
         </footer>
       </div>
     </div>

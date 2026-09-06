@@ -28,11 +28,20 @@ export const weeklyOperatingHoursSchema = z.object({
   saturday: dayHoursSchema,
 })
 
+export const popupEventSchema = z.object({
+  mode: z.enum(['recurring', 'one_time']).default('recurring'),
+  startDate: z.string().nullable().optional(),
+  endDate: z.string().nullable().optional(),
+  liveNotice: z.string().max(120, 'Live notice must be 120 characters or less').nullable().optional(),
+  endedNotice: z.string().max(180, 'Ended notice must be 180 characters or less').nullable().optional(),
+})
+
 export const updateStorefrontStudioSchema = z.object({
   is_published: z.boolean().default(true),
   status_mode: z.enum(['auto', 'force_open', 'force_closed']).default('auto'),
   status_notice: z.string().max(100, 'Notice must be 100 characters or less').nullable().optional(),
   operating_hours: weeklyOperatingHoursSchema.optional(),
+  event: popupEventSchema.optional(),
   logo_url: z.string().nullable().optional(),
   cover_url: z.string().nullable().optional(),
   tagline: z.string().max(120, 'Tagline must be 120 characters or less').nullable().optional(),

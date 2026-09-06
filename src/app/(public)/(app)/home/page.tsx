@@ -9,74 +9,55 @@ import {
   QrCode,
   Sparkles,
   ShoppingBag,
-  Search,
+  Store,
+  Tag,
+  Utensils,
 } from 'lucide-react'
-import { TickerBanner } from '@/components/storefront/ticker-banner'
-import { VenueTypeGrid } from '@/components/storefront/venue-type-grid'
-import { HomeSearchBar } from '@/components/storefront/home-search-bar'
 import { MerchantGrowthCard } from '@/components/storefront/merchant-growth-card'
-import { HomeStoresSection } from './home-stores-section'
-import { RecentStoreUpdates } from './recent-store-updates'
-import { TrendingItemsCarousel } from './trending-items-carousel'
 import { RecentScansHomeRail } from './recent-scans-rail'
-import { getPublishedBusinesses, getFeaturedCatalogItems } from '@/features/storefront/queries'
+import { RestaurantsListSection } from './restaurants-list-section'
+import { getPublishedBusinesses } from '@/features/storefront/queries'
 
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'SurePrice — Scan it. Know it.',
-  description: 'Scan any in-store product QR code for instant verified prices in Nigerian Naira (₦). Zero app install required.',
+  description: 'Scan any in-store product QR code or dining table standee for instant verified prices in Nigerian Naira (₦). Zero app install required.',
 }
 
 async function DynamicHomepageContent() {
   let businesses: Awaited<ReturnType<typeof getPublishedBusinesses>> = []
-  let featuredItems: Awaited<ReturnType<typeof getFeaturedCatalogItems>> = []
 
   try {
-    const [bizResult, itemsResult] = await Promise.all([
-      getPublishedBusinesses(),
-      getFeaturedCatalogItems(8),
-    ])
-    businesses = bizResult
-    featuredItems = itemsResult
+    businesses = await getPublishedBusinesses()
   } catch {
     // Graceful fallback
   }
 
   return (
     <div className="space-y-6">
-      {/* 1. Trending Price Tags & Menu Dishes Carousel */}
-      {featuredItems.length > 0 && (
-        <TrendingItemsCarousel items={featuredItems} />
-      )}
+      {/* MVP Flat Discovery: Live Partner Restaurants in Ibadan */}
+      <RestaurantsListSection businesses={businesses} />
 
-      {/* 2. Promoted Partner Stores with Quick Filters */}
-      <HomeStoresSection businesses={businesses} />
-
-      {/* 3. In-App Merchant Acquisition Flywheel Card */}
+      {/* In-App Merchant Onboarding / Inquiry Card */}
       <MerchantGrowthCard />
-
-      {/* 4. Recent Live Store Price Updates Feed */}
-      <RecentStoreUpdates businesses={businesses} />
     </div>
   )
 }
 
 function SectionSkeleton() {
   return (
-    <div className="space-y-4">
-      <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
-        {[1, 2, 3].map((i) => (
+    <div className="space-y-3">
+      <div className="h-6 w-48 rounded-xl bg-slate-200 animate-pulse" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
-            className="flex min-w-[260px] max-w-[260px] flex-col rounded-3xl border border-slate-200 bg-white p-5 shadow-sm animate-pulse dark:border-slate-800 dark:bg-slate-900"
+            className="flex flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white p-4 shadow-sm animate-pulse space-y-3"
           >
-            <div className="mb-3 flex items-start justify-between">
-              <div className="h-12 w-12 rounded-2xl bg-slate-100 dark:bg-slate-800" />
-              <div className="h-4 w-16 rounded bg-slate-100 dark:bg-slate-800" />
-            </div>
-            <div className="mb-2 h-5 w-3/4 rounded bg-slate-100 dark:bg-slate-800" />
-            <div className="h-3 w-1/2 rounded bg-slate-100 dark:bg-slate-800" />
+            <div className="aspect-[16/9] w-full rounded-2xl bg-slate-100" />
+            <div className="h-4 w-3/4 rounded bg-slate-100" />
+            <div className="h-3 w-1/2 rounded bg-slate-100" />
           </div>
         ))}
       </div>
@@ -86,7 +67,7 @@ function SectionSkeleton() {
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen space-y-5 pb-8 bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-white selection:bg-[var(--lime-base)] selection:text-black">
+    <div className="min-h-screen space-y-5 pb-8 bg-slate-50 text-slate-900 selection:bg-[var(--lime-base)] selection:text-black">
       {/* Hero Scanner Card Banner */}
       <section className="relative mx-5 mt-4 overflow-hidden rounded-3xl bg-slate-900 p-5 text-white shadow-xl border border-slate-800">
         {/* Decorative background glows */}
@@ -111,7 +92,7 @@ export default function HomePage() {
               Scan it. Know it.
             </h1>
             <p className="mt-1 text-xs leading-relaxed text-slate-300 font-medium">
-              Point camera at any in-store product QR tag or digital menu for instant verified prices.
+              Point camera at any in-store product shelf tag or table standee for instant verified prices.
             </p>
           </div>
 
@@ -140,21 +121,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Marquee Ticker */}
-      {/* <div className="px-5">
-        <TickerBanner />
-      </div> */}
-
-      {/* 2. Top Search & Neighborhood Filter Bar */}
-      <div className="px-5">
-        <HomeSearchBar />
-      </div>
-
-      {/* 3. Venue Type Explorer Bar */}
-      <div className="px-5">
-        <VenueTypeGrid />
-      </div>
-
       {/* Dynamic Stores & Items Data Section */}
       <div className="px-5 space-y-6">
         <RecentScansHomeRail />
@@ -163,34 +129,52 @@ export default function HomePage() {
         </Suspense>
       </div>
 
-      {/* 4. 3-Step How-It-Works Visual Bar */}
+      {/* 3-Step How-It-Works Visual Bar (Differentiating Shelf Tag vs Table Standee) */}
       <section className="px-5 pt-2">
-        <div className="grid grid-cols-3 gap-2 rounded-3xl border border-slate-200/80 bg-white p-4 shadow-sm text-center dark:border-slate-800 dark:bg-slate-900">
+        <div className="grid grid-cols-3 gap-2 rounded-3xl border border-slate-200/80 bg-white p-4 shadow-sm text-center">
+          {/* Step 1A: Shelf Tag */}
           <div className="flex flex-col items-center gap-1.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700">
-              <QrCode size={18} />
+            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-slate-100 text-slate-800 border border-slate-200">
+              <Tag size={16} />
             </div>
-            <span className="text-[11px] font-black tracking-tight text-slate-900 dark:text-white">
-              1. Scan QR
-            </span>
+            <div>
+              <span className="text-[11px] font-black tracking-tight text-slate-900 block">
+                1. Shelf Tag
+              </span>
+              <span className="text-[9px] text-slate-500 font-medium block">
+                Instant single price
+              </span>
+            </div>
           </div>
 
-          <div className="flex flex-col items-center gap-1.5 border-x border-slate-100 dark:border-slate-800 px-1">
-            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900">
-              <Sparkles size={18} className="text-emerald-600 dark:text-[var(--lime-base)]" />
+          {/* Step 1B: Table Standee */}
+          <div className="flex flex-col items-center gap-1.5 border-x border-slate-100 px-1">
+            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-amber-50 text-amber-800 border border-amber-200">
+              <Utensils size={16} className="text-amber-700" />
             </div>
-            <span className="text-[11px] font-black tracking-tight text-slate-900 dark:text-white">
-              2. Verify Price
-            </span>
+            <div>
+              <span className="text-[11px] font-black tracking-tight text-slate-900 block">
+                2. Table Standee
+              </span>
+              <span className="text-[9px] text-slate-500 font-medium block">
+                Browse full menu
+              </span>
+            </div>
           </div>
 
+          {/* Step 2: Pay in-Store */}
           <div className="flex flex-col items-center gap-1.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-900">
-              <ShoppingBag size={18} />
+            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-800 border border-emerald-200">
+              <ShoppingBag size={16} className="text-emerald-700" />
             </div>
-            <span className="text-[11px] font-black tracking-tight text-slate-900 dark:text-white">
-              3. Pay In-Store
-            </span>
+            <div>
+              <span className="text-[11px] font-black tracking-tight text-slate-900 block">
+                3. Pay In-Store
+              </span>
+              <span className="text-[9px] text-slate-500 font-medium block">
+                Show price list
+              </span>
+            </div>
           </div>
         </div>
       </section>
