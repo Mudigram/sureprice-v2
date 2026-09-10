@@ -18,9 +18,15 @@ import {
   ShoppingBag,
   Info,
   Phone,
+  PhoneCall,
   Share2,
   ClipboardList,
   ArrowRight,
+  Globe,
+  Navigation,
+  CreditCard,
+  ExternalLink,
+  Sparkles,
 } from 'lucide-react'
 import { SearchInput } from '@/components/storefront/search-input'
 import { ProductRow } from '@/components/storefront/product-row'
@@ -45,6 +51,12 @@ import {
   getAmenitySvgIcon,
   CategoryPlateSvg,
 } from '@/components/icons'
+import {
+  InstagramIcon,
+  TikTokIcon,
+  TwitterXIcon,
+  FacebookIcon,
+} from '@/components/icons/social-brand-icons'
 
 const CATEGORY_GRADIENTS: Record<string, string> = {
   beverages: 'from-amber-500/15 via-orange-500/10 to-amber-950/30',
@@ -80,6 +92,7 @@ export function StoreDetailClient({ business, items, businessSlug }: Props) {
   const [activeTab, setActiveTab] = useState<'menu' | 'about'>('menu')
   const [selectedItem, setSelectedItem] = useState<StorefrontItem | null>(null)
   const [copiedLink, setCopiedLink] = useState(false)
+  const [copiedAcc, setCopiedAcc] = useState(false)
   const [hoursExpanded, setHoursExpanded] = useState(false)
   const { isInList, totalCount } = useCart()
 
@@ -140,6 +153,32 @@ export function StoreDetailClient({ business, items, businessSlug }: Props) {
   const logoUrl = rawLogoUrl ? resolveUrl(rawLogoUrl) : null
   const coverUrl = rawCoverUrl ? resolveUrl(rawCoverUrl) : null
   const tagline = typeof storefrontTheme.tagline === 'string' ? storefrontTheme.tagline : null
+  const description = typeof storefrontTheme.description === 'string' ? storefrontTheme.description : null
+  const stallNumber = typeof storefrontTheme.stall_number === 'string' ? storefrontTheme.stall_number : (typeof storefrontTheme.stall === 'string' ? storefrontTheme.stall : null)
+  const locationZone = typeof storefrontTheme.location_zone === 'string' ? storefrontTheme.location_zone : null
+  const directionsLandmark = typeof storefrontTheme.directions_landmark === 'string' ? storefrontTheme.directions_landmark : null
+
+  const bankDetails = (storefrontTheme.bank_details && typeof storefrontTheme.bank_details === 'object')
+    ? (storefrontTheme.bank_details as { enabled?: boolean; bank_name?: string; account_number?: string; account_name?: string })
+    : null
+  
+  const socials = (storefrontTheme.socials && typeof storefrontTheme.socials === 'object')
+    ? (storefrontTheme.socials as { instagram?: string; tiktok?: string; twitter?: string; facebook?: string; website?: string })
+    : {}
+
+  const payments = Array.isArray(storefrontTheme.payments) && storefrontTheme.payments.length > 0
+    ? (storefrontTheme.payments as string[])
+    : ['Cash', 'Bank Transfer', 'POS Card']
+
+  const handleCopyAccount = async (accNum: string) => {
+    try {
+      await navigator.clipboard.writeText(accNum)
+      setCopiedAcc(true)
+      setTimeout(() => setCopiedAcc(false), 2000)
+    } catch {
+      // Fallback
+    }
+  }
   
   // Announcement from theme object or string
   const announcement = (() => {
@@ -385,11 +424,20 @@ export function StoreDetailClient({ business, items, businessSlug }: Props) {
               )}
             </div>
 
-            {/* Address Row */}
-            <p className="flex items-center gap-1 text-xs font-medium text-slate-500">
-              <MapPin size={13} className="shrink-0 text-slate-400" />
-              <span className="truncate">{addressText}</span>
-            </p>
+            {/* Address & Stall Location Row */}
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-medium text-slate-500">
+              <span className="flex items-center gap-1">
+                <MapPin size={13} className="shrink-0 text-slate-400" />
+                <span className="truncate">{addressText}</span>
+              </span>
+
+              {stallNumber && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-[11px] font-black text-amber-700 border border-amber-500/20">
+                  <span>🎪</span>
+                  <span>Stall #{stallNumber}</span>
+                </span>
+              )}
+            </div>
 
             {/* Merchant Custom Announcement (conditional — merchant-authored only) */}
             {announcement && (
@@ -400,49 +448,250 @@ export function StoreDetailClient({ business, items, businessSlug }: Props) {
             )}
           </div>
 
-          {/* Segmented Tab Selector [ Menu | About ] */}
-          {isRestaurant && (
-            <div className="mt-4 flex rounded-2xl bg-slate-200/80 p-1 border border-slate-200">
-              <button
-                type="button"
-                onClick={() => setActiveTab('menu')}
-                className={`flex-1 rounded-xl py-2.5 text-xs font-black transition-all ${
-                  activeTab === 'menu'
-                    ? 'bg-gradient-to-r from-rose-500 to-amber-500 text-white shadow-md'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                Menu
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab('about')}
-                className={`flex-1 rounded-xl py-2.5 text-xs font-black transition-all ${
-                  activeTab === 'about'
-                    ? 'bg-gradient-to-r from-rose-500 to-amber-500 text-white shadow-md'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                About
-              </button>
-            </div>
-          )}
+          {/* Segmented Tab Selector [ Menu/Catalog | About ] — Available for all business types */}
+          <div className="mt-4 flex rounded-2xl bg-slate-200/80 p-1 border border-slate-200">
+            <button
+              type="button"
+              onClick={() => setActiveTab('menu')}
+              className={`flex-1 rounded-xl py-2.5 text-xs font-black transition-all ${
+                activeTab === 'menu'
+                  ? 'bg-emerald-600 text-white shadow-md'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              {isRestaurant ? 'Menu' : 'Catalog'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('about')}
+              className={`flex-1 rounded-xl py-2.5 text-xs font-black transition-all ${
+                activeTab === 'about'
+                  ? 'bg-emerald-600 text-white shadow-md'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              About Store
+            </button>
+          </div>
         </div>
 
         <div className="mt-4 space-y-5 px-5">
           {/* ─── ABOUT TAB VIEW ─────────────────────────────────────────── */}
-          {isRestaurant && activeTab === 'about' ? (
-            <div className="space-y-4 rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm">
+          {activeTab === 'about' ? (
+            <div className="space-y-5 rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm">
+              {/* Tagline */}
               {tagline && (
                 <div>
-                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">Tagline</h3>
+                  <h3 className="text-[10px] font-black uppercase tracking-wider text-slate-400">Tagline</h3>
                   <p className="mt-0.5 text-sm font-bold text-slate-800 italic">
                     &ldquo;{tagline}&rdquo;
                   </p>
                 </div>
               )}
 
-              {/* Weekly Hours Accordion (from theme operating_hours or fallback location_hours) */}
+              {/* Business Description / Our Story */}
+              {description && (
+                <div>
+                  <h3 className="text-[10px] font-black uppercase tracking-wider text-slate-400">Our Story</h3>
+                  <p className="mt-1 text-xs font-medium text-slate-700 leading-relaxed whitespace-pre-line">
+                    {description}
+                  </p>
+                </div>
+              )}
+
+              {/* Physical Main Store Location Card */}
+              <div className="flex items-start gap-3 rounded-2xl bg-slate-50 border border-slate-200/80 p-3.5 text-slate-800">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-200 text-slate-700 text-lg">
+                  📍
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Physical Store Location</p>
+                  <p className="text-xs font-bold text-slate-900 mt-0.5">{addressText}</p>
+                  {directionsLandmark && (
+                    <p className="text-xs text-slate-500 font-medium mt-0.5">Landmark: {directionsLandmark}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Event / Stall Metadata Card */}
+              {(stallNumber || locationZone) && (
+                <div className="flex items-center gap-3 rounded-2xl bg-amber-50 border border-amber-200/70 p-3.5 text-amber-950">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-xl">
+                    🎪
+                  </div>
+                  <div>
+                    <p className="text-xs font-black text-amber-950">Event Location &amp; Zone</p>
+                    <p className="text-xs font-bold text-amber-800 mt-0.5">
+                      {stallNumber ? `Stall #${stallNumber}` : 'Pop-Up Stall'}
+                      {locationZone ? ` • ${locationZone}` : ' • Main Event Zone'}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Direct Bank Transfer Copy Box (Physical Stall Payments) */}
+              {bankDetails?.enabled && bankDetails.account_number && (
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4 space-y-2 text-emerald-950">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-emerald-700 flex items-center gap-1">
+                      <CreditCard size={12} className="text-emerald-600" />
+                      Direct Bank Transfer (Stall Checkout)
+                    </span>
+                    <span className="rounded-full bg-emerald-200/70 px-2 py-0.5 text-[10px] font-black text-emerald-900">
+                      Verified
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-2 pt-1">
+                    <div>
+                      <p className="text-xs font-bold text-emerald-900">{bankDetails.bank_name || 'Bank Transfer'}</p>
+                      <p className="text-lg font-black tracking-widest text-slate-900 font-mono">
+                        {bankDetails.account_number}
+                      </p>
+                      {bankDetails.account_name && (
+                        <p className="text-[11px] font-medium text-emerald-800">{bankDetails.account_name}</p>
+                      )}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => handleCopyAccount(bankDetails.account_number!)}
+                      className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3.5 py-2.5 text-xs font-black text-white shadow-md active:scale-95 transition-all shrink-0"
+                    >
+                      <ClipboardList size={14} />
+                      <span>{copiedAcc ? 'Copied!' : 'Copy Account'}</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Accepted Payments Section */}
+              {payments.length > 0 && (
+                <div>
+                  <h3 className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2">Accepted Payment Methods</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {payments.map((pm) => (
+                      <span
+                        key={pm}
+                        className="inline-flex items-center gap-1.5 rounded-xl bg-slate-100 px-3 py-1.5 text-xs font-extrabold text-slate-700 border border-slate-200/80"
+                      >
+                        <CreditCard size={13} className="text-emerald-600" />
+                        <span>{pm}</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Social Touchpoints Grid */}
+              {(socials.instagram || socials.tiktok || socials.twitter || socials.facebook || socials.website) && (
+                <div>
+                  <h3 className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2">Connect &amp; Socials</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {socials.instagram && (
+                      <a
+                        href={socials.instagram.startsWith('http') ? socials.instagram : `https://instagram.com/${socials.instagram.replace(/^@/, '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2.5 rounded-2xl border border-slate-200/80 bg-slate-50 p-3 text-xs font-bold text-slate-800 hover:bg-slate-100 transition-colors shadow-sm active:scale-95"
+                      >
+                        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white shrink-0 shadow-md">
+                          <InstagramIcon size={18} />
+                        </div>
+                        <div className="min-w-0 flex-1 truncate">
+                          <p className="text-[9px] font-black uppercase tracking-wider text-slate-400">Instagram</p>
+                          <p className="truncate text-xs font-extrabold text-slate-900">
+                            {socials.instagram.startsWith('@') ? socials.instagram : `@${socials.instagram}`}
+                          </p>
+                        </div>
+                        <ExternalLink size={13} className="text-slate-400 shrink-0" />
+                      </a>
+                    )}
+
+                    {socials.tiktok && (
+                      <a
+                        href={socials.tiktok.startsWith('http') ? socials.tiktok : `https://tiktok.com/@${socials.tiktok.replace(/^@/, '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2.5 rounded-2xl border border-slate-200/80 bg-slate-50 p-3 text-xs font-bold text-slate-800 hover:bg-slate-100 transition-colors shadow-sm active:scale-95"
+                      >
+                        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-950 text-white shrink-0 shadow-md">
+                          <TikTokIcon size={16} />
+                        </div>
+                        <div className="min-w-0 flex-1 truncate">
+                          <p className="text-[9px] font-black uppercase tracking-wider text-slate-400">TikTok</p>
+                          <p className="truncate text-xs font-extrabold text-slate-900">
+                            {socials.tiktok.startsWith('@') ? socials.tiktok : `@${socials.tiktok}`}
+                          </p>
+                        </div>
+                        <ExternalLink size={13} className="text-slate-400 shrink-0" />
+                      </a>
+                    )}
+
+                    {socials.twitter && (
+                      <a
+                        href={socials.twitter.startsWith('http') ? socials.twitter : `https://x.com/${socials.twitter.replace(/^@/, '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2.5 rounded-2xl border border-slate-200/80 bg-slate-50 p-3 text-xs font-bold text-slate-800 hover:bg-slate-100 transition-colors shadow-sm active:scale-95"
+                      >
+                        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-900 text-white shrink-0 shadow-md">
+                          <TwitterXIcon size={15} />
+                        </div>
+                        <div className="min-w-0 flex-1 truncate">
+                          <p className="text-[9px] font-black uppercase tracking-wider text-slate-400">X / Twitter</p>
+                          <p className="truncate text-xs font-extrabold text-slate-900">
+                            {socials.twitter.startsWith('@') ? socials.twitter : `@${socials.twitter}`}
+                          </p>
+                        </div>
+                        <ExternalLink size={13} className="text-slate-400 shrink-0" />
+                      </a>
+                    )}
+
+                    {socials.facebook && (
+                      <a
+                        href={socials.facebook.startsWith('http') ? socials.facebook : `https://facebook.com/${socials.facebook}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2.5 rounded-2xl border border-slate-200/80 bg-slate-50 p-3 text-xs font-bold text-slate-800 hover:bg-slate-100 transition-colors shadow-sm active:scale-95"
+                      >
+                        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#1877F2] text-white shrink-0 shadow-md">
+                          <FacebookIcon size={16} />
+                        </div>
+                        <div className="min-w-0 flex-1 truncate">
+                          <p className="text-[9px] font-black uppercase tracking-wider text-slate-400">Facebook</p>
+                          <p className="truncate text-xs font-extrabold text-slate-900">
+                            {socials.facebook}
+                          </p>
+                        </div>
+                        <ExternalLink size={13} className="text-slate-400 shrink-0" />
+                      </a>
+                    )}
+
+                    {socials.website && (
+                      <a
+                        href={socials.website.startsWith('http') ? socials.website : `https://${socials.website}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2.5 rounded-2xl border border-slate-200/80 bg-slate-50 p-3 text-xs font-bold text-slate-800 hover:bg-slate-100 transition-colors shadow-sm active:scale-95"
+                      >
+                        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-600 text-white shrink-0 shadow-md">
+                          <Globe size={16} />
+                        </div>
+                        <div className="min-w-0 flex-1 truncate">
+                          <p className="text-[9px] font-black uppercase tracking-wider text-slate-400">Website</p>
+                          <p className="truncate text-xs font-extrabold text-slate-900">
+                            {socials.website.replace(/^https?:\/\//, '')}
+                          </p>
+                        </div>
+                        <ExternalLink size={13} className="text-slate-400 shrink-0" />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Weekly Hours Accordion */}
               {(themeHours || (primaryLocation?.location_hours && primaryLocation.location_hours.length > 0)) && (
                 <div>
                   <button
@@ -517,7 +766,7 @@ export function StoreDetailClient({ business, items, businessSlug }: Props) {
               )}
 
               {/* Quick Actions */}
-              <div className="flex items-center gap-2.5 pt-2 border-t border-slate-100">
+              <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
                 {phoneNumber && (
                   <a
                     href={`https://wa.me/${phoneNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hello ${business.name}, I found you on Qarty and would like to inquire!`)}`}
@@ -535,7 +784,7 @@ export function StoreDetailClient({ business, items, businessSlug }: Props) {
                     className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-slate-100 py-3 text-xs font-extrabold text-slate-800 border border-slate-200 active:scale-95 transition-all"
                   >
                     <Phone size={14} className="text-rose-500" />
-                    <span>Call Store</span>
+                    <span>Call</span>
                   </a>
                 )}
 
@@ -552,12 +801,11 @@ export function StoreDetailClient({ business, items, businessSlug }: Props) {
                 <button
                   type="button"
                   onClick={handleSharePage}
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-rose-500 to-amber-500 py-3 text-xs font-black text-white shadow-md active:scale-95 transition-all"
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 py-3 text-xs font-black text-white shadow-md active:scale-95 transition-all"
                 >
                   <Share2 size={14} />
                   <span>{copiedLink ? 'Copied!' : 'Share'}</span>
                 </button>
-
               </div>
             </div>
           ) : (

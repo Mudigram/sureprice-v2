@@ -55,6 +55,14 @@ export default async function StorefrontStudioPage({
     ? (theme.event as PopupEventConfig)
     : null
 
+  const bankDetails = (theme.bank_details && typeof theme.bank_details === 'object')
+    ? (theme.bank_details as { enabled?: boolean; bank_name?: string; account_number?: string; account_name?: string })
+    : null
+
+  const socials = (theme.socials && typeof theme.socials === 'object')
+    ? (theme.socials as { instagram?: string; tiktok?: string; twitter?: string; facebook?: string; website?: string })
+    : null
+
   return (
     <div className="mx-auto max-w-5xl p-4 sm:p-8 space-y-6 text-slate-900">
       {/* Unified Store Admin Navigation Header */}
@@ -83,10 +91,24 @@ export default async function StorefrontStudioPage({
             logo_url: typeof theme.logo_url === 'string' ? theme.logo_url : null,
             cover_url: typeof theme.cover_url === 'string' ? theme.cover_url : null,
             tagline: typeof theme.tagline === 'string' ? theme.tagline : null,
+            description: typeof theme.description === 'string' ? theme.description : null,
             primary_color: typeof theme.primary_color === 'string' ? theme.primary_color : '#13ec5b',
             announcement_enabled: announcement?.enabled ?? false,
             announcement_text: announcement?.text ?? '',
             whatsapp_phone: ordering?.whatsapp_phone ?? business.locations?.[0]?.phone ?? '',
+            stall_number: typeof theme.stall_number === 'string' ? theme.stall_number : null,
+            location_zone: typeof theme.location_zone === 'string' ? theme.location_zone : null,
+            directions_landmark: typeof theme.directions_landmark === 'string' ? theme.directions_landmark : null,
+            bank_enabled: bankDetails?.enabled ?? false,
+            bank_name: bankDetails?.bank_name ?? '',
+            account_number: bankDetails?.account_number ?? '',
+            account_name: bankDetails?.account_name ?? '',
+            social_instagram: socials?.instagram ?? '',
+            social_tiktok: socials?.tiktok ?? '',
+            social_twitter: socials?.twitter ?? '',
+            social_facebook: socials?.facebook ?? '',
+            social_website: socials?.website ?? '',
+            payments: Array.isArray(theme.payments) ? (theme.payments as string[]) : ['Cash', 'Bank Transfer', 'POS Card'],
             highlights: Array.isArray(theme.highlights) ? (theme.highlights as string[]) : [],
           }}
         />
