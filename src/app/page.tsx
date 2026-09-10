@@ -12,7 +12,7 @@ import { FAQSection } from '@/components/landing/faq-section'
 import { FloatingScanPrompt } from '@/components/landing/floating-scan-prompt'
 
 export const metadata: Metadata = {
-  title: 'SurePrice · Live Digital Storefronts & QR Menus for Nigerian Businesses',
+  title: 'Qarty · Live Digital Storefronts & QR Menus for Nigerian Businesses',
   description:
     'Turn your physical store into a modern digital storefront. Live QR table menus, shelf tags, and instant WhatsApp catalogs for restaurants, cafés, retail shops, and pop-up vendors across Ibadan, Lagos, and Nigeria. Zero app download required.',
 }
@@ -31,7 +31,7 @@ export default function LandingPage() {
               <ScanLine size={18} strokeWidth={2.5} className="text-black" />
             </div>
             <span className="text-xl font-black tracking-tight text-slate-900">
-              <span className="text-emerald-600 dark:text-[var(--lime-dark)]">Sure</span>Price
+              <span className="text-emerald-600 dark:text-[var(--lime-dark)]">Q</span>arty
             </span>
           </Link>
 
@@ -78,9 +78,9 @@ export default function LandingPage() {
             <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-[var(--lime-base)] text-black">
               <ScanLine size={14} strokeWidth={2.5} />
             </div>
-            <span>SurePrice</span>
+            <span>Qarty</span>
           </div>
-          <p>© 2026 SurePrice · Live Digital Storefronts & QR Menus · Ibadan & Lagos, Nigeria</p>
+          <p>© 2026 Qarty · Live Digital Storefronts & QR Menus · Ibadan & Lagos, Nigeria</p>
         </div>
       </footer>
     </div>

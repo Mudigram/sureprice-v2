@@ -57,7 +57,7 @@ export function FeatureTabs() {
       {/* Section Header */}
       <div className="text-center max-w-2xl mx-auto space-y-3 mb-12 sm:mb-16">
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 leading-tight">
-          How SurePrice Powers Physical Venues
+          How Qarty Powers Physical Venues
         </h2>
 
         <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">

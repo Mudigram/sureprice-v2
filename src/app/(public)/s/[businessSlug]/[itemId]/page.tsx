@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const priceText = item.base_price !== null ? ` (₦${item.base_price.toLocaleString()})` : ''
   const description =
     item.description ??
-    `Verified live price${priceText} and details for ${item.name} at ${business.name} on SurePrice.`
+    `Verified live price${priceText} and details for ${item.name} at ${business.name} on Qarty.`
 
   const imageUrl = item.image_url ?? undefined
 
@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       type: 'website',
-      siteName: 'SurePrice',
+      siteName: 'Qarty',
       images: imageUrl
         ? [
             {
@@ -60,7 +60,7 @@ export default async function StorefrontItemPage({ params }: Props) {
   const item = await getStorefrontItem(business.id, itemId)
   if (!item) notFound()
 
-  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://sureprice.vercel.app'
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://qarty.vercel.app'
   const itemUrl = `${siteUrl}/s/${businessSlug}/${itemId}`
   const storeUrl = `${siteUrl}/s/${businessSlug}`
 

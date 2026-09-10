@@ -14,7 +14,7 @@ const FAQS = [
   {
     question: 'How do I print the QR tags and A6 table tent cards?',
     answer:
-      'SurePrice includes a built-in Print Studio. You can instantly export print-ready PDFs sized for standard A4 paper, A6 table standees, or adhesive shelf stickers using any regular office printer. You can also slip them into affordable acrylic display stands.',
+      'Qarty includes a built-in Print Studio. You can instantly export print-ready PDFs sized for standard A4 paper, A6 table standees, or adhesive shelf stickers using any regular office printer. You can also slip them into affordable acrylic display stands.',
   },
   {
     question: 'Can I use this for a weekend pop-up stall or food festival in Ibadan?',
@@ -24,12 +24,12 @@ const FAQS = [
   {
     question: 'What happens if mobile network or WiFi fluctuates in my store?',
     answer:
-      'SurePrice is engineered with ultra-lightweight client assets and aggressive browser caching. Even on standard 3G/4G Nigerian mobile connections, pages load in under 0.4 seconds with minimal data consumption.',
+      'Qarty is engineered with ultra-lightweight client assets and aggressive browser caching. Even on standard 3G/4G Nigerian mobile connections, pages load in under 0.4 seconds with minimal data consumption.',
   },
   {
     question: 'Can I change my prices or mark an item sold-out in real-time?',
     answer:
-      'Yes. When your kitchen runs out of a special dish or a supplier price changes, you simply open your SurePrice merchant portal on your phone, toggle the item or update the price in 1 tap, and every customer scan reflects the change immediately.',
+      'Yes. When your kitchen runs out of a special dish or a supplier price changes, you simply open your Qarty merchant portal on your phone, toggle the item or update the price in 1 tap, and every customer scan reflects the change immediately.',
   },
 ]
 

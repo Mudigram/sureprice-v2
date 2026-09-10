@@ -116,7 +116,7 @@ export function PrintTemplates({
                 {/* SurePrice Branding & Instruction Footer */}
                 <div className="pt-1 flex items-center gap-1 text-[9px] font-extrabold text-slate-600">
                   <ShieldCheck size={11} className="text-emerald-600 shrink-0" />
-                  <span className="truncate">Verified by SurePrice.ng</span>
+                  <span className="truncate">Verified by Qarty</span>
                 </div>
               </div>
 
@@ -221,13 +221,13 @@ export function PrintTemplates({
                 </div>
               </div>
 
-              {/* SurePrice Brand Footer */}
+              {/* Qarty Brand Footer */}
               <div className="mt-4 pt-3 border-t border-slate-200 w-full flex items-center justify-between text-[10px] font-black text-slate-500">
                 <span className="flex items-center gap-1">
                   <ShieldCheck size={12} className="text-emerald-600" />
                   <span>Verified Price Network</span>
                 </span>
-                <span>Powered by SurePrice.ng</span>
+                <span>Powered by Qarty</span>
               </div>
             </div>
           ))}
@@ -250,7 +250,7 @@ export function PrintTemplates({
                 )}
                 <div className="flex items-center gap-1 text-[8px] font-bold text-slate-500 pt-0.5">
                   <ShieldCheck size={10} className="text-emerald-600" />
-                  <span>SurePrice.ng Verified</span>
+                  <span>Qarty Verified</span>
                 </div>
               </div>
               <div className="shrink-0 text-center pl-2 border-l border-slate-200">
@@ -310,7 +310,7 @@ export function PrintTemplates({
                   <ShieldCheck size={14} className="text-emerald-600" />
                   <span>100% Price Verified</span>
                 </span>
-                <span>Powered by SurePrice.ng</span>
+                <span>Powered by Qarty</span>
               </div>
             </div>
           ))}
@@ -346,7 +346,7 @@ export function PrintTemplates({
                   </div>
                   <div className="bg-white p-2 rounded-xl border border-slate-200">
                     <span className="text-[9px] font-bold text-slate-400 block uppercase">Password</span>
-                    <span className="font-extrabold text-slate-900 truncate block">{item.wifiPassword || 'sureprice'}</span>
+                    <span className="font-extrabold text-slate-900 truncate block">{item.wifiPassword || 'qarty2026'}</span>
                   </div>
                 </div>
               </div>
@@ -366,7 +366,7 @@ export function PrintTemplates({
               {/* Footer */}
               <div className="mt-4 pt-3 border-t border-slate-200 w-full flex items-center justify-between text-[10px] font-black text-slate-500">
                 <span>Zero App Install Required</span>
-                <span>Powered by SurePrice.ng</span>
+                <span>Powered by Qarty</span>
               </div>
             </div>
           ))}

@@ -427,7 +427,7 @@ export default function HistoryPage() {
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation()
-                              const text = `Hello, I previously checked the price for ${item.name}${item.base_price ? ` (₦${item.base_price.toLocaleString()})` : ''} at ${item.businessName} on SurePrice. I'd like to inquire!`
+                              const text = `Hello, I previously checked the price for ${item.name}${item.base_price ? ` (₦${item.base_price.toLocaleString()})` : ''} at ${item.businessName} on Qarty. I'd like to inquire!`
                               window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
                             }}
                             className="flex items-center justify-center h-8 w-8 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 transition-all active:scale-95 dark:bg-emerald-950/40 dark:border-emerald-900 dark:text-emerald-400"

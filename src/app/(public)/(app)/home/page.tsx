@@ -21,8 +21,8 @@ import { getPublishedBusinesses } from '@/features/storefront/queries'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'SurePrice — Scan it. Know it.',
-  description: 'Scan any in-store product QR code or dining table standee for instant verified prices in Nigerian Naira (₦). Zero app install required.',
+  title: 'Qarty — Scan it. Know it.',
+  description: 'Scan any in-store product QR code or dining table standee in Ibadan for instant verified prices in Nigerian Naira (₦). Zero app install required.',
 }
 
 async function DynamicHomepageContent() {

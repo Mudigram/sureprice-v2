@@ -65,7 +65,7 @@ export default function CartPage() {
       text += `${status}${i.name} (x${i.quantity})${priceStr}\n`
     }
     text += `\nEstimated Store Total: ₦${storeTotal.toLocaleString()}\n`
-    text += `Verified via SurePrice`
+    text += `Verified via Qarty`
 
     if (navigator.share) {
       try {
@@ -560,7 +560,7 @@ export default function CartPage() {
             <button
               type="button"
               onClick={() => {
-                let text = `🛒 My SurePrice Shopping List\n`
+                let text = `🛒 My Qarty Shopping List\n`
                 text += `${'\u2500'.repeat(28)}\n`
                 for (const group of storeGroups) {
                   const storeTotal = group.items.reduce((sum, i) => sum + (i.base_price ?? 0) * i.quantity, 0)
@@ -573,7 +573,7 @@ export default function CartPage() {
                 }
                 text += `\n${'\u2500'.repeat(28)}\n`
                 text += `Grand Total: ₦${grandTotal.toLocaleString()}\n`
-                text += `Verified via SurePrice`
+                text += `Verified via Qarty`
                 const waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`
                 window.open(waUrl, '_blank')
               }}

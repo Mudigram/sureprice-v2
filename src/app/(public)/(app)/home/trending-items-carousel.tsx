@@ -113,7 +113,7 @@ export function TrendingItemsCarousel({ items }: TrendingItemsCarouselProps) {
                       onClick={(e) => {
                         e.preventDefault()
                         e.stopPropagation()
-                        const shareText = `Check out ${item.name} at ${item.businessName} (₦${item.base_price?.toLocaleString() || ''}) on SurePrice!`
+                        const shareText = `Check out ${item.name} at ${item.businessName} (₦${item.base_price?.toLocaleString() || ''}) on Qarty!`
                         const url = typeof window !== 'undefined' ? `${window.location.origin}/s/${item.businessSlug}/${item.id}` : ''
                         window.open(`https://wa.me/?text=${encodeURIComponent(`${shareText} ${url}`)}`, '_blank')
                       }}

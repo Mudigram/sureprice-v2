@@ -398,7 +398,7 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
         <button
           type="button"
           onClick={() => {
-            const text = `Hello ${business.name}, I saw ${item.name} (${item.base_price ? `₦${item.base_price.toLocaleString()}` : ''}) on your SurePrice digital menu. I'd like to order / inquire!`
+            const text = `Hello ${business.name}, I saw ${item.name} (${item.base_price ? `₦${item.base_price.toLocaleString()}` : ''}) on your Qarty digital menu. I'd like to order / inquire!`
             const phone = business.locations?.[0]?.phone ? business.locations[0].phone.replace(/[^0-9]/g, '') : ''
             const waUrl = phone
               ? `https://wa.me/${phone}?text=${encodeURIComponent(text)}`

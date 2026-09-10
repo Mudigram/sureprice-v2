@@ -78,8 +78,8 @@ export function DynamicHeader() {
           <span className="text-xs font-black uppercase tracking-wider">{backLabel}</span>
         </button>
       ) : (
-        <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-1">
-          <span className="text-emerald-600 dark:text-[var(--lime-base)]">Sure</span>Price
+        <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-0.5">
+          <span className="text-emerald-600 dark:text-[var(--lime-base)]">Q</span>arty
         </span>
       )}
 

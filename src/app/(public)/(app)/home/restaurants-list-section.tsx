@@ -37,7 +37,7 @@ export function RestaurantsListSection({ businesses }: Props) {
           </div>
           <div>
             <h2 className="text-base font-black tracking-tight text-slate-900">
-              Restaurants on SurePrice
+              Restaurants on Qarty
             </h2>
             <p className="text-[11px] font-medium text-slate-500">
               Verified dining menus across Ibadan · Zero hidden prices
@@ -114,7 +114,7 @@ export function RestaurantsListSection({ businesses }: Props) {
                   {/* Top-Left: Verified Seal Sticker */}
                   <div className="absolute left-3 top-3 z-10">
                     <div
-                      title="Verified by SurePrice"
+                      title="Verified by Qarty"
                       className="flex h-7 w-7 items-center justify-center rounded-full bg-black/75 backdrop-blur-md border border-white/25 shadow-lg text-[var(--lime-base)]"
                     >
                       <Check size={14} strokeWidth={3.5} />

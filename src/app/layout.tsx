@@ -7,42 +7,42 @@ const outfit = Outfit({
   subsets: ["latin"],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://sureprice.vercel.app'
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://qarty.vercel.app'
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "SurePrice · Know Before You Buy",
-    template: "%s | SurePrice",
+    default: "Qarty · 1-Tap In-Store QR Tags & Menus",
+    template: "%s | Qarty",
   },
   description:
-    "Digital price tag & menu layer over physical retail, dining, and event pop-ups in Nigeria. Scan any product QR code for instant verified prices with zero app download.",
+    "Instant in-store QR price tags and digital menus for physical retail, dining, and pop-up events in Ibadan, Nigeria. Point phone camera for instant verified prices with zero app download.",
   keywords: [
-    "SurePrice",
+    "Qarty",
     "Digital Price Tag Nigeria",
     "QR Code Menu Ibadan",
     "Physical Retail Price Check",
-    "Store Navigation",
+    "Store Navigation Ibadan",
     "Retail SaaS Nigeria",
   ],
-  authors: [{ name: "SurePrice Technologies" }],
-  creator: "SurePrice",
-  publisher: "SurePrice",
+  authors: [{ name: "Qarty Technologies" }],
+  creator: "Qarty",
+  publisher: "Qarty",
   openGraph: {
     type: "website",
     locale: "en_NG",
     url: siteUrl,
-    siteName: "SurePrice",
-    title: "SurePrice · Know Before You Buy",
+    siteName: "Qarty",
+    title: "Qarty · 1-Tap In-Store QR Tags & Menus",
     description:
-      "Digital price tag & menu layer over physical retail, dining, and event pop-ups in Nigeria. Instant verified prices with zero app download.",
+      "Instant in-store QR price tags and digital menus for physical retail, dining, and pop-up events in Ibadan, Nigeria. Zero app download required.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "SurePrice · Know Before You Buy",
+    title: "Qarty · 1-Tap In-Store QR Tags & Menus",
     description:
-      "Digital price tag & menu layer over physical retail, dining, and event pop-ups in Nigeria.",
-    creator: "@sureprice_app",
+      "Instant in-store QR price tags and digital menus for physical retail, dining, and pop-up events in Ibadan, Nigeria.",
+    creator: "@qartyapp",
   },
   icons: {
     icon: "/favicon.ico",

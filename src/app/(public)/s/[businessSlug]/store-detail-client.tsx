@@ -331,7 +331,7 @@ export function StoreDetailClient({ business, items, businessSlug }: Props) {
             {/* Top-Left: Verified Seal Sticker */}
             <div className="absolute left-3 top-3 z-10">
               <div
-                title="Verified by SurePrice"
+                title="Verified by Qarty"
                 className="flex h-7 w-7 items-center justify-center rounded-full bg-black/75 backdrop-blur-md border border-white/25 shadow-lg text-[var(--lime-base)]"
               >
                 <Check size={14} strokeWidth={3.5} />
@@ -374,7 +374,7 @@ export function StoreDetailClient({ business, items, businessSlug }: Props) {
               </h1>
               {phoneNumber && (
                 <a
-                  href={`https://wa.me/${phoneNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hello ${business.name}, I found you on SurePrice!`)}`}
+                  href={`https://wa.me/${phoneNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hello ${business.name}, I found you on Qarty!`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex shrink-0 items-center gap-1.5 rounded-full bg-emerald-500 px-3 py-1.5 text-xs font-black text-white shadow-md shadow-emerald-500/25 active:scale-95 transition-all"
@@ -520,7 +520,7 @@ export function StoreDetailClient({ business, items, businessSlug }: Props) {
               <div className="flex items-center gap-2.5 pt-2 border-t border-slate-100">
                 {phoneNumber && (
                   <a
-                    href={`https://wa.me/${phoneNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hello ${business.name}, I found you on SurePrice and would like to inquire!`)}`}
+                    href={`https://wa.me/${phoneNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hello ${business.name}, I found you on Qarty and would like to inquire!`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-50 py-3 text-xs font-extrabold text-emerald-900 border border-emerald-200 active:scale-95 transition-all"

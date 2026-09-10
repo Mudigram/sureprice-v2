@@ -16,7 +16,7 @@ const STEPS = [
   },
   {
     title: 'QR Codes Generated',
-    body: 'SurePrice generates unique QR codes for products, shelves, or table menus.',
+    body: 'Qarty generates unique QR codes for products, shelves, or table menus.',
     Illustration: SeeStepIllustration,
   },
   {
