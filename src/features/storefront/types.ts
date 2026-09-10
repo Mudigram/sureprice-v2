@@ -50,6 +50,7 @@ export type StorefrontThemeConfig = {
   logo_url?: string | null
   cover_url?: string | null
   tagline?: string | null
+  description?: string | null
   primary_color?: string | null
   highlights?: string[]
   announcement?: {
@@ -62,6 +63,23 @@ export type StorefrontThemeConfig = {
   ordering?: {
     whatsapp_phone?: string | null
   } | null
+  stall_number?: string | null
+  location_zone?: string | null
+  directions_landmark?: string | null
+  bank_details?: {
+    enabled?: boolean
+    bank_name?: string | null
+    account_number?: string | null
+    account_name?: string | null
+  } | null
+  socials?: {
+    instagram?: string | null
+    tiktok?: string | null
+    twitter?: string | null
+    facebook?: string | null
+    website?: string | null
+  } | null
+  payments?: string[]
 }
 
 export type StorefrontBusiness = Tables<'businesses'> & {

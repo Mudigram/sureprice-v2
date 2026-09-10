@@ -72,10 +72,24 @@ interface Props {
     logo_url?: string | null
     cover_url?: string | null
     tagline?: string | null
+    description?: string | null
     primary_color?: string | null
     announcement_enabled?: boolean
     announcement_text?: string | null
     whatsapp_phone?: string | null
+    stall_number?: string | null
+    location_zone?: string | null
+    directions_landmark?: string | null
+    bank_enabled?: boolean
+    bank_name?: string | null
+    account_number?: string | null
+    account_name?: string | null
+    social_instagram?: string | null
+    social_tiktok?: string | null
+    social_twitter?: string | null
+    social_facebook?: string | null
+    social_website?: string | null
+    payments?: string[]
     highlights?: string[]
   }
 }
@@ -117,10 +131,24 @@ export function StorefrontStudioForm({
       logo_url: initialData.logo_url ?? null,
       cover_url: initialData.cover_url ?? null,
       tagline: initialData.tagline ?? '',
+      description: initialData.description ?? '',
       primary_color: initialData.primary_color ?? '#13ec5b',
       announcement_enabled: initialData.announcement_enabled ?? false,
       announcement_text: initialData.announcement_text ?? '',
       whatsapp_phone: initialData.whatsapp_phone ?? '',
+      stall_number: initialData.stall_number ?? '',
+      location_zone: initialData.location_zone ?? '',
+      directions_landmark: initialData.directions_landmark ?? '',
+      bank_enabled: initialData.bank_enabled ?? false,
+      bank_name: initialData.bank_name ?? '',
+      account_number: initialData.account_number ?? '',
+      account_name: initialData.account_name ?? '',
+      social_instagram: initialData.social_instagram ?? '',
+      social_tiktok: initialData.social_tiktok ?? '',
+      social_twitter: initialData.social_twitter ?? '',
+      social_facebook: initialData.social_facebook ?? '',
+      social_website: initialData.social_website ?? '',
+      payments: initialData.payments ?? ['Cash', 'Bank Transfer', 'POS Card'],
       highlights: initialData.highlights ?? [],
     },
   })
@@ -785,7 +813,138 @@ export function StorefrontStudioForm({
         </div>
       </div>
 
-      {/* ─── STICKY SAVE ACTION BAR ─────────────────────────────────────────── */}
+      {/* ─── CARD 6: BANK TRANSFER DETAILS (PHYSICAL STALL PAYMENTS) ───────── */}
+      <div className="rounded-3xl border border-slate-200/90 bg-white p-4 sm:p-6 shadow-sm space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2">
+            <Tag size={16} className="text-emerald-600 shrink-0" />
+            <h2 className="text-sm sm:text-base font-black text-slate-900">
+              6. Direct Bank Transfer &amp; Stall Payments
+            </h2>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              {...register('bank_enabled')}
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--lime-base)]" />
+          </label>
+        </div>
+
+        <p className="text-xs text-slate-500 leading-relaxed">
+          Provide your bank account details for instant walk-in transfer payments at pop-up stalls or retail checkout.
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-700 block">Bank Name</label>
+            <input
+              type="text"
+              {...register('bank_name')}
+              placeholder="e.g. Moniepoint / GTBank / OPay"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:bg-white focus:outline-none"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-700 block">Account Number</label>
+            <input
+              type="text"
+              inputMode="numeric"
+              {...register('account_number')}
+              placeholder="e.g. 0123456789"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:bg-white focus:outline-none"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-700 block">Account Name</label>
+            <input
+              type="text"
+              {...register('account_name')}
+              placeholder="e.g. Qarty Stores Ltd"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:bg-white focus:outline-none"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* ─── CARD 7: STORY, SOCIALS & STALL LOCATION ───────────────────────── */}
+      <div className="rounded-3xl border border-slate-200/90 bg-white p-4 sm:p-6 shadow-sm space-y-4">
+        <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+          <Store size={16} className="text-emerald-600 shrink-0" />
+          <h2 className="text-sm sm:text-base font-black text-slate-900">
+            7. Our Story, Social Touchpoints &amp; Stall Info
+          </h2>
+        </div>
+
+        {/* Business Story / Bio */}
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-slate-700 block">
+            Our Story / Business Bio
+          </label>
+          <textarea
+            {...register('description')}
+            rows={3}
+            placeholder="Tell customers about your craftsmanship, recipes, or story (e.g. Handcrafted pastries in Ibadan since 2022...)"
+            className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:bg-white focus:outline-none"
+          />
+        </div>
+
+        {/* Stall & Event Zone Metadata */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-700 block">Stall / Booth Number</label>
+            <input
+              type="text"
+              {...register('stall_number')}
+              placeholder="e.g. Stall #A-14"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:bg-white focus:outline-none"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-700 block">Event Zone / Hall</label>
+            <input
+              type="text"
+              {...register('location_zone')}
+              placeholder="e.g. Food Court / Zone B"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:bg-white focus:outline-none"
+            />
+          </div>
+        </div>
+
+        {/* Social Touchpoints */}
+        <div className="space-y-2 pt-2">
+          <label className="text-xs font-bold text-slate-700 block">
+            Social Touchpoints &amp; Website
+          </label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input
+              type="text"
+              {...register('social_instagram')}
+              placeholder="Instagram (e.g. @qarty_ng)"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:bg-white focus:outline-none"
+            />
+            <input
+              type="text"
+              {...register('social_tiktok')}
+              placeholder="TikTok (e.g. @qarty_ng)"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:bg-white focus:outline-none"
+            />
+            <input
+              type="text"
+              {...register('social_twitter')}
+              placeholder="X / Twitter (e.g. @qarty_ng)"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:bg-white focus:outline-none"
+            />
+            <input
+              type="text"
+              {...register('social_website')}
+              placeholder="Website URL (e.g. www.qarty.ng)"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:bg-white focus:outline-none"
+            />
+          </div>
+        </div>
+      </div>
       <div className="fixed bottom-16 md:bottom-6 left-0 right-0 mx-auto z-40 w-full max-w-3xl px-4 pointer-events-none">
         <div className="flex items-center justify-between gap-3 rounded-3xl border border-slate-200/90 bg-white/95 backdrop-blur-md p-3.5 sm:p-4 shadow-2xl pointer-events-auto">
           <div className="hidden sm:block">

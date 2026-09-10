@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
@@ -137,134 +138,169 @@ export function BusinessAdminNav({ business, currentSection }: BusinessAdminNavP
     },
   ]
 
+  // Auto-scroll active tab into view on mobile mount/route change
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const activeTabEl = document.getElementById(`admin-nav-${currentSection || 'overview'}`)
+    if (activeTabEl) {
+      activeTabEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+    }
+  }, [pathname, currentSection])
+
   return (
-    <div className="sticky top-0 z-30 mb-6 space-y-3.5 rounded-2xl border border-slate-200/90 bg-white/95 backdrop-blur-md p-4 sm:p-5 shadow-md transition-all">
-      {/* Breadcrumb Trail & Quick Back Navigation */}
-      <div className="flex items-center justify-between border-b border-slate-100 pb-3 text-xs">
-        <div className="flex items-center gap-1.5 font-medium text-slate-500">
-          <Link href="/dashboard" className="hover:text-slate-900 transition-colors">
-            Dashboard
-          </Link>
-          <span className="text-slate-300">/</span>
-          <Link href="/dashboard" className="hover:text-slate-900 transition-colors">
-            Stores
-          </Link>
-          <span className="text-slate-300">/</span>
-          <span className="font-bold text-slate-900 truncate max-w-[140px] sm:max-w-none">
-            {business.name}
-          </span>
-          {currentSection && (
-            <>
-              <span className="text-slate-300">/</span>
-              <span className="capitalize font-bold text-emerald-700">{currentSection.replace('-', ' ')}</span>
-            </>
-          )}
-        </div>
-
-        <Link
-          href="/dashboard"
-          className="inline-flex items-center gap-1 font-bold text-slate-600 hover:text-slate-900 transition-colors"
-        >
-          <ArrowLeft size={13} />
-          <span>All Stores</span>
-        </Link>
-      </div>
-
-      {/* Top Header: Store Info & Quick Actions */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3.5 min-w-0">
-          {/* Logo Avatar */}
-          <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
-            {logoUrl ? (
-              <Image src={logoUrl} alt={business.name} fill className="object-cover" sizes="48px" />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center text-slate-500">
-                {getBrandFallbackSvgIcon(business.business_type, { size: 24 })}
-              </div>
+    <>
+      <div className="sticky top-0 z-30 mb-6 space-y-3.5 rounded-2xl border border-slate-200/90 bg-white/95 backdrop-blur-md p-4 sm:p-5 shadow-md transition-all">
+        {/* Breadcrumb Trail & Quick Back Navigation */}
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3 text-xs">
+          <div className="flex items-center gap-1.5 font-medium text-slate-500 min-w-0">
+            <Link href="/dashboard" className="hover:text-slate-900 transition-colors shrink-0">
+              Dashboard
+            </Link>
+            <span className="text-slate-300 shrink-0">/</span>
+            <span className="font-bold text-slate-900 truncate max-w-[120px] sm:max-w-none">
+              {business.name}
+            </span>
+            {currentSection && (
+              <>
+                <span className="text-slate-300 shrink-0">/</span>
+                <span className="capitalize font-bold text-emerald-700 truncate">{currentSection.replace('-', ' ')}</span>
+              </>
             )}
           </div>
 
-          {/* Store Name & Type Badge with Quick Store Switcher */}
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <Link
-                href="/dashboard"
-                className="group inline-flex items-center gap-1.5 rounded-xl hover:bg-slate-100 p-1 -m-1 transition-all"
-                title="Switch Business Store"
-              >
-                <h1 className="truncate text-xl font-black tracking-tight text-slate-900 group-hover:text-emerald-700 transition-colors">
-                  {business.name}
-                </h1>
-                <span className="inline-flex items-center gap-0.5 rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-500 group-hover:bg-emerald-100 group-hover:text-emerald-800 transition-colors">
-                  <span>Switch</span>
-                  <ChevronDown size={11} />
-                </span>
-              </Link>
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center gap-1 font-bold text-slate-600 hover:text-slate-900 transition-colors shrink-0 text-xs"
+          >
+            <ArrowLeft size={13} />
+            <span>All Stores</span>
+          </Link>
+        </div>
 
-              <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-700 border border-slate-200 shrink-0">
-                <TypeIcon size={11} />
-                {typeLabel}
-              </span>
+        {/* Top Header: Store Info & Quick Actions */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3 min-w-0">
+            {/* Logo Avatar */}
+            <div className="relative h-11 w-11 sm:h-12 sm:w-12 shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+              {logoUrl ? (
+                <Image src={logoUrl} alt={business.name} fill className="object-cover" sizes="48px" />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-slate-500">
+                  {getBrandFallbackSvgIcon(business.business_type, { size: 22 })}
+                </div>
+              )}
             </div>
-            <p className="mt-0.5 text-xs text-slate-500 truncate font-medium">
-              Store ID: <span className="font-mono">{business.id.slice(0, 8)}...</span> • Slug: <span className="font-mono">{business.slug}</span>
-            </p>
+
+            {/* Store Name & Type Badge with Quick Store Switcher */}
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <Link
+                  href="/dashboard"
+                  className="group inline-flex items-center gap-1 rounded-xl hover:bg-slate-100 p-0.5 -m-0.5 transition-all"
+                  title="Switch Business Store"
+                >
+                  <h1 className="truncate text-lg sm:text-xl font-black tracking-tight text-slate-900 group-hover:text-emerald-700 transition-colors">
+                    {business.name}
+                  </h1>
+                  <span className="inline-flex items-center gap-0.5 rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-500 group-hover:bg-emerald-100 group-hover:text-emerald-800 transition-colors">
+                    <span>Switch</span>
+                    <ChevronDown size={11} />
+                  </span>
+                </Link>
+
+                <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-700 border border-slate-200 shrink-0">
+                  <TypeIcon size={11} />
+                  {typeLabel}
+                </span>
+              </div>
+              <p className="mt-0.5 text-[11px] sm:text-xs text-slate-500 truncate font-medium">
+                Slug: <span className="font-mono text-slate-700 font-bold">{business.slug}</span>
+              </p>
+            </div>
+          </div>
+
+          {/* Right CTA Actions */}
+          <div className="flex items-center gap-2 shrink-0 flex-wrap">
+            <Link
+              href={`/businesses/${business.id}/qr-studio?preset=storefront_master`}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-800 hover:bg-emerald-100 transition-all min-h-[38px]"
+              title="Print Master Storefront QR Standee"
+            >
+              <Printer size={13} className="text-emerald-700" />
+              <span>QR Code</span>
+            </Link>
+
+            <Link
+              href={`/s/${business.slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-all min-h-[38px]"
+            >
+              <span>View Storefront</span>
+              <ExternalLink size={13} />
+            </Link>
+
+            <Link
+              href={`/businesses/${business.id}/catalog-items/new`}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-3.5 py-2 text-xs font-bold text-white shadow-sm hover:bg-slate-800 active:scale-[0.98] transition-all min-h-[38px]"
+            >
+              <Plus size={14} strokeWidth={3} className="text-emerald-400" />
+              <span>New Item</span>
+            </Link>
           </div>
         </div>
 
-        {/* Right CTA Actions */}
-        <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
-          <Link
-            href={`/businesses/${business.id}/qr-studio?preset=storefront_master`}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-800 hover:bg-emerald-100 transition-all"
-            title="Print Master Storefront QR Standee"
-          >
-            <Printer size={13} className="text-emerald-700" />
-            <span>Store QR Code</span>
-          </Link>
-
-          <Link
-            href={`/s/${business.slug}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-all"
-          >
-            <span>View Public Storefront</span>
-            <ExternalLink size={13} />
-          </Link>
-
-          <Link
-            href={`/businesses/${business.id}/catalog-items/new`}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-slate-800 active:scale-[0.98] transition-all"
-          >
-            <Plus size={14} strokeWidth={3} className="text-emerald-400" />
-            <span>New Item</span>
-          </Link>
+        {/* Navigation Tabs Bar */}
+        <div className="flex gap-1.5 overflow-x-auto no-scrollbar touch-pan-x pt-2 border-t border-slate-100 -mx-1 px-1">
+          {navTabs.map((tab) => {
+            const Icon = tab.icon
+            return (
+              <Link
+                key={tab.id}
+                href={tab.href}
+                id={`admin-nav-${tab.id}`}
+                className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${
+                  tab.active
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 bg-slate-50 border border-slate-100'
+                }`}
+              >
+                <Icon size={14} className={tab.active ? 'text-[var(--lime-base)]' : 'text-slate-500'} />
+                <span>{tab.label}</span>
+              </Link>
+            )
+          })}
         </div>
       </div>
 
-      {/* Navigation Tabs Bar */}
-      <div className="flex gap-1 overflow-x-auto touch-pan-x scrollbar-thin scrollbar-thumb-slate-200 hover:scrollbar-thumb-slate-300 pt-2 border-t border-slate-100">
-        {navTabs.map((tab) => {
-          const Icon = tab.icon
-          return (
-            <Link
-              key={tab.id}
-              href={tab.href}
-              id={`admin-nav-${tab.id}`}
-              className={`flex shrink-0 items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${
-                tab.active
-                  ? 'bg-slate-900 text-white shadow-sm'
-                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-              }`}
-            >
-              <Icon size={15} className={tab.active ? 'text-[var(--lime-base)]' : 'text-slate-500'} />
-              <span>{tab.label}</span>
-            </Link>
-          )
-        })}
-      </div>
-    </div>
+      {/* ─── MOBILE BOTTOM STICKY ADMIN DOCK (For Smartphone Merchants) ──────── */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white/95 backdrop-blur-md md:hidden shadow-2xl px-2 py-1.5">
+        <div className="flex items-center justify-around">
+          {[
+            { id: 'overview', label: 'Home', href: `/businesses/${business.id}`, icon: LayoutDashboard },
+            { id: 'catalog', label: 'Items', href: `/businesses/${business.id}/catalog-items`, icon: Package },
+            { id: 'storefront', label: 'Studio', href: `/businesses/${business.id}/storefront`, icon: Store },
+            { id: 'qr-studio', label: 'QR', href: `/businesses/${business.id}/qr-studio`, icon: Printer },
+            { id: 'edit', label: 'Settings', href: `/businesses/${business.id}/edit`, icon: Settings },
+          ].map((item) => {
+            const Icon = item.icon
+            const isActive = currentSection === item.id || (item.id === 'overview' && !currentSection)
+            return (
+              <Link
+                key={item.id}
+                href={item.href}
+                className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-xl transition-all ${
+                  isActive ? 'text-emerald-600 font-black scale-105' : 'text-slate-500 hover:text-slate-900'
+                }`}
+              >
+                <Icon size={18} />
+                <span className="text-[10px] font-bold">{item.label}</span>
+              </Link>
+            )
+          })}
+        </div>
+      </nav>
+    </>
   )
 }
 

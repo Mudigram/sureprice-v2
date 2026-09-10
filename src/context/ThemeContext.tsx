@@ -1,8 +1,8 @@
 'use client'
 
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect } from 'react'
 
-type Theme = 'light' | 'dark'
+type Theme = 'light'
 
 interface ThemeContextType {
   theme: Theme
@@ -12,40 +12,18 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('light')
-
   useEffect(() => {
-    // 1. Check stored preference or system default
-    const stored = localStorage.getItem('sureprice_theme') as Theme | null
-    if (stored === 'light' || stored === 'dark') {
-      setTheme(stored)
-      applyTheme(stored)
-    } else {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-      const initial = prefersDark ? 'dark' : 'light'
-      setTheme(initial)
-      applyTheme(initial)
-    }
+    // Force light theme and ensure dark class is removed
+    const root = document.documentElement
+    root.classList.remove('dark')
   }, [])
 
-  const applyTheme = (t: Theme) => {
-    const root = document.documentElement
-    if (t === 'dark') {
-      root.classList.add('dark')
-    } else {
-      root.classList.remove('dark')
-    }
-  }
-
   const toggleTheme = () => {
-    const next: Theme = theme === 'dark' ? 'light' : 'dark'
-    setTheme(next)
-    localStorage.setItem('sureprice_theme', next)
-    applyTheme(next)
+    // Dark mode disabled for now
   }
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme: 'light', toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   )
