@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { HelpCircle, ChevronDown, Sparkles } from 'lucide-react'
+import { HelpCircle, ChevronDown, Sparkles, MessageCircle } from 'lucide-react'
 import { ButtonLink } from '@/components/ui/button'
 
 const FAQS = [
@@ -111,11 +111,20 @@ export function FAQSection() {
           <p className="text-xs sm:text-sm text-slate-300 max-w-lg mx-auto font-medium leading-relaxed">
             Join physical businesses across Ibadan and Nigeria setting up interactive QR menus and digital storefronts in under 2 minutes.
           </p>
-          <div className="pt-2">
+          <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
             <ButtonLink href="/onboarding" size="lg" className="font-black text-xs">
               <Sparkles size={16} />
               <span>Start Free Storefront Pilot</span>
             </ButtonLink>
+            <a
+              href="https://wa.me/2348050826536?text=Hello%20Qarty%20Team%2C%20I%20have%20a%20question%20before%20starting%20our%20store%20pilot."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-800 text-white px-5 py-3 text-xs font-black transition-all hover:border-slate-600 shadow-sm"
+            >
+              <MessageCircle size={16} className="text-emerald-400" />
+              <span>Chat on WhatsApp</span>
+            </a>
           </div>
         </div>
       </div>

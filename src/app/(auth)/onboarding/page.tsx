@@ -223,7 +223,7 @@ function OnboardingContent() {
                     What type of physical venue do you operate?
                   </h2>
                   <p className="mt-1 text-xs text-slate-600 leading-relaxed font-medium">
-                    SurePrice customizes your live digital storefront, QR tent cards, and mobile catalog tools for your venue.
+                    Qarty customizes your live digital storefront, QR tent cards, and mobile catalog tools for your venue.
                   </p>
                 </div>
 
@@ -449,7 +449,7 @@ function OnboardingContent() {
                     Where do you shop or dine most?
                   </h2>
                   <p className="mt-1 text-xs text-slate-600 leading-relaxed font-medium">
-                    SurePrice lets you scan physical QR code tags for instant verified prices in Nigerian Naira (₦).
+                    Qarty lets you scan physical QR code tags for instant verified prices in Nigerian Naira (₦).
                   </p>
                 </div>
 

@@ -22,12 +22,12 @@ const STEPS = [
   {
     title: 'Placed In Store',
     body: 'Stick QR codes on physical shelf tags, displays, or restaurant table tent cards.',
-    Illustration: ShopConfidentlyIllustration,
+    Illustration: MerchantCTAIllustration,
   },
   {
     title: 'Shoppers Scan & Know',
     body: 'Customers scan any code with zero app download to view verified prices in Naira (₦).',
-    Illustration: MerchantCTAIllustration,
+    Illustration: ShopConfidentlyIllustration,
   },
 ]
 

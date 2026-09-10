@@ -57,7 +57,7 @@ export default function RootLayout({
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    name: "SurePrice",
+    name: "Qarty",
     operatingSystem: "All Web Browsers (iOS / Android / Desktop)",
     applicationCategory: "BusinessApplication",
     offers: {

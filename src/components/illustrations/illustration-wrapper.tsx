@@ -59,7 +59,7 @@ export function IllustrationWrapper({
       >
         {/* SVG Shimmer Skeleton Loading State */}
         {!isLoaded && (
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 via-emerald-500/15 to-emerald-500/5 animate-pulse flex items-center justify-center rounded-2xl border border-emerald-500/10">
+          <div className="absolute inset-0 bg-linear-to-r from-emerald-500/5 via-emerald-500/15 to-emerald-500/5 animate-pulse flex items-center justify-center rounded-2xl border border-emerald-500/10">
             <svg
               className="w-10 h-10 text-emerald-500/30 animate-spin"
               fill="none"
