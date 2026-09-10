@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     : 'Store & Live Prices'
 
   const title = `${business.name} · ${typeLabel}`
-  const description = `Browse verified products, menu items, and real-time prices in Naira at ${business.name} on SurePrice.`
+  const description = `Browse verified products, menu items, and real-time prices in Naira at ${business.name} on Qarty.`
 
   const coverUrl = (() => {
     const st = business.storefront as Record<string, unknown> | null
@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       type: 'website',
-      siteName: 'SurePrice',
+      siteName: 'Qarty',
       ...(coverUrl ? { images: [{ url: coverUrl, width: 1200, height: 630, alt: `${business.name} — Verified Menu` }] } : {}),
     },
     twitter: {
@@ -78,7 +78,7 @@ export default async function StorefrontPage({ params }: Props) {
 
   const items = await getStorefrontItems(business.id)
 
-  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://sureprice.vercel.app'
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://qarty.vercel.app'
   const storeUrl = `${siteUrl}/s/${businessSlug}`
 
   const schemaType =

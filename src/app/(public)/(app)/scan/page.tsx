@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import { QrScanner } from './qr-scanner'
 
 export const metadata: Metadata = {
-  title: 'Scan Item — SurePrice',
-  description: 'Scan an in-store product QR code for instant price & spec details.',
+  title: 'Scan Item — Qarty',
+  description: 'Scan an in-store product QR code for instant verified prices with Qarty.',
 }
 
 export default function ScanPage() {

@@ -64,7 +64,7 @@ export function VenueAccordion() {
           </h2>
 
           <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed">
-            Whether running a bustling restaurant in Ibadan, a weekend food festival booth, or a 500-item supermarket, SurePrice adapts to your physical workflow in minutes.
+            Whether running a bustling restaurant in Ibadan, a weekend food festival booth, or a 500-item supermarket, Qarty adapts to your physical workflow in minutes.
           </p>
         </div>
 

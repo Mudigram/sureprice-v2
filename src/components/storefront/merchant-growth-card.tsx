@@ -3,9 +3,13 @@
 import { Store, Sparkles, ArrowRight, CheckCircle2, Mail, MessageCircle } from 'lucide-react'
 
 export function MerchantGrowthCard() {
-  const onboardingEmail = 'onboarding@sureprice.app'
+  const whatsappNumber = '2348050826536'
+  const whatsappText = encodeURIComponent('Hello Qarty Team, I run a restaurant/store in Ibadan and want to join the Merchant Pilot for free QR standees.')
+  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappText}`
+
+  const onboardingEmail = 'onboarding@qarty.app'
   const emailSubject = encodeURIComponent('Merchant Onboarding Inquiry — Ibadan Pilot')
-  const emailBody = encodeURIComponent('Hello SurePrice Team,\n\nI own a restaurant/store in Ibadan and would like to list my venue on SurePrice.\n\nBusiness Name:\nNeighborhood (Bodija, Ring Road, etc.):\nPhone Number:')
+  const emailBody = encodeURIComponent('Hello Qarty Team,\n\nI own a restaurant/store in Ibadan and would like to list my venue on Qarty.\n\nBusiness Name:\nNeighborhood (Bodija, Ring Road, Jericho, etc.):\nPhone Number:')
   const mailtoUrl = `mailto:${onboardingEmail}?subject=${emailSubject}&body=${emailBody}`
 
   return (
@@ -16,17 +20,17 @@ export function MerchantGrowthCard() {
       <div className="relative z-10 space-y-3.5">
         <div className="flex items-center justify-between">
           <span className="inline-flex items-center gap-1 rounded-full bg-[var(--lime-base)]/20 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-[var(--lime-base)] border border-[var(--lime-base)]/30">
-            <Sparkles size={11} /> For Ibadan Restaurant Owners
+            <Sparkles size={11} /> For Ibadan Store & Restaurant Owners
           </span>
           <span className="text-[11px] font-semibold text-emerald-400">Pilot Cohort Open</span>
         </div>
 
         <div className="space-y-1">
           <h3 className="text-base font-black tracking-tight text-white sm:text-lg">
-            Run a restaurant, café, or grill in Ibadan?
+            Run a store, café, or dining spot in Ibadan?
           </h3>
           <p className="text-xs text-slate-300 font-medium leading-relaxed">
-            Digitize your dining menu with verified Naira prices and print-ready QR table standees. Get onboarded directly with our local team.
+            Digitize your shelf prices & dining menu with 1-tap updates and print-ready QR table standees. Get onboarded with our local team.
           </p>
         </div>
 
@@ -36,20 +40,30 @@ export function MerchantGrowthCard() {
             <CheckCircle2 size={13} className="text-[var(--lime-base)] shrink-0" /> Zero POS Lock-In
           </span>
           <span className="flex items-center gap-1.5">
-            <CheckCircle2 size={13} className="text-[var(--lime-base)] shrink-0" /> Table QR Standees
+            <CheckCircle2 size={13} className="text-[var(--lime-base)] shrink-0" /> Free QR Standees
           </span>
         </div>
 
         {/* Manual Onboarding Contact Actions */}
         <div className="pt-2 flex flex-col sm:flex-row gap-2">
           <a
-            href={mailtoUrl}
-            id="home-merchant-contact-cta"
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            id="home-merchant-whatsapp-cta"
             className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-[var(--lime-base)] py-3 px-4 text-xs font-black text-black shadow-md shadow-[var(--lime-base)]/20 transition-all hover:bg-[var(--lime-dark)] active:scale-[0.98]"
           >
-            <Mail size={15} />
-            <span>Request Restaurant Onboarding</span>
+            <MessageCircle size={15} />
+            <span>Chat on WhatsApp (+234 805 082 6536)</span>
             <ArrowRight size={14} />
+          </a>
+          <a
+            href={mailtoUrl}
+            id="home-merchant-email-cta"
+            className="flex items-center justify-center gap-2 rounded-2xl border border-white/20 bg-white/10 py-3 px-4 text-xs font-black text-white hover:bg-white/15 active:scale-[0.98] transition-all"
+          >
+            <Mail size={15} />
+            <span>Email</span>
           </a>
         </div>
       </div>

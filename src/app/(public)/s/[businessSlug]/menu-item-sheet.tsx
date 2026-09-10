@@ -339,7 +339,7 @@ export function MenuItemSheet({ item, business, businessSlug, open, onClose }: P
               ? new URLSearchParams(window.location.search).get('table')
               : null
             const tablePrefix = tableNum ? `Order for Table ${tableNum}: ` : ''
-            const text = `Hello ${business.name}, ${tablePrefix}I saw ${item.name}${item.base_price ? ` (₦${item.base_price.toLocaleString()})` : ''} on your SurePrice menu. I'd like to order or inquire!`
+            const text = `Hello ${business.name}, ${tablePrefix}I saw ${item.name}${item.base_price ? ` (₦${item.base_price.toLocaleString()})` : ''} on your Qarty menu. I'd like to order or inquire!`
             const phone = business.locations?.[0]?.phone ? business.locations[0].phone.replace(/[^0-9]/g, '') : ''
             const url = `${window.location.origin}/s/${businessSlug}/${item.id}`
             const waUrl = phone

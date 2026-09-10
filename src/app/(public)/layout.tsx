@@ -7,10 +7,10 @@ import { OfflineIndicator } from '@/components/storefront/offline-indicator'
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | SurePrice',
-    default: 'SurePrice',
+    template: '%s | Qarty',
+    default: 'Qarty',
   },
-  description: 'Scan to see prices and product details — no app required.',
+  description: 'Scan to see verified prices and menus in Ibadan — zero app required.',
 }
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {

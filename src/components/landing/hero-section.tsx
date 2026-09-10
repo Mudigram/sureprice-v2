@@ -19,7 +19,7 @@ export function HeroSection() {
           className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 text-xs font-extrabold text-emerald-800 shadow-sm"
         >
           <span className="h-2.5 w-2.5 rounded-full bg-[var(--lime-base)] animate-pulse" />
-          <span>Live Digital Storefronts & QR Menus · Ibadan & Across Nigeria</span>
+          <span>Point. Scan. Know. · 1-Tap QR Tags & Menus in Nigeria</span>
         </motion.div>
 
         {/* Main Display Headline */}
@@ -29,9 +29,9 @@ export function HeroSection() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="text-4xl sm:text-6xl lg:text-7xl font-black leading-[1.08] tracking-tight text-slate-900"
         >
-          Turn your physical venue into a{' '}
+          1-Tap in-store QR tags & menus for{' '}
           <span className="inline-block text-slate-900 underline decoration-[var(--lime-base)] decoration-4 sm:decoration-8 underline-offset-8">
-            digital storefront
+            physical venues
           </span>
         </motion.h1>
 
@@ -42,7 +42,7 @@ export function HeroSection() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="mx-auto max-w-xl text-sm sm:text-base leading-relaxed text-slate-600 font-medium"
         >
-          Live QR table menus, shelf tags, and instant WhatsApp catalogs for restaurants, cafés, retail shops, and pop-up vendors. Zero app download required for customers.
+          Update shelf prices and dining menus in 1 tap from your phone. Customers point their native camera for instant verified Naira (₦) prices — zero app download required.
         </motion.p>
 
         {/* Hero CTAs */}
@@ -71,9 +71,9 @@ export function HeroSection() {
           transition={{ duration: 0.5, delay: 0.35 }}
           className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-slate-500 font-semibold pt-1"
         >
-          <span className="flex items-center gap-1.5">✓ 2-Minute Setup</span>
-          <span className="flex items-center gap-1.5">✓ No POS Integration Needed</span>
-          <span className="flex items-center gap-1.5">✓ Print-Ready QR Templates</span>
+          <span className="flex items-center gap-1.5">✓ 1-Tap Cloud Updates in ₦</span>
+          <span className="flex items-center gap-1.5">✓ Zero App Download Needed</span>
+          <span className="flex items-center gap-1.5">✓ Print-Ready Acrylic Standees</span>
         </motion.div>
 
         {/* Mobile Phone Mockup Interactive Graphic */}

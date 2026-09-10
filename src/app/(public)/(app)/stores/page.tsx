@@ -6,8 +6,8 @@ import { StoresClient } from './stores-client'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Stores & Menus — SurePrice',
-  description: 'Browse verified physical stores, restaurants, cafés and pop-up locations on SurePrice.',
+  title: 'Stores & Menus — Qarty',
+  description: 'Browse verified physical stores, restaurants, cafés and pop-up locations on Qarty in Ibadan.',
 }
 
 function StoresSkeleton() {

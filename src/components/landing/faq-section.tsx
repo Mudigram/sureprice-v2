@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { HelpCircle, ChevronDown, Sparkles } from 'lucide-react'
+import { HelpCircle, ChevronDown, Sparkles, MessageCircle } from 'lucide-react'
 import { ButtonLink } from '@/components/ui/button'
 
 const FAQS = [
@@ -14,7 +14,7 @@ const FAQS = [
   {
     question: 'How do I print the QR tags and A6 table tent cards?',
     answer:
-      'SurePrice includes a built-in Print Studio. You can instantly export print-ready PDFs sized for standard A4 paper, A6 table standees, or adhesive shelf stickers using any regular office printer. You can also slip them into affordable acrylic display stands.',
+      'Qarty includes a built-in Print Studio. You can instantly export print-ready PDFs sized for standard A4 paper, A6 table standees, or adhesive shelf stickers using any regular office printer. You can also slip them into affordable acrylic display stands.',
   },
   {
     question: 'Can I use this for a weekend pop-up stall or food festival in Ibadan?',
@@ -24,12 +24,12 @@ const FAQS = [
   {
     question: 'What happens if mobile network or WiFi fluctuates in my store?',
     answer:
-      'SurePrice is engineered with ultra-lightweight client assets and aggressive browser caching. Even on standard 3G/4G Nigerian mobile connections, pages load in under 0.4 seconds with minimal data consumption.',
+      'Qarty is engineered with ultra-lightweight client assets and aggressive browser caching. Even on standard 3G/4G Nigerian mobile connections, pages load in under 0.4 seconds with minimal data consumption.',
   },
   {
     question: 'Can I change my prices or mark an item sold-out in real-time?',
     answer:
-      'Yes. When your kitchen runs out of a special dish or a supplier price changes, you simply open your SurePrice merchant portal on your phone, toggle the item or update the price in 1 tap, and every customer scan reflects the change immediately.',
+      'Yes. When your kitchen runs out of a special dish or a supplier price changes, you simply open your Qarty merchant portal on your phone, toggle the item or update the price in 1 tap, and every customer scan reflects the change immediately.',
   },
 ]
 
@@ -111,11 +111,20 @@ export function FAQSection() {
           <p className="text-xs sm:text-sm text-slate-300 max-w-lg mx-auto font-medium leading-relaxed">
             Join physical businesses across Ibadan and Nigeria setting up interactive QR menus and digital storefronts in under 2 minutes.
           </p>
-          <div className="pt-2">
+          <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
             <ButtonLink href="/onboarding" size="lg" className="font-black text-xs">
               <Sparkles size={16} />
               <span>Start Free Storefront Pilot</span>
             </ButtonLink>
+            <a
+              href="https://wa.me/2348050826536?text=Hello%20Qarty%20Team%2C%20I%20have%20a%20question%20before%20starting%20our%20store%20pilot."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-800 text-white px-5 py-3 text-xs font-black transition-all hover:border-slate-600 shadow-sm"
+            >
+              <MessageCircle size={16} className="text-emerald-400" />
+              <span>Chat on WhatsApp</span>
+            </a>
           </div>
         </div>
       </div>

@@ -126,7 +126,7 @@ export function QrStudioClient({
 
   const storeUrl = typeof window !== 'undefined'
     ? `${window.location.origin}/s/${business.slug}`
-    : (process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/s/${business.slug}` : `https://sureprice.vercel.app/s/${business.slug}`)
+    : (process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/s/${business.slug}` : `https://qarty.vercel.app/s/${business.slug}`)
 
   // Prepares printable items by auto-generating missing QR codes if needed and launching window.print()
   const handleLaunchPrint = async () => {
