@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react'
 import QRCode from 'qrcode'
 import { getScanUrl } from '@/lib/qr/scan-url'
-import { ScanLine, Utensils, Tag, ShieldCheck, Camera, Sparkles, Wifi } from 'lucide-react'
+import { ScanLine, Store, Tag, ShieldCheck, Camera, Sparkles, Wifi } from 'lucide-react'
+
 
 export type PrintPreset = 'shelf_tag' | 'sticker' | 'table_standee' | 'batch_a4' | 'storefront_master' | 'wifi_combo'
 
@@ -193,9 +194,10 @@ export function PrintTemplates({
               {/* Top Header Badge */}
               <div className="space-y-1.5 w-full">
                 <div className="inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-4 py-1.5 text-xs font-black uppercase tracking-widest text-white">
-                  <Utensils size={14} className="text-[var(--lime-base)]" />
-                  <span>{item.customHeaderBadge || 'Digital Dining & Price Tag'}</span>
+                  <Store size={14} className="text-[var(--lime-base)]" />
+                  <span>{item.customHeaderBadge || 'Verified Digital Catalog & Tag'}</span>
                 </div>
+
                 <h3 className="text-2xl font-black text-slate-900 pt-1 tracking-tight">{item.customTitle || item.businessName}</h3>
                 <p className="text-xs text-slate-500 font-bold">Official Verified Merchant</p>
               </div>
@@ -279,9 +281,10 @@ export function PrintTemplates({
               {/* Header Badge */}
               <div className="space-y-1.5 w-full">
                 <div className="inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-4 py-1.5 text-xs font-black uppercase tracking-widest text-[var(--lime-base)]">
-                  <Utensils size={14} />
-                  <span>{item.customHeaderBadge || 'Verified Digital Menu & Shelf'}</span>
+                  <Store size={14} />
+                  <span>{item.customHeaderBadge || 'Verified Digital Catalog & Tag'}</span>
                 </div>
+
                 <h3 className="text-3xl font-black text-slate-900 pt-2 tracking-tight">{item.customTitle || item.businessName}</h3>
                 <p className="text-xs text-slate-500 font-bold">{item.tagline || 'Scan to browse our live prices & order'}</p>
               </div>
