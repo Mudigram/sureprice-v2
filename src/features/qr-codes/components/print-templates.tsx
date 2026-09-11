@@ -20,19 +20,22 @@ export interface PrintableItem {
   tagline?: string | null
   wifiSsid?: string | null
   wifiPassword?: string | null
+  customTitle?: string | null
+  customHeaderBadge?: string | null
+  customInstruction?: string | null
 }
 
 interface PrintTemplateProps {
   items: PrintableItem[]
   preset: PrintPreset
-  showSurePriceBadge?: boolean
+  showQartyBadge?: boolean
   showScanInstructions?: boolean
 }
 
 export function PrintTemplates({
   items,
   preset,
-  showSurePriceBadge = true,
+  showQartyBadge = true,
   showScanInstructions = true,
 }: PrintTemplateProps) {
   const [dataUrls, setDataUrls] = useState<Record<string, string>>({})
@@ -113,7 +116,7 @@ export function PrintTemplates({
                   </p>
                 )}
 
-                {/* SurePrice Branding & Instruction Footer */}
+                {/* Qarty Branding & Instruction Footer */}
                 <div className="pt-1 flex items-center gap-1 text-[9px] font-extrabold text-slate-600">
                   <ShieldCheck size={11} className="text-emerald-600 shrink-0" />
                   <span className="truncate">Verified by Qarty</span>
@@ -169,10 +172,10 @@ export function PrintTemplates({
                 )}
               </div>
 
-              {/* SurePrice Tagline Footer */}
+              {/* Qarty Tagline Footer */}
               <div className="w-full pt-1 border-t border-slate-100 flex items-center justify-center gap-1 text-[8px] font-black text-slate-500">
                 <ScanLine size={9} className="text-emerald-600" />
-                <span>SurePrice • Instant Scan</span>
+                <span>Qarty • Instant Scan</span>
               </div>
             </div>
           ))}
@@ -191,9 +194,9 @@ export function PrintTemplates({
               <div className="space-y-1.5 w-full">
                 <div className="inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-4 py-1.5 text-xs font-black uppercase tracking-widest text-white">
                   <Utensils size={14} className="text-[var(--lime-base)]" />
-                  <span>Digital Dining & Price Tag</span>
+                  <span>{item.customHeaderBadge || 'Digital Dining & Price Tag'}</span>
                 </div>
-                <h3 className="text-2xl font-black text-slate-900 pt-1 tracking-tight">{item.businessName}</h3>
+                <h3 className="text-2xl font-black text-slate-900 pt-1 tracking-tight">{item.customTitle || item.businessName}</h3>
                 <p className="text-xs text-slate-500 font-bold">Official Verified Merchant</p>
               </div>
 
@@ -217,7 +220,7 @@ export function PrintTemplates({
                 )}
                 <div className="mt-2 flex items-center justify-center gap-1.5 text-xs font-black text-slate-700 bg-slate-100 py-2 px-4 rounded-xl">
                   <Camera size={14} className="text-emerald-600" />
-                  <span>Open Phone Camera to Scan & View Full Details</span>
+                  <span>{item.customInstruction || 'Open Phone Camera to Scan & View Full Details'}</span>
                 </div>
               </div>
 
@@ -277,9 +280,9 @@ export function PrintTemplates({
               <div className="space-y-1.5 w-full">
                 <div className="inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-4 py-1.5 text-xs font-black uppercase tracking-widest text-[var(--lime-base)]">
                   <Utensils size={14} />
-                  <span>Verified Digital Menu & Shelf</span>
+                  <span>{item.customHeaderBadge || 'Verified Digital Menu & Shelf'}</span>
                 </div>
-                <h3 className="text-3xl font-black text-slate-900 pt-2 tracking-tight">{item.businessName}</h3>
+                <h3 className="text-3xl font-black text-slate-900 pt-2 tracking-tight">{item.customTitle || item.businessName}</h3>
                 <p className="text-xs text-slate-500 font-bold">{item.tagline || 'Scan to browse our live prices & order'}</p>
               </div>
 
@@ -299,7 +302,7 @@ export function PrintTemplates({
               <div className="space-y-2 w-full">
                 <div className="flex items-center justify-center gap-2 text-xs font-black text-slate-800 bg-slate-100 py-3 px-5 rounded-2xl">
                   <Camera size={16} className="text-emerald-600" />
-                  <span>Point Phone Camera to Open Menu & Prices</span>
+                  <span>{item.customInstruction || 'Point Phone Camera to Open Menu & Prices'}</span>
                 </div>
                 <p className="text-[10px] text-slate-400 font-bold">Zero App Download Needed • Fast Mobile Web</p>
               </div>
@@ -316,6 +319,7 @@ export function PrintTemplates({
           ))}
         </div>
       )}
+
 
       {/* ── PRESET 6: WI-FI & MENU COMBO TABLE STANDEE (A5 TENT) ── */}
       {preset === 'wifi_combo' && (

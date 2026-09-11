@@ -3,9 +3,10 @@ import type { Metadata } from 'next'
 import { ShieldAlert, Building2, LogOut, ArrowRight } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Access Pending — SurePrice',
+  title: 'Access Pending — Qarty',
   description: 'Your account does not currently have an assigned business role.',
 }
+
 
 export default function NoAccessPage() {
   return (

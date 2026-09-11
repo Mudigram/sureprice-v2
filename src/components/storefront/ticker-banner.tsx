@@ -6,7 +6,8 @@ const TICKER_ITEMS = [
   '🟢 Rice prices stable — ₦45,000/50kg',
   '📈 Palm oil +8.4% since last month',
   '✅ Verified prices updated every hour',
-  '🛒 Always check SurePrice before you buy',
+  '🛒 Always check Qarty before you buy',
+
   '📊 Flour prices rising — buy now at current rates',
   '💡 Scan any product QR for an instant price check',
 ]

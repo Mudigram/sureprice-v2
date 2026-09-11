@@ -6,7 +6,7 @@ import { requireOrgAccess } from '@/lib/auth/require-access'
 import { BusinessForm } from '@/features/businesses/components/business-form'
 
 export const metadata: Metadata = {
-  title: 'Register New Store Business — SurePrice Admin',
+  title: 'Register New Store Business — Qarty Admin',
   description: 'Register a physical supermarket, dining restaurant, café, or event pop-up store.',
 }
 

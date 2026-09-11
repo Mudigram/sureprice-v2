@@ -86,7 +86,7 @@ export async function getTeamMembersForOrg(orgId: string): Promise<TeamMember[]>
     return {
       id: row.id,
       userId: row.user_id,
-      userEmail: `user-${row.user_id.slice(0, 8)}@sureprice.ng`, // Fallback display email from user_id
+      userEmail: `user-${row.user_id.slice(0, 8)}@qarty.app`, // Fallback display email from user_id
       role: row.role as Role,
       scopeType: row.scope_type as ScopeType,
       scopeId: row.scope_id,
@@ -137,7 +137,7 @@ export async function getTeamMembersForBusiness(businessId: string): Promise<Tea
     return {
       id: row.id,
       userId: row.user_id,
-      userEmail: `user-${row.user_id.slice(0, 8)}@sureprice.ng`,
+      userEmail: `user-${row.user_id.slice(0, 8)}@qarty.app`,
       role: row.role as Role,
       scopeType: row.scope_type as ScopeType,
       scopeId: row.scope_id,

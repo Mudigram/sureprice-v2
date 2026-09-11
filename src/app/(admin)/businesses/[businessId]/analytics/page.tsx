@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { TrendingUp } from 'lucide-react'
 import { requireBusinessView } from '@/lib/auth/require-access'
-import { getStorefrontBusinessById } from '@/features/storefront/queries'
+import { getBusinessByIdForAdmin } from '@/features/businesses/queries'
 import { getScanAnalyticsSummary } from '@/features/analytics/queries'
 import { AnalyticsOverview } from '@/features/analytics/components/analytics-overview'
 import { BusinessAdminNav } from '@/components/admin/business-admin-nav'
@@ -10,7 +10,7 @@ import { BusinessAdminNav } from '@/components/admin/business-admin-nav'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'In-Store Scan Analytics — SurePrice Admin',
+  title: 'In-Store Scan Analytics — Qarty Admin',
   description: 'View customer scan metrics, top scanned products, and live scan logs.',
 }
 
@@ -22,7 +22,7 @@ export default async function AnalyticsPage({
   const { businessId } = await params
   await requireBusinessView(businessId)
 
-  const business = await getStorefrontBusinessById(businessId)
+  const business = await getBusinessByIdForAdmin(businessId)
   if (!business) notFound()
 
   const summary = await getScanAnalyticsSummary(businessId)

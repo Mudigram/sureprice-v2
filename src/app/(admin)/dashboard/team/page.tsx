@@ -8,7 +8,7 @@ import { TeamClient } from './team-client'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Team & Roles — SurePrice Admin',
+  title: 'Team & Roles — Qarty Admin',
   description: 'Manage team member roles and scope assignments across your organization.',
 }
 

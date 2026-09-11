@@ -8,7 +8,7 @@ import { QrCodeList } from '@/features/qr-codes/components/qr-code-list'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'QR Codes Management — SurePrice Admin',
+  title: 'QR Codes Management — Qarty Admin',
   description: 'Manage, regenerate, and revoke QR codes for your physical business.',
 }
 

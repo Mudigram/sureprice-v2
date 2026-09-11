@@ -54,10 +54,13 @@ export async function registerMerchantOwner(formData: FormData) {
   }
 
   const validPasscodes = [
-    (process.env.PILOT_ACCESS_CODE || 'SUREPRICE2026').trim().toUpperCase(),
+    (process.env.PILOT_ACCESS_CODE || 'QARTY2026').trim().toUpperCase(),
+    'QARTY2026',
+    'QARTY-PILOT',
     'SUREPRICE2026',
     'SUREPRICE-PILOT',
   ]
+
 
   if (!validPasscodes.includes(passcode.toUpperCase())) {
     redirect('/register?error=invalid_passcode')

@@ -27,9 +27,10 @@ export async function generateMetadata({
   const location = await getLocationById(locationId)
   if (!location) return {}
   return {
-    title: `${location.name} · Branch Overview — SurePrice`,
+    title: `${location.name} · Branch Overview — Qarty`,
   }
 }
+
 
 export default async function LocationDetailPage({
   params,

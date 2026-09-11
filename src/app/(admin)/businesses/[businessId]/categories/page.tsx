@@ -1,14 +1,14 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { requireBusinessManage } from '@/lib/auth/require-access'
-import { getStorefrontBusinessById } from '@/features/storefront/queries'
+import { getBusinessByIdForAdmin } from '@/features/businesses/queries'
 import { getCategoriesForBusiness } from '@/features/categories/queries'
 import { CategoryForm } from '@/features/categories/components/category-form'
 import { CategoryRow } from '@/features/categories/components/category-row'
 import { BusinessAdminNav } from '@/components/admin/business-admin-nav'
 
 export const metadata: Metadata = {
-  title: 'Categories Studio | SurePrice Admin',
+  title: 'Categories Studio | Qarty Admin',
   description: 'Organize store catalog categories and drag-and-drop sort order.',
 }
 
@@ -20,7 +20,7 @@ export default async function CategoriesPage({
   const { businessId } = await params
   await requireBusinessManage(businessId)
 
-  const business = await getStorefrontBusinessById(businessId)
+  const business = await getBusinessByIdForAdmin(businessId)
   if (!business) notFound()
 
   const categories = await getCategoriesForBusiness(businessId, true)

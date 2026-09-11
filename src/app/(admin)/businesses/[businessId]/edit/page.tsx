@@ -1,13 +1,14 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { requireBusinessManage } from '@/lib/auth/require-access'
-import { getStorefrontBusinessById, getStorefrontByBusinessId } from '@/features/storefront/queries'
+import { getBusinessByIdForAdmin } from '@/features/businesses/queries'
+import { getStorefrontByBusinessId } from '@/features/storefront/queries'
 import { BusinessEditForm } from '@/features/businesses/components/business-edit-form'
 import { StorefrontEditForm } from '@/features/storefront/components/storefront-edit-form'
 import { BusinessAdminNav } from '@/components/admin/business-admin-nav'
 
 export const metadata: Metadata = {
-  title: 'Edit Store Settings | SurePrice Admin',
+  title: 'Edit Store Settings | Qarty Admin',
   description: 'Manage store details, branding, restaurant logo, cover banner, and public storefront settings.',
 }
 
@@ -20,7 +21,7 @@ export default async function EditBusinessPage({
   await requireBusinessManage(businessId)
 
   const [business, storefront] = await Promise.all([
-    getStorefrontBusinessById(businessId),
+    getBusinessByIdForAdmin(businessId),
     getStorefrontByBusinessId(businessId),
   ])
 

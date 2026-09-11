@@ -56,13 +56,22 @@ export function QrStudioClient({
   const [isPreparing, setIsPreparing] = useState(false)
   const [printableItems, setPrintableItems] = useState<PrintableItem[]>([])
 
+  // Live Printout & Acrylic Standee Customizer state
+  const [customTitle, setCustomTitle] = useState(business.name)
+  const [customHeaderBadge, setCustomHeaderBadge] = useState('Verified Digital Menu & Shelf')
+  const defaultTagline = (business.storefront?.theme && typeof business.storefront.theme === 'object')
+    ? (business.storefront.theme as Record<string, string>).tagline || 'Scan to browse our live prices & order'
+    : 'Scan to browse our live prices & order'
+  const [customTagline, setCustomTagline] = useState(defaultTagline)
+  const [customInstruction, setCustomInstruction] = useState('Point Phone Camera to Open Menu & Prices')
+
   // Item selector state
   const [search, setSearch] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [currentPage, setCurrentPage] = useState(1)
   const ITEMS_PER_PAGE = 8
   const [wifiSsid, setWifiSsid] = useState(`${business.name}_Guest`)
-  const [wifiPassword, setWifiPassword] = useState('sureprice')
+  const [wifiPassword, setWifiPassword] = useState('qarty2026')
 
   const toggleSelect = (id: string) => {
     setSelectedIds((prev) =>
@@ -133,19 +142,27 @@ export function QrStudioClient({
     setIsPreparing(true)
 
     if (preset === 'storefront_master' || preset === 'wifi_combo') {
-      const themeTagline = (business.storefront?.theme && typeof business.storefront.theme === 'object')
-        ? (business.storefront.theme as Record<string, string>).tagline
-        : null
+      let masterQr = existingQrCodes.find((q) => q.target_type === 'business' && q.target_id === business.id && q.status === 'active')
+      if (!masterQr) {
+        try {
+          masterQr = await getOrCreateActiveQrCode('business', business.id)
+        } catch {
+          // fallback to slug if creation fails
+        }
+      }
 
       setPrintableItems([
         {
           id: business.id,
           name: 'Full Storefront & Live Menu',
           price: null,
-          code: business.slug,
-          businessName: business.name,
-          customUrl: storeUrl,
-          tagline: themeTagline || 'Scan to browse our live prices & menu',
+          code: masterQr?.code || business.slug,
+          businessName: customTitle || business.name,
+          customTitle: customTitle || business.name,
+          customHeaderBadge: customHeaderBadge || 'Verified Digital Menu & Shelf',
+          customInstruction: customInstruction || 'Point Phone Camera to Open Menu & Prices',
+          customUrl: masterQr ? undefined : storeUrl,
+          tagline: customTagline || 'Scan to browse our live prices & order',
           wifiSsid: wifiSsid,
           wifiPassword: wifiPassword,
         },
@@ -157,6 +174,7 @@ export function QrStudioClient({
       }, 500)
       return
     }
+
 
     if (selectedIds.length === 0) {
       setIsPreparing(false)
@@ -370,8 +388,88 @@ export function QrStudioClient({
                   type="text"
                   value={wifiPassword}
                   onChange={(e) => setWifiPassword(e.target.value)}
-                  placeholder="e.g. sureprice2026"
+                  placeholder="e.g. qarty2026"
                   className="h-11 w-full rounded-xl border border-emerald-300 bg-white px-3.5 text-xs font-mono font-bold text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:outline-none shadow-sm"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Live Acrylic & Table Standee Customizer */}
+        {(preset === 'storefront_master' || preset === 'table_standee' || preset === 'wifi_combo') && (
+          <div className="space-y-4 rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--lime-base)] text-black font-black text-xs">
+                  ✏️
+                </span>
+                <div>
+                  <h3 className="text-xs font-extrabold uppercase tracking-widest text-slate-900">
+                    Standee Text & Brand Customizer
+                  </h3>
+                  <p className="text-[11px] text-slate-500 font-medium">
+                    Edit labels live before printing for acrylic table tops, pop-up stalls, or event stands.
+                  </p>
+                </div>
+              </div>
+
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-full px-2.5 py-0.5 self-start sm:self-auto">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Edits Update Live on Preview Below</span>
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+              <div>
+                <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1">
+                  Store / Stall Display Name
+                </label>
+                <input
+                  type="text"
+                  value={customTitle}
+                  onChange={(e) => setCustomTitle(e.target.value)}
+                  placeholder="e.g. Pop-Up Stall 01 or Fresh Smoothies"
+                  className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3.5 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:outline-none shadow-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1">
+                  Top Header Badge
+                </label>
+                <input
+                  type="text"
+                  value={customHeaderBadge}
+                  onChange={(e) => setCustomHeaderBadge(e.target.value)}
+                  placeholder="e.g. Verified Digital Menu & Shelf or Table 4"
+                  className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3.5 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:outline-none shadow-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1">
+                  Tagline / Subtitle
+                </label>
+                <input
+                  type="text"
+                  value={customTagline}
+                  onChange={(e) => setCustomTagline(e.target.value)}
+                  placeholder="e.g. Scan to browse our live prices & order"
+                  className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3.5 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:outline-none shadow-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1">
+                  Scan Call-To-Action Note
+                </label>
+                <input
+                  type="text"
+                  value={customInstruction}
+                  onChange={(e) => setCustomInstruction(e.target.value)}
+                  placeholder="e.g. Point Phone Camera to Open Menu & Prices"
+                  className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3.5 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:outline-none shadow-xs"
                 />
               </div>
             </div>
@@ -625,6 +723,23 @@ export function QrStudioClient({
               items={
                 printableItems.length > 0
                   ? printableItems
+                  : preset === 'storefront_master' || preset === 'wifi_combo'
+                  ? [
+                      {
+                        id: business.id,
+                        name: 'Full Storefront & Live Menu',
+                        price: null,
+                        code: existingQrCodes.find((q) => q.target_type === 'business' && q.target_id === business.id)?.code || business.slug,
+                        businessName: customTitle || business.name,
+                        customTitle: customTitle || business.name,
+                        customHeaderBadge: customHeaderBadge || 'Verified Digital Menu & Shelf',
+                        customInstruction: customInstruction || 'Point Phone Camera to Open Menu & Prices',
+                        customUrl: existingQrCodes.find((q) => q.target_type === 'business' && q.target_id === business.id) ? undefined : storeUrl,
+                        tagline: customTagline || 'Scan to browse our live prices & order',
+                        wifiSsid: wifiSsid,
+                        wifiPassword: wifiPassword,
+                      },
+                    ]
                   : catalogItems
                       .filter((i) => selectedIds.includes(i.id))
                       .slice(
@@ -644,13 +759,17 @@ export function QrStudioClient({
                         name: i.name,
                         price: i.base_price,
                         code: existingQrCodes.find((q) => q.target_id === i.id)?.code ?? 'ci_preview',
-                        businessName: business.name,
+                        businessName: customTitle || business.name,
+                        customTitle: customTitle || business.name,
+                        customHeaderBadge: customHeaderBadge || 'Digital Dining & Price Tag',
+                        customInstruction: customInstruction || 'Open Phone Camera to Scan & View Full Details',
                         categoryName: (i as unknown as { category?: { name: string } })?.category?.name ?? null,
                       }))
               }
               preset={preset}
             />
           </div>
+
         </div>
       </div>
     </div>

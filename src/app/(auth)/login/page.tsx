@@ -59,9 +59,10 @@ function LoginContent() {
               <Zap size={16} />
             </div>
             <div>
-              <p className="font-black text-slate-900">New to SurePrice?</p>
+              <p className="font-black text-slate-900">New to Qarty?</p>
               <p className="text-xs text-slate-500 font-medium">Try 1-Tap Interactive Setup</p>
             </div>
+
           </div>
           <ArrowRight size={16} className="text-emerald-600 transition-transform group-hover:translate-x-0.5" />
         </Link>
@@ -293,8 +294,9 @@ export default function LoginPage() {
 
       {/* Footer */}
       <div className="mt-8 text-center text-xs text-slate-500">
-        Need assistance? Contact <span className="text-slate-900 font-extrabold">support@sureprice.ng</span>
+        Need assistance? Contact <span className="text-slate-900 font-extrabold">support@qarty.app</span>
       </div>
     </div>
+
   )
 }

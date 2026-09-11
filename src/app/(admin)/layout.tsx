@@ -33,7 +33,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                 <ScanLine size={16} strokeWidth={2.5} />
               </div>
               <span className="text-lg font-black tracking-tight text-slate-900">
-                <span className="text-emerald-700">Sure</span>Price
+                Qarty
               </span>
             </Link>
 
@@ -58,8 +58,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
         {/* Footer for Desktop */}
         <footer className="hidden md:block border-t border-slate-200/80 py-6 text-center text-xs text-slate-500 font-medium bg-white">
-          SurePrice Enterprise Console · Pilot Partner Environment · Ibadan, Nigeria
+          Qarty Merchant Console · Pilot Partner Environment · Ibadan, Nigeria
         </footer>
+
       </div>
     </div>
   )

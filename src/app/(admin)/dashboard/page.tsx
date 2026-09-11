@@ -26,7 +26,7 @@ import { getOrgDashboardMetrics } from '@/features/analytics/queries'
 import { ScanTrendChart } from '@/features/analytics/components/scan-trend-chart'
 
 export const metadata: Metadata = {
-  title: 'Merchant Dashboard | SurePrice',
+  title: 'Merchant Dashboard | Qarty',
   description: 'Manage your physical retail stores, restaurants, cafes, and pop-up event stalls.',
 }
 

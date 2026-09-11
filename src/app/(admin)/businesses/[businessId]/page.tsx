@@ -16,7 +16,7 @@ import {
   ChevronRight,
 } from 'lucide-react'
 import { requireBusinessView } from '@/lib/auth/require-access'
-import { getStorefrontBusinessById } from '@/features/storefront/queries'
+import { getBusinessByIdForAdmin } from '@/features/businesses/queries'
 import { getLocationsForBusiness } from '@/features/locations/queries'
 import { getCatalogItemsForBusiness } from '@/features/catalog-items/queries'
 import { FirstCatalogItemIllustration, FirstLocationIllustration } from '@/components/illustrations'
@@ -24,7 +24,7 @@ import { BusinessAdminNav } from '@/components/admin/business-admin-nav'
 import { getCategorySvgIcon } from '@/components/icons'
 
 export const metadata: Metadata = {
-  title: 'Business Command Center — SurePrice Admin',
+  title: 'Business Command Center — Qarty Admin',
   description: 'View and manage store locations, catalog items, QR codes, and team members.',
 }
 
@@ -36,7 +36,7 @@ export default async function BusinessDetailPage({
   const { businessId } = await params
   await requireBusinessView(businessId)
 
-  const business = await getStorefrontBusinessById(businessId)
+  const business = await getBusinessByIdForAdmin(businessId)
   if (!business) notFound()
 
   const [locations, items] = await Promise.all([

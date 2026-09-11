@@ -3,13 +3,13 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft, PackagePlus } from 'lucide-react'
 import { requireBusinessManage } from '@/lib/auth/require-access'
-import { getStorefrontBusinessById } from '@/features/storefront/queries'
+import { getBusinessByIdForAdmin } from '@/features/businesses/queries'
 import { getCategoriesForBusiness } from '@/features/categories/queries'
 import { CatalogItemForm } from '@/features/catalog-items/components/catalog-item-form'
 import { BusinessAdminNav } from '@/components/admin/business-admin-nav'
 
 export const metadata: Metadata = {
-  title: 'Add New Catalog Item | SurePrice Admin',
+  title: 'Add New Catalog Item | Qarty Admin',
   description: 'Create a new product or food menu dish for your store.',
 }
 
@@ -22,7 +22,7 @@ export default async function NewCatalogItemPage({
   await requireBusinessManage(businessId)
 
   const [business, categories] = await Promise.all([
-    getStorefrontBusinessById(businessId),
+    getBusinessByIdForAdmin(businessId),
     getCategoriesForBusiness(businessId),
   ])
 
