@@ -16,9 +16,10 @@ export async function generateMetadata({
   const location = await getLocationById(locationId)
   if (!location) return {}
   return {
-    title: `Edit ${location.name} · Locations — SurePrice`,
+    title: `Edit ${location.name} · Locations — Qarty`,
   }
 }
+
 
 export default async function EditLocationPage({
   params,

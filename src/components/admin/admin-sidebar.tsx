@@ -77,13 +77,14 @@ export function AdminSidebar({ userEmail, signOutAction }: AdminSidebarProps) {
             {!isCollapsed && (
               <div className="min-w-0">
                 <span className="text-lg font-black tracking-tight text-slate-900 block truncate">
-                  <span className="text-emerald-700">Sure</span>Price
+                  Qarty
                 </span>
                 <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block truncate">
                   Merchant Console
                 </span>
               </div>
             )}
+
           </Link>
 
           <button

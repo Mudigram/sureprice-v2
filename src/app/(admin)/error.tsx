@@ -60,8 +60,9 @@ export default function AdminError({
       </div>
 
       <p className="text-[11px] text-slate-400 font-medium pt-4">
-        Need assistance? Contact <span className="font-bold text-slate-700">support@sureprice.ng</span>
+        Need assistance? Contact <span className="font-bold text-slate-700">support@qarty.app</span>
       </p>
     </div>
+
   )
 }

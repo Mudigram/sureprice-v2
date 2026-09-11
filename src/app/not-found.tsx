@@ -4,9 +4,10 @@ import { ScanLine, Store, Home, Search, ArrowLeft } from 'lucide-react'
 import { NotFoundIllustration } from '@/components/illustrations'
 
 export const metadata: Metadata = {
-  title: '404 · Page Not Found — SurePrice',
+  title: '404 · Page Not Found — Qarty',
   description: 'The scanned store, item code, or page could not be found.',
 }
+
 
 export default function NotFound() {
   return (
@@ -63,9 +64,10 @@ export default function NotFound() {
       </div>
 
       <div className="mt-8 text-center text-xs text-slate-500 font-medium">
-        Powered by <span className="font-bold text-slate-900">SurePrice</span> · Zero App Install
+        Powered by <span className="font-bold text-slate-900">Qarty</span> · Zero App Install
       </div>
     </div>
+
   )
 }
 

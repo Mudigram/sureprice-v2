@@ -1,16 +1,14 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { requireBusinessManage } from '@/lib/auth/require-access'
-import {
-  getStorefrontBusinessById,
-  getStorefrontByBusinessId,
-} from '@/features/storefront/queries'
+import { getBusinessByIdForAdmin } from '@/features/businesses/queries'
+import { getStorefrontByBusinessId } from '@/features/storefront/queries'
 import { StorefrontStudioForm } from '@/features/storefront/components/storefront-studio-form'
 import { BusinessAdminNav } from '@/components/admin/business-admin-nav'
 import type { WeeklyOperatingHours, StatusOverride, PopupEventConfig } from '@/features/storefront/types'
 
 export const metadata: Metadata = {
-  title: 'Storefront Studio | SurePrice Admin',
+  title: 'Storefront Studio | Qarty Admin',
   description: 'Manage your public digital menu, operating hours, live status, banners, and WhatsApp order routing.',
 }
 
@@ -23,7 +21,7 @@ export default async function StorefrontStudioPage({
   await requireBusinessManage(businessId)
 
   const [business, storefront] = await Promise.all([
-    getStorefrontBusinessById(businessId),
+    getBusinessByIdForAdmin(businessId),
     getStorefrontByBusinessId(businessId),
   ])
 

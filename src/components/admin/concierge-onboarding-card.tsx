@@ -13,12 +13,13 @@ export function ConciergeOnboardingCard({
   className = '',
 }: ConciergeOnboardingCardProps) {
   const handleOpenWhatsAppConcierge = () => {
-    const text = `Hello SurePrice Team, I want to set up my digital catalog for ${business.name} (Business ID: ${business.id}). Here is a photo/file of our paper menu & prices:`
-    // Support Nigerian onboarding direct line / fallback
-    const supportPhone = '2348000000000'
+    const text = `Hello Qarty Team, I want to set up my digital catalog for ${business.name} (Business ID: ${business.id}). Here is a photo/file of our paper menu & prices:`
+    // Nigerian onboarding WhatsApp direct line
+    const supportPhone = '2348050826536'
     const waUrl = `https://wa.me/${supportPhone}?text=${encodeURIComponent(text)}`
     window.open(waUrl, '_blank')
   }
+
 
   return (
     <div

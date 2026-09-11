@@ -333,7 +333,7 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
         {item.description && (
           <div className="space-y-1">
             <h3 className="text-sm font-black text-slate-900 dark:text-zinc-100">
-              {isRestaurant ? 'About this dish' : 'Product Details'}
+              {isRestaurant ? 'About this Item / Dish' : 'Product Details'}
             </h3>
             <p className="text-xs leading-relaxed text-slate-600 dark:text-zinc-300">
               {item.description}
@@ -345,7 +345,7 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
         {attributes.length > 0 && (
           <div className="space-y-2">
             <h3 className="text-sm font-black text-slate-900 dark:text-zinc-100">
-              {isRestaurant ? 'Ingredients & Details' : 'Product Specifications'}
+              {isRestaurant ? 'Ingredients & Composition' : 'Specifications & Details'}
             </h3>
             <div className="divide-y divide-gray-100 rounded-2xl border border-gray-200/80 bg-white dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-900">
               {attributes.map(({ key, value }) => (

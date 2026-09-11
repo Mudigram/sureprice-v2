@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { requireBusinessManage } from '@/lib/auth/require-access'
-import { getStorefrontBusinessById } from '@/features/storefront/queries'
+import { getBusinessByIdForAdmin } from '@/features/businesses/queries'
 import { getCatalogItemsForBusiness } from '@/features/catalog-items/queries'
 import { getQrCodesForBusiness } from '@/features/qr-codes/queries'
 import { QrStudioClient } from './qr-studio-client'
@@ -9,7 +9,7 @@ import { QrStudioClient } from './qr-studio-client'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'QR Print Studio — SurePrice Admin',
+  title: 'QR Print Studio — Qarty Admin',
   description: 'Batch generate and print physical shelf tags, packaging stickers, and restaurant table standees.',
 }
 
@@ -21,7 +21,7 @@ export default async function QrStudioPage({
   const { businessId } = await params
   await requireBusinessManage(businessId)
 
-  const business = await getStorefrontBusinessById(businessId)
+  const business = await getBusinessByIdForAdmin(businessId)
   if (!business) notFound()
 
   const [catalogItems, existingQrCodes] = await Promise.all([

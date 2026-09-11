@@ -145,9 +145,11 @@ export function MenuItemSheet({ item, business, businessSlug, open, onClose }: P
   const isRestaurant = business.business_type === 'restaurant' || business.business_type === 'cafe'
   const isEvent = business.business_type === 'popup_vendor' || business.business_type === 'event_vendor'
 
-  const itemTypeLabel = isRestaurant ? 'Digital Menu Item' : isEvent ? 'Event Stall Item' : 'Verified Shelf Item'
+  const itemTypeLabel = isRestaurant ? 'Digital Menu Item' : isEvent ? 'Event Stall Item' : 'Verified Store Item'
   const ItemTypeIcon = isRestaurant ? Utensils : isEvent ? Ticket : ShoppingBag
-  const priceLabel = isRestaurant ? 'Verified Menu Price' : 'Verified In-Store Price'
+  const priceLabel = isRestaurant ? 'Verified Menu Price' : isEvent ? 'Verified Stall Price' : 'Verified Shelf Price'
+  const descriptionHeading = isRestaurant ? 'About this Item / Dish' : isEvent ? 'Product Details' : 'Product Description'
+  const attributesHeading = isRestaurant ? 'Ingredients & Specifications' : 'Specifications & Details'
 
   return (
     <BottomSheet open={open} onClose={onClose}>
@@ -304,7 +306,7 @@ export function MenuItemSheet({ item, business, businessSlug, open, onClose }: P
         {item.description && (
           <div className="space-y-1">
             <h4 className="text-sm font-black text-slate-900">
-              About this dish
+              {descriptionHeading}
             </h4>
             <p className="text-xs leading-relaxed text-slate-600">
               {item.description}
@@ -312,11 +314,11 @@ export function MenuItemSheet({ item, business, businessSlug, open, onClose }: P
           </div>
         )}
 
-        {/* Attributes / Ingredients */}
+        {/* Attributes / Specifications */}
         {attributes.filter(({ value }) => value && String(value).trim() !== '').length > 0 && (
           <div className="space-y-2">
             <h4 className="text-sm font-black text-slate-900">
-              Ingredients & Details
+              {attributesHeading}
             </h4>
             <div className="divide-y divide-gray-100 rounded-2xl border border-gray-200 bg-white">
               {attributes
@@ -339,7 +341,7 @@ export function MenuItemSheet({ item, business, businessSlug, open, onClose }: P
               ? new URLSearchParams(window.location.search).get('table')
               : null
             const tablePrefix = tableNum ? `Order for Table ${tableNum}: ` : ''
-            const text = `Hello ${business.name}, ${tablePrefix}I saw ${item.name}${item.base_price ? ` (₦${item.base_price.toLocaleString()})` : ''} on your Qarty menu. I'd like to order or inquire!`
+            const text = `Hello ${business.name}, ${tablePrefix}I saw ${item.name}${item.base_price ? ` (₦${item.base_price.toLocaleString()})` : ''} on your Qarty product listing. I'd like to order or inquire!`
             const phone = business.locations?.[0]?.phone ? business.locations[0].phone.replace(/[^0-9]/g, '') : ''
             const url = `${window.location.origin}/s/${businessSlug}/${item.id}`
             const waUrl = phone

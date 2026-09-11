@@ -46,3 +46,29 @@ export async function getBusinessSlugById(businessId: string): Promise<string | 
   if (error) throw error
   return data?.slug ?? null
 }
+
+/**
+ * Fetches the business by ID using authenticated client, joined with storefront config.
+ * Used across admin console routes to guarantee access to newly created/unpublished businesses.
+ */
+export async function getBusinessByIdForAdmin(
+  businessId: string
+): Promise<import('@/features/storefront/types').StorefrontBusiness | null> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('businesses')
+    .select('*, storefront:storefronts(*)')
+    .eq('id', businessId)
+    .maybeSingle()
+
+  if (error) throw error
+  if (!data) return null
+
+  const raw = data as typeof data & { storefront: unknown }
+  const storefront = Array.isArray(raw.storefront)
+    ? (raw.storefront[0] ?? null)
+    : (raw.storefront ?? null)
+
+  return { ...data, storefront } as import('@/features/storefront/types').StorefrontBusiness
+}

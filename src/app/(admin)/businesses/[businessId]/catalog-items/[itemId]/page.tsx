@@ -4,7 +4,7 @@ import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
 import { ArrowLeft, Edit3, Image as ImageIcon, ScanLine, AlertOctagon } from 'lucide-react'
 import { requireBusinessView } from '@/lib/auth/require-access'
-import { getStorefrontBusinessById } from '@/features/storefront/queries'
+import { getBusinessByIdForAdmin } from '@/features/businesses/queries'
 import { getCatalogItemById } from '@/features/catalog-items/queries'
 import { getCategoriesForBusiness } from '@/features/categories/queries'
 import { getMediaForTarget } from '@/features/media/queries'
@@ -16,7 +16,7 @@ import { getActiveQrCodeForTarget } from '@/features/qr-codes/queries'
 import { BusinessAdminNav } from '@/components/admin/business-admin-nav'
 
 export const metadata: Metadata = {
-  title: 'Edit Catalog Item | SurePrice Admin',
+  title: 'Edit Catalog Item | Qarty Admin',
   description: 'Edit product details, images, price, categories, and QR tags.',
 }
 
@@ -29,7 +29,7 @@ export default async function CatalogItemDetailPage({
   await requireBusinessView(businessId)
 
   const [business, item, categories, images, qrCode] = await Promise.all([
-    getStorefrontBusinessById(businessId),
+    getBusinessByIdForAdmin(businessId),
     getCatalogItemById(itemId),
     getCategoriesForBusiness(businessId),
     getMediaForTarget('catalog_item', itemId),

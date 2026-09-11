@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
+import { X } from 'lucide-react'
 
 interface BottomSheetProps {
   open: boolean
@@ -13,9 +14,9 @@ interface BottomSheetProps {
 /**
  * Reusable animated slide-up bottom sheet.
  * - Renders via portal to document.body
- * - Tap backdrop or drag handle to dismiss
+ * - Tap backdrop or dominant circular X button to dismiss
  * - CSS-driven slide-up / slide-down animation
- * - Max height 90vh with internal scroll
+ * - Max height 88vh with internal scroll
  */
 export function BottomSheet({ open, onClose, title, children }: BottomSheetProps) {
   const [mounted, setMounted] = useState(false)
@@ -41,11 +42,10 @@ export function BottomSheet({ open, onClose, title, children }: BottomSheetProps
 
   const handleClose = useCallback(() => {
     setClosing(true)
-    // Wait for exit animation to finish
     setTimeout(() => {
       setClosing(false)
       onClose()
-    }, 280)
+    }, 250)
   }, [onClose])
 
   // Close on Escape key
@@ -64,7 +64,7 @@ export function BottomSheet({ open, onClose, title, children }: BottomSheetProps
     <div className="fixed inset-0 z-50 flex flex-col justify-end">
       {/* Backdrop */}
       <div
-        className={`absolute inset-0 bg-black/60 backdrop-blur-sm ${
+        className={`absolute inset-0 bg-slate-950/70 backdrop-blur-sm ${
           closing ? 'animate-overlay-out' : 'animate-overlay-in'
         }`}
         onClick={handleClose}
@@ -75,32 +75,43 @@ export function BottomSheet({ open, onClose, title, children }: BottomSheetProps
       <div
         role="dialog"
         aria-modal="true"
-        aria-label={title ?? 'Bottom sheet'}
-        className={`relative z-10 flex max-h-[90vh] flex-col rounded-t-3xl bg-white shadow-2xl dark:bg-zinc-900 ${
+        aria-label={title ?? 'Product Details'}
+        className={`relative z-10 flex max-h-[88vh] sm:max-h-[85vh] w-full max-w-xl mx-auto flex-col rounded-t-[32px] bg-white shadow-2xl dark:bg-zinc-900 border-t border-slate-200/80 dark:border-zinc-800 ${
           closing ? 'animate-sheet-down' : 'animate-sheet-up'
         }`}
       >
-        {/* Drag Handle */}
-        <div className="flex justify-center pt-3 pb-1">
+        {/* Sheet Top Header Bar: Drag Pill + Dominant Circular Close Button */}
+        <div className="flex items-center justify-between px-5 pt-3 pb-2 border-b border-slate-100 dark:border-zinc-800/80">
+          <div className="flex flex-col gap-0.5 min-w-0">
+            {title ? (
+              <h2 className="text-base font-black text-slate-900 dark:text-zinc-100 truncate">
+                {title}
+              </h2>
+            ) : (
+              <span className="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-zinc-400">
+                Tap outside or press ESC to close
+              </span>
+            )}
+          </div>
+
+          {/* Centered Drag Pill indicator on larger viewports */}
+          <div className="hidden sm:block absolute left-1/2 -translate-x-1/2 top-3">
+            <div className="h-1.5 w-10 rounded-full bg-slate-300 dark:bg-zinc-700" />
+          </div>
+
+          {/* Dominant Circular X Close Button */}
           <button
             type="button"
             onClick={handleClose}
-            className="h-1.5 w-10 rounded-full bg-slate-300 dark:bg-zinc-600 hover:bg-slate-400 transition-colors"
-            aria-label="Close sheet"
-          />
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-900 text-white dark:bg-zinc-800 dark:text-white shadow-lg hover:bg-slate-800 dark:hover:bg-zinc-700 active:scale-95 transition-all border border-slate-700/50"
+            aria-label="Close product details"
+          >
+            <X size={18} strokeWidth={2.5} />
+          </button>
         </div>
 
-        {/* Optional Title */}
-        {title && (
-          <div className="px-5 pb-3 pt-1">
-            <h2 className="text-base font-black text-slate-900 dark:text-zinc-100">
-              {title}
-            </h2>
-          </div>
-        )}
-
-        {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto overscroll-contain px-5 pb-8">
+        {/* Scrollable Content Container */}
+        <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-4 space-y-4">
           {children}
         </div>
       </div>

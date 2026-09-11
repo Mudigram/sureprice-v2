@@ -75,14 +75,15 @@ function RegisterContent() {
         <p className="text-[11px] leading-relaxed text-amber-800">
           Registration for the Ibadan pilot is invite-only. To list your restaurant or store,{' '}
           <a
-            href="mailto:onboarding@sureprice.app?subject=Request%20Ibadan%20Pilot%20Code"
+            href="mailto:onboarding@qarty.app?subject=Request%20Ibadan%20Pilot%20Code"
             className="font-bold underline text-amber-950"
           >
-            email onboarding@sureprice.app
+            email onboarding@qarty.app
           </a>{' '}
           to receive an access code.
         </p>
       </div>
+
 
       {/* Error Banner */}
       {errorMessage && (

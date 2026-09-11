@@ -79,31 +79,38 @@ export function ImageGalleryLightbox({
   const currentImage = images[currentIndex] || images[0]
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-between bg-black/95 backdrop-blur-xl animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex flex-col justify-between bg-slate-900/90 backdrop-blur-2xl animate-in fade-in duration-200">
       {/* Top Bar */}
       <div
         className="flex items-center justify-between p-4 z-10"
         style={{ paddingTop: 'calc(1rem + env(safe-area-inset-top))' }}
       >
         <div className="min-w-0 pr-4">
-          <p className="truncate text-sm font-bold text-white">{itemName}</p>
-          <p className="text-xs text-slate-400">
+          <p className="truncate text-base font-black text-white">{itemName}</p>
+          <p className="text-xs font-extrabold text-slate-300">
             Image {currentIndex + 1} of {images.length}
           </p>
         </div>
 
+        {/* Dominant Circular X Close Button */}
         <button
           onClick={onClose}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-slate-900 shadow-2xl hover:bg-slate-100 active:scale-95 transition-all border border-slate-200"
           aria-label="Close photo gallery"
         >
-          <X size={20} />
+          <X size={20} strokeWidth={3} />
         </button>
       </div>
 
       {/* Main Image View */}
-      <div className="relative flex-1 flex items-center justify-center px-4 my-auto">
-        <div className="relative h-[65vh] w-full max-w-2xl overflow-hidden rounded-2xl">
+      <div
+        className="relative flex-1 flex items-center justify-center px-4 my-auto cursor-pointer"
+        onClick={onClose}
+      >
+        <div
+          className="relative h-[65vh] w-full max-w-2xl overflow-hidden rounded-3xl shadow-2xl border border-white/10"
+          onClick={(e) => e.stopPropagation()}
+        >
           <Image
             src={resolveUrl(currentImage.storage_path)}
             alt={currentImage.alt_text ?? `${itemName} photo ${currentIndex + 1}`}
@@ -117,8 +124,11 @@ export function ImageGalleryLightbox({
         {/* Previous Button */}
         {images.length > 1 && (
           <button
-            onClick={handlePrev}
-            className="absolute left-3 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full bg-slate-900/80 text-white border border-slate-700/60 backdrop-blur-md hover:bg-slate-800 transition-transform active:scale-95 shadow-xl"
+            onClick={(e) => {
+              e.stopPropagation()
+              handlePrev()
+            }}
+            className="absolute left-3 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full bg-slate-950/80 text-white border border-white/20 backdrop-blur-md hover:bg-slate-900 transition-transform active:scale-95 shadow-xl"
             aria-label="Previous image"
           >
             <ChevronLeft size={22} />
@@ -128,8 +138,11 @@ export function ImageGalleryLightbox({
         {/* Next Button */}
         {images.length > 1 && (
           <button
-            onClick={handleNext}
-            className="absolute right-3 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full bg-slate-900/80 text-white border border-slate-700/60 backdrop-blur-md hover:bg-slate-800 transition-transform active:scale-95 shadow-xl"
+            onClick={(e) => {
+              e.stopPropagation()
+              handleNext()
+            }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full bg-slate-950/80 text-white border border-white/20 backdrop-blur-md hover:bg-slate-900 transition-transform active:scale-95 shadow-xl"
             aria-label="Next image"
           >
             <ChevronRight size={22} />
@@ -166,10 +179,10 @@ export function ImageGalleryLightbox({
           </div>
         )}
 
-        {/* Dismiss hint */}
-        <p className="text-[11px] font-medium text-slate-500">
+        {/* Bold Bolder Dismiss Hint */}
+        <span className="text-[11px] font-black uppercase tracking-wider text-white bg-slate-950/80 border border-white/20 px-4 py-1.5 rounded-full shadow-lg backdrop-blur-md">
           Tap outside or press ESC to exit gallery
-        </p>
+        </span>
       </div>
     </div>
   )
