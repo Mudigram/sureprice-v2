@@ -16,5 +16,5 @@ export function getScanUrl(code: string): string {
     return `${window.location.origin}/scan/${code}`
   }
 
-  return `https://qarty.vercel.app/scan/${code}`
+  return `https://qarty.ng/scan/${code}`
 }

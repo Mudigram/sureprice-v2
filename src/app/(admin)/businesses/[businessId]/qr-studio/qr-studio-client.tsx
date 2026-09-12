@@ -8,11 +8,12 @@ import {
   CheckSquare,
   Square,
   ScanLine,
-  Utensils,
+  Store,
   Tag,
   Grid,
   Sparkles,
   Search,
+
 } from 'lucide-react'
 import { PrintTemplates, type PrintPreset, type PrintableItem } from '@/features/qr-codes/components/print-templates'
 import { getOrCreateActiveQrCode } from '@/features/qr-codes/actions'
@@ -135,7 +136,7 @@ export function QrStudioClient({
 
   const storeUrl = typeof window !== 'undefined'
     ? `${window.location.origin}/s/${business.slug}`
-    : (process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/s/${business.slug}` : `https://qarty.vercel.app/s/${business.slug}`)
+    : (process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/s/${business.slug}` : `https://qarty.ng/s/${business.slug}`)
 
   // Prepares printable items by auto-generating missing QR codes if needed and launching window.print()
   const handleLaunchPrint = async () => {
@@ -262,7 +263,7 @@ export function QrStudioClient({
                   : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
               }`}
             >
-              <Utensils size={18} className={preset === 'storefront_master' ? 'text-emerald-400' : 'text-slate-500'} />
+              <Store size={18} className={preset === 'storefront_master' ? 'text-emerald-400' : 'text-slate-500'} />
               <div>
                 <p className="font-bold text-xs">Master Storefront</p>
                 <p className={`text-[10px] ${preset === 'storefront_master' ? 'text-slate-300' : 'text-slate-500'}`}>A5 table & counter QR</p>
@@ -310,10 +311,10 @@ export function QrStudioClient({
                   : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
               }`}
             >
-              <Utensils size={18} className={preset === 'table_standee' ? 'text-emerald-400' : 'text-slate-500'} />
+              <Store size={18} className={preset === 'table_standee' ? 'text-emerald-400' : 'text-slate-500'} />
               <div>
                 <p className="font-bold text-xs">Item Standee</p>
-                <p className={`text-[10px] ${preset === 'table_standee' ? 'text-slate-300' : 'text-slate-500'}`}>A6 dish tent standee</p>
+                <p className={`text-[10px] ${preset === 'table_standee' ? 'text-slate-300' : 'text-slate-500'}`}>A6 counter & tent standee</p>
               </div>
             </button>
 
@@ -342,12 +343,13 @@ export function QrStudioClient({
                   : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
               }`}
             >
-              <Utensils size={18} className={preset === 'wifi_combo' ? 'text-emerald-400' : 'text-slate-500'} />
+              <Store size={18} className={preset === 'wifi_combo' ? 'text-emerald-400' : 'text-slate-500'} />
               <div>
-                <p className="font-bold text-xs">Wi-Fi + Menu Combo</p>
-                <p className={`text-[10px] ${preset === 'wifi_combo' ? 'text-slate-300' : 'text-slate-500'}`}>Guest Wi-Fi & Menu A5</p>
+                <p className="font-bold text-xs">Wi-Fi + Store Combo</p>
+                <p className={`text-[10px] ${preset === 'wifi_combo' ? 'text-slate-300' : 'text-slate-500'}`}>Guest Wi-Fi & Catalog A5</p>
               </div>
             </button>
+
           </div>
         </div>
 
