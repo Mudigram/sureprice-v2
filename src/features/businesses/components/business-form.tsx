@@ -165,7 +165,7 @@ export function BusinessForm({ organizationId }: { organizationId: string }) {
             }`}
           />
           <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-            Customer scan address: <span className="font-mono text-slate-800 dark:text-slate-200">qarty.vercel.app/s/{watchedSlug || 'your-slug'}</span>
+            Customer scan address: <span className="font-mono text-slate-800 dark:text-slate-200">qarty.ng/s/{watchedSlug || 'your-slug'}</span>
           </p>
           {errors.slug && <p className="text-xs font-bold text-rose-500">{errors.slug.message}</p>}
         </div>

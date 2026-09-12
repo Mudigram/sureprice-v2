@@ -60,7 +60,7 @@ export default async function StorefrontItemPage({ params }: Props) {
   const item = await getStorefrontItem(business.id, itemId)
   if (!item) notFound()
 
-  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://qarty.vercel.app'
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://qarty.ng'
   const itemUrl = `${siteUrl}/s/${businessSlug}/${itemId}`
   const storeUrl = `${siteUrl}/s/${businessSlug}`
 
