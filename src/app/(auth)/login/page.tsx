@@ -4,7 +4,6 @@ import { useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import {
-  ScanLine,
   Lock,
   Ticket,
   ArrowRight,
@@ -277,13 +276,15 @@ export default function LoginPage() {
     <div className="min-h-[100dvh] flex flex-col items-center justify-center bg-[#f8fafc] px-4 py-12 text-slate-900 relative">
       {/* Brand Header */}
       <div className="mb-8 text-center space-y-2 relative z-10">
-        <Link href="/" className="inline-flex items-center gap-2.5 group">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--lime-base)] text-black shadow-lg shadow-[var(--lime-base)]/20 transition-transform group-hover:scale-105">
-            <ScanLine size={22} strokeWidth={2.5} />
-          </div>
-          <span className="text-2xl font-black tracking-tight text-slate-900">
-            <span className="text-emerald-600 dark:text-[var(--lime-dark)]">Sure</span>Price
-          </span>
+        <Link href="/" className="inline-flex flex-col items-center gap-2 group">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo/Qarty_logo_with_text.jpg"
+            alt="Qarty"
+            width={120}
+            height={80}
+            className="transition-transform group-hover:scale-105"
+          />
         </Link>
         <p className="text-xs font-semibold text-slate-500">Merchant & Event Vendor Access Portal</p>
       </div>

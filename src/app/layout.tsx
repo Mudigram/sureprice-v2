@@ -46,6 +46,7 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: "/favicon.ico",
+    apple: "/logo/qarty_icon.jpg",
   },
 };
 

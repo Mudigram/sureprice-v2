@@ -1,6 +1,7 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { redirect } from 'next/navigation'
-import { ScanLine, LogOut } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { AdminSidebar } from '@/components/admin/admin-sidebar'
 import { AdminMobileNav } from '@/components/admin/admin-mobile-nav'
@@ -29,9 +30,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <header className="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 backdrop-blur-md md:hidden shadow-sm">
           <div className="flex items-center justify-between px-5 py-3.5">
             <Link href="/dashboard" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[var(--lime-base)] text-black shadow-sm">
-                <ScanLine size={16} strokeWidth={2.5} />
-              </div>
+              <Image
+                src="/logo/qarty_icon.jpg"
+                alt="Qarty"
+                width={32}
+                height={32}
+                className="rounded-xl shadow-sm"
+              />
               <span className="text-lg font-black tracking-tight text-slate-900">
                 Qarty
               </span>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import {
   ScanLine,
@@ -71,9 +72,13 @@ export function AdminSidebar({ userEmail, signOutAction }: AdminSidebarProps) {
         {/* Brand Header & Collapse Toggle */}
         <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-4">
           <Link href="/dashboard" className="flex items-center gap-2.5 min-w-0">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-900 text-white shadow-sm">
-              <ScanLine size={20} strokeWidth={2.5} className="text-emerald-400" />
-            </div>
+            <Image
+              src="/logo/qarty_icon.jpg"
+              alt="Qarty"
+              width={40}
+              height={40}
+              className="shrink-0 rounded-2xl shadow-sm"
+            />
             {!isCollapsed && (
               <div className="min-w-0">
                 <span className="text-lg font-black tracking-tight text-slate-900 block truncate">
