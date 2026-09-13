@@ -1,10 +1,21 @@
+export type DateRange = 'today' | '7d' | '30d' | 'all'
+
+export interface StorefrontEventCounts {
+  whatsappClicks: number
+  notePriceActions: number
+  pageViews: number
+}
+
 export interface ScanAnalyticsSummary {
   totalScans: number
   todayScans: number
+  storefrontScans: number
+  productScans: number
   topItems: TopScannedItem[]
   recentActivity: RecentScanEvent[]
   hourlyScanDistribution: HourlyScanPoint[]
   whatsappEstimate: WhatsAppConversionEstimate
+  storefrontEvents: StorefrontEventCounts
 }
 
 export interface HourlyScanPoint {
@@ -29,6 +40,7 @@ export interface RecentScanEvent {
   scannedAt: string
   targetType: string
   label: string
+  icon?: string
 }
 
 export interface DailyScanTrendPoint {

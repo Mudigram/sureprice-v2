@@ -27,6 +27,7 @@ import { useCart } from '@/context/CartContext'
 import type { StorefrontBusiness, StorefrontItemDetail, AttributeEntry } from '@/features/storefront/types'
 import { getCategorySvgIcon, getBrandFallbackSvgIcon } from '@/components/icons'
 import { ImageGalleryLightbox } from '@/components/storefront/image-gallery-lightbox'
+import { trackStorefrontEvent } from '@/features/analytics/actions'
 
 // Generate deterministic sparkline data for 30-day trend
 function generateTrend(basePrice: number): number[] {
@@ -90,6 +91,12 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
   }, [item.id, item.name, item.base_price, item.image_url, businessSlug, business.name])
 
   const handleNotePrice = () => {
+    trackStorefrontEvent({
+      businessId: business.id,
+      eventType: 'note_price',
+      catalogItemId: item.id,
+    }).catch(() => {})
+
     addItem({
       id: item.id,
       name: item.name,
@@ -398,6 +405,12 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
         <button
           type="button"
           onClick={() => {
+            trackStorefrontEvent({
+              businessId: business.id,
+              eventType: 'whatsapp_click',
+              catalogItemId: item.id,
+            }).catch(() => {})
+
             const text = `Hello ${business.name}, I saw ${item.name} (${item.base_price ? `₦${item.base_price.toLocaleString()}` : ''}) on your Qarty digital menu. I'd like to order / inquire!`
             const phone = business.locations?.[0]?.phone ? business.locations[0].phone.replace(/[^0-9]/g, '') : ''
             const waUrl = phone

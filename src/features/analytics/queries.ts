@@ -8,17 +8,44 @@ import type {
   OrgDashboardMetrics,
   DailyScanTrendPoint,
   BusinessOverviewStats,
+  DateRange,
+  StorefrontEventCounts,
 } from './types'
 
-export async function getScanAnalyticsSummary(businessId: string): Promise<ScanAnalyticsSummary> {
+export async function getScanAnalyticsSummary(
+  businessId: string,
+  range: DateRange = '30d'
+): Promise<ScanAnalyticsSummary> {
   const supabase = await createClient()
 
-  // Lifetime scans count
-  const { count: totalScans, error: totalError } = await supabase
+  // Calculate range start date
+  let rangeStartDate: Date | null = null
+  const now = new Date()
+
+  if (range === 'today') {
+    rangeStartDate = new Date(now)
+    rangeStartDate.setHours(0, 0, 0, 0)
+  } else if (range === '7d') {
+    rangeStartDate = new Date(now)
+    rangeStartDate.setDate(rangeStartDate.getDate() - 7)
+    rangeStartDate.setHours(0, 0, 0, 0)
+  } else if (range === '30d') {
+    rangeStartDate = new Date(now)
+    rangeStartDate.setDate(rangeStartDate.getDate() - 30)
+    rangeStartDate.setHours(0, 0, 0, 0)
+  }
+
+  // Scans count for the selected range
+  let totalScansQuery = supabase
     .from('scan_events')
     .select('*', { count: 'exact', head: true })
     .eq('business_id', businessId)
 
+  if (rangeStartDate) {
+    totalScansQuery = totalScansQuery.gte('scanned_at', rangeStartDate.toISOString())
+  }
+
+  const { count: totalScans, error: totalError } = await totalScansQuery
   if (totalError) throw totalError
 
   // Today's scans count (>= midnight today)
@@ -32,6 +59,44 @@ export async function getScanAnalyticsSummary(businessId: string): Promise<ScanA
     .gte('scanned_at', startOfToday.toISOString())
 
   if (todayError) throw todayError
+
+  // Breakdown: Storefront (master) vs Product scans
+  let storefrontScans = 0
+  let productScans = 0
+
+  if (range === 'all') {
+    const { data: qrs } = await supabase
+      .from('qr_codes')
+      .select('target_type, scan_count')
+      .eq('business_id', businessId)
+
+    for (const q of qrs ?? []) {
+      if (q.target_type === 'business' || q.target_type === 'location') {
+        storefrontScans += q.scan_count ?? 0
+      } else if (q.target_type === 'catalog_item') {
+        productScans += q.scan_count ?? 0
+      }
+    }
+  } else {
+    let breakdownQuery = supabase
+      .from('scan_events')
+      .select('qr_codes(target_type)')
+      .eq('business_id', businessId)
+
+    if (rangeStartDate) {
+      breakdownQuery = breakdownQuery.gte('scanned_at', rangeStartDate.toISOString())
+    }
+
+    const { data: eventRows } = await breakdownQuery
+    for (const row of eventRows ?? []) {
+      const target = (row.qr_codes as unknown as { target_type: string } | null)?.target_type
+      if (target === 'business' || target === 'location') {
+        storefrontScans++
+      } else if (target === 'catalog_item') {
+        productScans++
+      }
+    }
+  }
 
   // Fetch top scanned catalog items using RPC with JS aggregation fallback
   let topItems: TopScannedItem[] = []
@@ -88,16 +153,14 @@ export async function getScanAnalyticsSummary(businessId: string): Promise<ScanA
 
   const recentActivity = await getRecentScanActivity(businessId)
 
-  // ── Hourly scan distribution (last 30 days, aggregated by hour-of-day) ──
-  const thirtyDaysAgo = new Date()
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-  thirtyDaysAgo.setHours(0, 0, 0, 0)
+  // ── Hourly scan distribution (based on range or last 30 days) ──
+  const distributionStart = rangeStartDate ?? new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
 
   const { data: hourlyScanRows } = await supabase
     .from('scan_events')
     .select('scanned_at')
     .eq('business_id', businessId)
-    .gte('scanned_at', thirtyDaysAgo.toISOString())
+    .gte('scanned_at', distributionStart.toISOString())
 
   const hourlyMap: Record<number, number> = {}
   for (let h = 0; h < 24; h++) hourlyMap[h] = 0
@@ -111,9 +174,36 @@ export async function getScanAnalyticsSummary(businessId: string): Promise<ScanA
     scanCount: count,
   }))
 
-  // ── WhatsApp Conversion Estimates (industry-calibrated heuristics) ──
-  // ~18% of QR scans in West African informal retail lead to a WhatsApp inquiry.
-  // ~42% view the price and note it mentally ("price noted").
+  // ── Real Storefront Interaction Events ──
+  const storefrontEvents: StorefrontEventCounts = {
+    whatsappClicks: 0,
+    notePriceActions: 0,
+    pageViews: 0,
+  }
+
+  try {
+    let eventQuery = (supabase as any)
+      .from('storefront_events')
+      .select('event_type')
+      .eq('business_id', businessId)
+
+    if (rangeStartDate) {
+      eventQuery = eventQuery.gte('created_at', rangeStartDate.toISOString())
+    }
+
+    const { data: sfEvents, error: sfError } = await eventQuery
+    if (!sfError && sfEvents) {
+      for (const ev of sfEvents) {
+        if (ev.event_type === 'whatsapp_click') storefrontEvents.whatsappClicks++
+        else if (ev.event_type === 'note_price') storefrontEvents.notePriceActions++
+        else if (ev.event_type === 'page_view') storefrontEvents.pageViews++
+      }
+    }
+  } catch {
+    // If storefront_events table doesn't exist yet, keep default 0s
+  }
+
+  // ── WhatsApp Conversion Estimates (industry-calibrated heuristics fallback) ──
   const total = totalScans ?? 0
   const whatsappEstimate: WhatsAppConversionEstimate = {
     estimatedInquiries: Math.round(total * 0.18),
@@ -123,15 +213,18 @@ export async function getScanAnalyticsSummary(businessId: string): Promise<ScanA
   return {
     totalScans: total,
     todayScans: todayScans ?? 0,
+    storefrontScans,
+    productScans,
     topItems,
     recentActivity,
     hourlyScanDistribution,
     whatsappEstimate,
+    storefrontEvents,
   }
 }
 
 /**
- * Fetches recent scan events (limit 15) and resolves human-readable item/storefront labels.
+ * Fetches recent scan events (limit 15) and resolves human-readable item/storefront labels and icons.
  */
 async function getRecentScanActivity(businessId: string): Promise<RecentScanEvent[]> {
   const supabase = await createClient()
@@ -152,6 +245,7 @@ async function getRecentScanActivity(businessId: string): Promise<RecentScanEven
     if (!qrCode) continue
 
     let label = 'Storefront'
+    let icon = '🏪'
 
     if (qrCode.target_type === 'catalog_item') {
       const { data } = await supabase
@@ -160,6 +254,7 @@ async function getRecentScanActivity(businessId: string): Promise<RecentScanEven
         .eq('id', qrCode.target_id)
         .maybeSingle()
       label = data?.name ?? 'Catalog Item'
+      icon = '📦'
     } else if (qrCode.target_type === 'collection') {
       const { data } = await supabase
         .from('collections')
@@ -167,6 +262,10 @@ async function getRecentScanActivity(businessId: string): Promise<RecentScanEven
         .eq('id', qrCode.target_id)
         .maybeSingle()
       label = data?.name ?? 'Collection'
+      icon = '📁'
+    } else if (qrCode.target_type === 'business' || qrCode.target_type === 'location') {
+      label = 'Master Storefront Standee'
+      icon = '🏪'
     }
 
     results.push({
@@ -174,6 +273,7 @@ async function getRecentScanActivity(businessId: string): Promise<RecentScanEven
       scannedAt: event.scanned_at,
       targetType: qrCode.target_type,
       label,
+      icon,
     })
   }
 

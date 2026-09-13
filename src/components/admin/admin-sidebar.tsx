@@ -73,7 +73,7 @@ export function AdminSidebar({ userEmail, signOutAction }: AdminSidebarProps) {
         <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-4">
           <Link href="/dashboard" className="flex items-center gap-2.5 min-w-0">
             <Image
-              src="/logo/qarty_icon.jpg"
+              src="/logo/logo.png"
               alt="Qarty"
               width={40}
               height={40}

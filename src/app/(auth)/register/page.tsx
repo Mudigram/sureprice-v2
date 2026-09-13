@@ -3,6 +3,7 @@
 import { useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import {
   KeyRound,
   Store,
@@ -237,15 +238,17 @@ export default function RegisterPage() {
     <div className="min-h-[100dvh] flex flex-col items-center justify-center bg-[#f8fafc] px-4 py-12 text-slate-900 relative">
       {/* Brand Header */}
       <div className="mb-6 text-center space-y-2 relative z-10">
-        <Link href="/" className="inline-flex flex-col items-center gap-2 group">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/logo/Qarty_logo_with_text.jpg"
+        <Link href="/" className="inline-flex items-center gap-2.5 group">
+          <Image
+            src="/logo/logo.png"
             alt="Qarty"
-            width={120}
-            height={80}
-            className="transition-transform group-hover:scale-105"
+            width={40}
+            height={40}
+            className="rounded-xl shadow-sm transition-transform group-hover:scale-105"
           />
+          <span className="text-2xl font-black tracking-tight text-slate-900">
+            Qarty
+          </span>
         </Link>
         <p className="text-xs font-semibold text-slate-500">Field Merchant Self-Onboarding</p>
       </div>

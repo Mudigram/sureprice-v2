@@ -31,7 +31,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <div className="flex items-center justify-between px-5 py-3.5">
             <Link href="/dashboard" className="flex items-center gap-2">
               <Image
-                src="/logo/qarty_icon.jpg"
+                src="/logo/logo.png"
                 alt="Qarty"
                 width={32}
                 height={32}
