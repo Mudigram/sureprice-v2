@@ -1,11 +1,27 @@
 'use client'
 
-import { useState } from 'react'
-import type { ScanAnalyticsSummary, HourlyScanPoint } from '../types'
-import { ScanLine, TrendingUp, Clock, Award, Package, MessageCircle, Tag, Flame, Download, Bell, BellOff } from 'lucide-react'
+import { useState, useTransition } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
+import type { ScanAnalyticsSummary, HourlyScanPoint, DateRange } from '../types'
+import {
+  ScanLine,
+  TrendingUp,
+  Clock,
+  Award,
+  Package,
+  MessageCircle,
+  Tag,
+  Flame,
+  Download,
+  Bell,
+  BellOff,
+  Store,
+  Eye,
+  CheckCircle2,
+} from 'lucide-react'
 import { AnalyticsZeroIllustration } from '@/components/illustrations'
 
-// ── Rush period definitions for Ibadan physical merchants ──
+// ── Rush period definitions for physical merchants ──
 const RUSH_PERIODS = [
   { label: 'Morning Rush', emoji: '🌅', startHour: 7, endHour: 10, color: 'text-amber-400', bg: 'bg-amber-500/15 border-amber-500/30' },
   { label: 'Lunch Rush', emoji: '☀️', startHour: 12, endHour: 15, color: 'text-orange-400', bg: 'bg-orange-500/15 border-orange-500/30' },
@@ -16,7 +32,6 @@ const RUSH_PERIODS = [
 ]
 
 function getPeakRushPeriods(distribution: HourlyScanPoint[]) {
-  // Sum scans per named period
   return RUSH_PERIODS.map((period) => {
     const hours = distribution.filter((h) =>
       period.endHour === 24
@@ -37,10 +52,13 @@ function formatHour(h: number): string {
 
 interface AnalyticsOverviewProps {
   summary: ScanAnalyticsSummary
+  activeRange?: DateRange
 }
 
-export function AnalyticsOverview({ summary }: AnalyticsOverviewProps) {
-  const [dateRange, setDateRange] = useState<'today' | '7d' | '30d' | 'all'>('30d')
+export function AnalyticsOverview({ summary, activeRange = '30d' }: AnalyticsOverviewProps) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const [isPending, startTransition] = useTransition()
   const [chimeEnabled, setChimeEnabled] = useState(false)
 
   const maxScans = summary.topItems[0]?.scanCount ?? 1
@@ -48,24 +66,46 @@ export function AnalyticsOverview({ summary }: AnalyticsOverviewProps) {
   const peakRush = rushPeriods[0]
   const maxHourlyScan = Math.max(...summary.hourlyScanDistribution.map((h) => h.scanCount), 1)
 
+  const hasRealEvents =
+    summary.storefrontEvents.whatsappClicks > 0 ||
+    summary.storefrontEvents.notePriceActions > 0 ||
+    summary.storefrontEvents.pageViews > 0
+
+  const handleRangeSelect = (range: DateRange) => {
+    startTransition(() => {
+      router.push(`${pathname}?range=${range}`)
+    })
+  }
+
   const exportCsvReport = () => {
     const headers = ['Metric', 'Value']
-    const rows = [
-      ['Total Lifetime Scans', summary.totalScans],
+    const rows: (string | number)[][] = [
+      ['Date Range', activeRange],
+      ['Total Scans in Period', summary.totalScans],
+      ['Master Storefront Standee Scans', summary.storefrontScans],
+      ['Product Tag Scans', summary.productScans],
       ['In-Store Scans Today', summary.todayScans],
-      ['Estimated WhatsApp Inquiries', summary.whatsappEstimate.estimatedInquiries],
-      ['Estimated Prices Noted', summary.whatsappEstimate.estimatedPriceNotes],
+      [
+        hasRealEvents ? 'Verified WhatsApp Inquiries' : 'Estimated WhatsApp Inquiries',
+        hasRealEvents ? summary.storefrontEvents.whatsappClicks : summary.whatsappEstimate.estimatedInquiries,
+      ],
+      [
+        hasRealEvents ? 'Verified Prices Noted' : 'Estimated Prices Noted',
+        hasRealEvents ? summary.storefrontEvents.notePriceActions : summary.whatsappEstimate.estimatedPriceNotes,
+      ],
+      ['Storefront Direct Page Views', summary.storefrontEvents.pageViews],
       ['Peak Rush Period', peakRush?.label || 'N/A'],
     ]
     summary.topItems.forEach((item) => {
       rows.push([`Top Item: ${item.name}`, item.scanCount])
     })
 
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n')
+    const csvContent =
+      'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n')
     const encodedUri = encodeURI(csvContent)
     const link = document.createElement('a')
     link.setAttribute('href', encodedUri)
-    link.setAttribute('download', `qarty-scan-analytics-${dateRange}.csv`)
+    link.setAttribute('download', `qarty-scan-analytics-${activeRange}.csv`)
 
     document.body.appendChild(link)
     link.click()
@@ -73,8 +113,8 @@ export function AnalyticsOverview({ summary }: AnalyticsOverviewProps) {
   }
 
   return (
-    <div className="space-y-6 text-slate-900">
-      {/* ── Control Toolbar: Date Filter & CSV Export ── */}
+    <div className={`space-y-6 text-slate-900 transition-opacity duration-200 ${isPending ? 'opacity-60' : 'opacity-100'}`}>
+      {/* ── Control Toolbar: Real Date Filter & CSV Export ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm">
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
           <span className="text-xs font-bold text-slate-400 mr-1 uppercase tracking-wider">Range:</span>
@@ -82,9 +122,10 @@ export function AnalyticsOverview({ summary }: AnalyticsOverviewProps) {
             <button
               key={range}
               type="button"
-              onClick={() => setDateRange(range)}
+              disabled={isPending}
+              onClick={() => handleRangeSelect(range)}
               className={`rounded-xl px-3 py-1.5 text-xs font-bold transition-all ${
-                dateRange === range
+                activeRange === range
                   ? 'bg-slate-900 text-white shadow-2xs'
                   : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
               }`}
@@ -119,59 +160,125 @@ export function AnalyticsOverview({ summary }: AnalyticsOverviewProps) {
         </div>
       </div>
 
-      {/* ── Metric Cards ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="flex items-center gap-4 rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 font-black border border-emerald-200">
-            <ScanLine size={24} />
+      {/* ── Metric Cards Grid (4 Cards: Total, Storefront Master QR, Product Tags, Today) ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Total Scans in Period */}
+        <div className="flex items-center gap-3.5 rounded-2xl border border-slate-200/90 bg-white p-4.5 shadow-sm">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-900 font-black border border-slate-200">
+            <ScanLine size={22} />
           </div>
-          <div>
-            <p className="text-xs font-bold text-slate-500">Total Lifetime Scans</p>
-            <p className="text-3xl font-black text-slate-900">{summary.totalScans.toLocaleString()}</p>
+          <div className="min-w-0">
+            <p className="text-[11px] font-bold text-slate-500 truncate">
+              {activeRange === 'today' ? 'Scans Today' : activeRange === 'all' ? 'Lifetime Scans' : `Scans (${activeRange})`}
+            </p>
+            <p className="text-2xl font-black text-slate-900">{summary.totalScans.toLocaleString()}</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-4 rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-700 font-black border border-blue-200">
-            <TrendingUp size={24} />
+        {/* Master Storefront Standee Scans */}
+        <div className="flex items-center gap-3.5 rounded-2xl border border-emerald-200/90 bg-emerald-50/40 p-4.5 shadow-sm">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800 font-black border border-emerald-200">
+            <Store size={22} />
           </div>
-          <div>
-            <p className="text-xs font-bold text-slate-500">In-Store Scans Today</p>
-            <p className="text-3xl font-black text-slate-900">{summary.todayScans.toLocaleString()}</p>
+          <div className="min-w-0">
+            <p className="text-[11px] font-bold text-emerald-800 truncate">Storefront Standee</p>
+            <p className="text-2xl font-black text-emerald-950">{summary.storefrontScans.toLocaleString()}</p>
+          </div>
+        </div>
+
+        {/* Individual Product Tag Scans */}
+        <div className="flex items-center gap-3.5 rounded-2xl border border-blue-200/90 bg-blue-50/40 p-4.5 shadow-sm">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-800 font-black border border-blue-200">
+            <Package size={22} />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[11px] font-bold text-blue-800 truncate">Item Shelf Tags</p>
+            <p className="text-2xl font-black text-blue-950">{summary.productScans.toLocaleString()}</p>
+          </div>
+        </div>
+
+        {/* Scans Today */}
+        <div className="flex items-center gap-3.5 rounded-2xl border border-slate-200/90 bg-white p-4.5 shadow-sm">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-700 font-black border border-amber-200">
+            <TrendingUp size={22} />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[11px] font-bold text-slate-500 truncate">In-Store Today</p>
+            <p className="text-2xl font-black text-slate-900">{summary.todayScans.toLocaleString()}</p>
           </div>
         </div>
       </div>
 
-      {/* ── WhatsApp & Price Conversion Estimates ── */}
-      {summary.totalScans > 0 && (
+      {/* ── Customer Demand Signals (Real Verified Events or Heuristic Fallback) ── */}
+      {summary.totalScans > 0 || hasRealEvents ? (
         <div className="rounded-2xl border border-emerald-200/90 bg-emerald-50/60 p-6 space-y-4 shadow-sm">
-          <div className="flex items-center gap-2">
-            <MessageCircle size={20} className="text-emerald-700" />
-            <h2 className="text-base font-black text-slate-900">Customer Demand Signals</h2>
-            <span className="ml-auto text-[10px] font-bold text-emerald-800 bg-emerald-100 rounded-full px-2.5 py-0.5 border border-emerald-200">
-              Estimated
-            </span>
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div className="flex items-center gap-2">
+              <MessageCircle size={20} className="text-emerald-700" />
+              <h2 className="text-base font-black text-slate-900">Customer Demand Signals</h2>
+            </div>
+            {hasRealEvents ? (
+              <span className="inline-flex items-center gap-1 text-[10px] font-black text-emerald-800 bg-emerald-200/80 rounded-full px-2.5 py-0.5 border border-emerald-300">
+                <CheckCircle2 size={11} className="text-emerald-700" />
+                Live Storefront Events
+              </span>
+            ) : (
+              <span className="text-[10px] font-bold text-slate-600 bg-white rounded-full px-2.5 py-0.5 border border-slate-200">
+                Industry Benchmark Estimates
+              </span>
+            )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* WhatsApp Inquiries */}
             <div className="rounded-xl border border-emerald-200 bg-white p-4 space-y-1 shadow-2xs">
               <p className="text-[10px] font-extrabold uppercase tracking-widest text-emerald-700">WhatsApp Inquiries</p>
-              <p className="text-3xl font-black text-slate-900">~{summary.whatsappEstimate.estimatedInquiries.toLocaleString()}</p>
-              <p className="text-[11px] text-slate-500 leading-snug font-medium">Customers likely messaged via WhatsApp after scanning</p>
+              <p className="text-2xl font-black text-slate-900">
+                {hasRealEvents
+                  ? summary.storefrontEvents.whatsappClicks.toLocaleString()
+                  : `~${summary.whatsappEstimate.estimatedInquiries.toLocaleString()}`}
+              </p>
+              <p className="text-[11px] text-slate-500 leading-snug font-medium">
+                {hasRealEvents
+                  ? 'Real taps on "Order / Inquire via WhatsApp"'
+                  : 'Shoppers likely messaged your WhatsApp'}
+              </p>
             </div>
 
+            {/* Prices Noted / Cart Adds */}
             <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-1 shadow-2xs">
-              <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-700">Prices Noted</p>
-              <p className="text-3xl font-black text-slate-900">~{summary.whatsappEstimate.estimatedPriceNotes.toLocaleString()}</p>
-              <p className="text-[11px] text-slate-500 leading-snug font-medium">Customers checked item details & prices</p>
+              <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-700">Prices Noted & Saved</p>
+              <p className="text-2xl font-black text-slate-900">
+                {hasRealEvents
+                  ? summary.storefrontEvents.notePriceActions.toLocaleString()
+                  : `~${summary.whatsappEstimate.estimatedPriceNotes.toLocaleString()}`}
+              </p>
+              <p className="text-[11px] text-slate-500 leading-snug font-medium">
+                {hasRealEvents
+                  ? 'Shoppers tapped "Note Price" to save to bag'
+                  : 'Shoppers inspected price tags & verified rates'}
+              </p>
+            </div>
+
+            {/* Direct Page Views */}
+            <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-1 shadow-2xs">
+              <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-700">Direct Storefront Views</p>
+              <p className="text-2xl font-black text-slate-900">
+                {summary.storefrontEvents.pageViews.toLocaleString()}
+              </p>
+              <p className="text-[11px] text-slate-500 leading-snug font-medium">
+                Shoppers viewing your storefront via link or bio
+              </p>
             </div>
           </div>
 
           <p className="text-[10px] text-slate-500 font-medium leading-relaxed">
-            Estimates based on West African informal retail QR scan-to-inquiry conversion benchmarks (~18% inquiry rate, ~42% price-noted rate).
+            {hasRealEvents
+              ? 'Tracking live shopper interactions from your Qarty digital storefront and product tags.'
+              : 'Estimates calibrate QR scan-to-inquiry rates (~18% inquiry rate, ~42% price-noted rate). Live counts will replace estimates as shoppers interact.'}
           </p>
         </div>
-      )}
+      ) : null}
 
       {/* ── Peak Activity Rush Heatmap ── */}
       <div className="rounded-2xl border border-slate-200/90 bg-white p-6 space-y-5 shadow-sm">
@@ -328,8 +435,18 @@ export function AnalyticsOverview({ summary }: AnalyticsOverviewProps) {
                 className="flex items-center justify-between rounded-xl border border-slate-200/80 bg-slate-50 px-4 py-3 text-xs"
               >
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <span className="h-2 w-2 rounded-full bg-emerald-600 shrink-0" />
+                  <span className="text-sm shrink-0">{event.icon || '📱'}</span>
                   <span className="font-bold text-slate-800 truncate">{event.label}</span>
+                  {(event.targetType === 'business' || event.targetType === 'location') && (
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md shrink-0">
+                      Standee
+                    </span>
+                  )}
+                  {event.targetType === 'catalog_item' && (
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-blue-700 bg-blue-100 px-2 py-0.5 rounded-md shrink-0">
+                      Tag
+                    </span>
+                  )}
                 </div>
                 <span className="font-mono text-slate-500 shrink-0 text-[11px]">
                   {formatRelativeTime(event.scannedAt)}

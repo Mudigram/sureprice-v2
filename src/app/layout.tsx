@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 
+import { CookieBanner } from "@/components/ui/cookie-banner";
+
 const outfit = Outfit({
   variable: "--font-outfit",
   subsets: ["latin"],
@@ -36,6 +38,14 @@ export const metadata: Metadata = {
     title: "Qarty · 1-Tap In-Store QR Tags & Menus",
     description:
       "Instant in-store QR price tags and digital menus for physical retail, dining, and pop-up events in Ibadan, Nigeria. Zero app download required.",
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "Qarty · 1-Tap In-Store QR Tags & Menus",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
@@ -45,7 +55,11 @@ export const metadata: Metadata = {
     creator: "@qartyapp",
   },
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/logo/logo.png', type: 'image/png' },
+    ],
+    apple: '/logo/logo.png',
   },
 };
 
@@ -81,7 +95,10 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <CookieBanner />
+      </body>
     </html>
   );
 }

@@ -7,6 +7,8 @@ import { getScanAnalyticsSummary } from '@/features/analytics/queries'
 import { AnalyticsOverview } from '@/features/analytics/components/analytics-overview'
 import { BusinessAdminNav } from '@/components/admin/business-admin-nav'
 
+import type { DateRange } from '@/features/analytics/types'
+
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
@@ -16,16 +18,24 @@ export const metadata: Metadata = {
 
 export default async function AnalyticsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ businessId: string }>
+  searchParams: Promise<{ range?: string }>
 }) {
   const { businessId } = await params
+  const { range } = (await searchParams) || {}
   await requireBusinessView(businessId)
 
   const business = await getBusinessByIdForAdmin(businessId)
   if (!business) notFound()
 
-  const summary = await getScanAnalyticsSummary(businessId)
+  const validRange: DateRange =
+    range === 'today' || range === '7d' || range === '30d' || range === 'all'
+      ? range
+      : '30d'
+
+  const summary = await getScanAnalyticsSummary(businessId, validRange)
 
   return (
     <div className="mx-auto max-w-5xl p-4 sm:p-8 space-y-6 text-slate-900 dark:text-white">
@@ -47,7 +57,7 @@ export default async function AnalyticsPage({
         </div>
       </div>
 
-      <AnalyticsOverview summary={summary} />
+      <AnalyticsOverview summary={summary} activeRange={validRange} />
     </div>
   )
 }

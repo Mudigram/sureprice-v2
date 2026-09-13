@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import Image from 'next/image'
 import { ScanLine, Sparkles, MessageCircle } from 'lucide-react'
 import { ButtonLink } from '@/components/ui/button'
 import { HeroSection } from '@/components/landing/hero-section'
@@ -27,11 +28,15 @@ export default function LandingPage() {
       <nav className="sticky top-0 z-40 border-b border-slate-200/80 bg-[#f8fafc]/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 sm:px-6 py-3.5">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--lime-base)] shadow-md shadow-[var(--lime-base)]/25 transition-transform group-hover:scale-105">
-              <ScanLine size={18} strokeWidth={2.5} className="text-black" />
-            </div>
+            <Image
+              src="/logo/logo.png"
+              alt="Qarty Logo"
+              width={36}
+              height={36}
+              className="rounded-xl shadow-xs transition-transform group-hover:scale-105"
+            />
             <span className="text-xl font-black tracking-tight text-slate-900">
-              <span className="text-emerald-600 dark:text-[var(--lime-dark)]">Q</span>arty
+              Qarty
             </span>
           </Link>
 
@@ -84,9 +89,13 @@ export default function LandingPage() {
       <footer className="border-t border-slate-200/80 py-12 text-center text-xs text-slate-500 bg-white">
         <div className="mx-auto max-w-5xl px-4 space-y-4">
           <div className="flex items-center justify-center gap-2 font-black text-sm text-slate-900">
-            <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-[var(--lime-base)] text-black">
-              <ScanLine size={14} strokeWidth={2.5} />
-            </div>
+            <Image
+              src="/logo/logo.png"
+              alt="Qarty"
+              width={22}
+              height={22}
+              className="rounded-md"
+            />
             <span>Qarty</span>
           </div>
 
@@ -118,9 +127,20 @@ export default function LandingPage() {
             >
               X (Twitter) @qartyapp
             </a>
+            <span className="text-slate-300">·</span>
+            <Link href="/privacy" className="hover:text-emerald-600 transition-colors">
+              Privacy Policy
+            </Link>
+            <span className="text-slate-300">·</span>
+            <Link href="/terms" className="hover:text-emerald-600 transition-colors">
+              Terms of Service
+            </Link>
           </div>
 
-          <p className="text-slate-400">© 2026 Qarty Technologies · 1-Tap In-Store QR Tags & Menus · Ibadan & Across Nigeria</p>
+          <div className="space-y-1 text-[11px] text-slate-400">
+            <p>Qarty Technologies · Ibadan, Oyo State, Nigeria · support@qarty.app</p>
+            <p>© 2026 Qarty Technologies · 1-Tap In-Store QR Tags &amp; Digital Menus across Nigeria</p>
+          </div>
         </div>
       </footer>
     </div>

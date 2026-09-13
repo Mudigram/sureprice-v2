@@ -23,6 +23,7 @@ import { useCart } from '@/context/CartContext'
 import type { StorefrontItem, StorefrontBusiness } from '@/features/storefront/types'
 import { getCategorySvgIcon } from '@/components/icons'
 import { ImageGalleryLightbox, type GalleryImage } from '@/components/storefront/image-gallery-lightbox'
+import { trackStorefrontEvent } from '@/features/analytics/actions'
 
 interface Props {
   item: (StorefrontItem & { images?: GalleryImage[] }) | null
@@ -103,6 +104,12 @@ export function MenuItemSheet({ item, business, businessSlug, open, onClose }: P
   })()
 
   const handleNotePrice = () => {
+    trackStorefrontEvent({
+      businessId: business.id,
+      eventType: 'note_price',
+      catalogItemId: item.id,
+    }).catch(() => {})
+
     for (let i = 0; i < quantity; i++) {
       addItem({
         id: item.id,
@@ -337,6 +344,12 @@ export function MenuItemSheet({ item, business, businessSlug, open, onClose }: P
         <button
           type="button"
           onClick={() => {
+            trackStorefrontEvent({
+              businessId: business.id,
+              eventType: 'whatsapp_click',
+              catalogItemId: item.id,
+            }).catch(() => {})
+
             const tableNum = typeof window !== 'undefined'
               ? new URLSearchParams(window.location.search).get('table')
               : null

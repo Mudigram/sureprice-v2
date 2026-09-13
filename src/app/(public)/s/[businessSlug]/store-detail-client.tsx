@@ -45,6 +45,7 @@ import {
 } from '@/features/storefront/types'
 import { useCart } from '@/context/CartContext'
 import { ItemUnavailableIllustration } from '@/components/illustrations'
+import { trackStorefrontEvent } from '@/features/analytics/actions'
 import {
   getCategorySvgIcon,
   getBrandFallbackSvgIcon,
@@ -98,6 +99,22 @@ export function StoreDetailClient({ business, items, businessSlug }: Props) {
 
   const isRestaurant = business.business_type === 'restaurant' || business.business_type === 'cafe'
   const isEvent = business.business_type === 'popup_vendor' || business.business_type === 'event_vendor'
+
+  // Track direct storefront page view once per tab session
+  useEffect(() => {
+    try {
+      const sessionKey = `qarty_pv_${business.id}`
+      if (typeof window !== 'undefined' && !sessionStorage.getItem(sessionKey)) {
+        sessionStorage.setItem(sessionKey, '1')
+        trackStorefrontEvent({
+          businessId: business.id,
+          eventType: 'page_view',
+        }).catch(() => {})
+      }
+    } catch {
+      // Ignore storage restrictions
+    }
+  }, [business.id])
 
   // Extract branding configs from storefront table & storefront.theme JSON object
   const storefrontTheme = (business.storefront?.theme && typeof business.storefront.theme === 'object')
@@ -416,6 +433,12 @@ export function StoreDetailClient({ business, items, businessSlug }: Props) {
                   href={`https://wa.me/${phoneNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hello ${business.name}, I found you on Qarty!`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => {
+                    trackStorefrontEvent({
+                      businessId: business.id,
+                      eventType: 'whatsapp_click',
+                    }).catch(() => {})
+                  }}
                   className="flex shrink-0 items-center gap-1.5 rounded-full bg-emerald-500 px-3 py-1.5 text-xs font-black text-white shadow-md shadow-emerald-500/25 active:scale-95 transition-all"
                 >
                   <span>💬</span>
@@ -772,6 +795,12 @@ export function StoreDetailClient({ business, items, businessSlug }: Props) {
                     href={`https://wa.me/${phoneNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hello ${business.name}, I found you on Qarty and would like to inquire!`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => {
+                      trackStorefrontEvent({
+                        businessId: business.id,
+                        eventType: 'whatsapp_click',
+                      }).catch(() => {})
+                    }}
                     className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-50 py-3 text-xs font-extrabold text-emerald-900 border border-emerald-200 active:scale-95 transition-all"
                   >
                     <span>💬</span>

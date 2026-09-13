@@ -3,8 +3,8 @@
 import { useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import {
-  ScanLine,
   KeyRound,
   Store,
   Utensils,
@@ -239,11 +239,15 @@ export default function RegisterPage() {
       {/* Brand Header */}
       <div className="mb-6 text-center space-y-2 relative z-10">
         <Link href="/" className="inline-flex items-center gap-2.5 group">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--lime-base)] text-black shadow-lg shadow-[var(--lime-base)]/20 transition-transform group-hover:scale-105">
-            <ScanLine size={22} strokeWidth={2.5} />
-          </div>
+          <Image
+            src="/logo/logo.png"
+            alt="Qarty"
+            width={40}
+            height={40}
+            className="rounded-xl shadow-sm transition-transform group-hover:scale-105"
+          />
           <span className="text-2xl font-black tracking-tight text-slate-900">
-            <span className="text-emerald-600 dark:text-[var(--lime-dark)]">Sure</span>Price
+            Qarty
           </span>
         </Link>
         <p className="text-xs font-semibold text-slate-500">Field Merchant Self-Onboarding</p>
