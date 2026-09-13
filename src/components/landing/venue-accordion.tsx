@@ -45,7 +45,7 @@ const VENUES = [
 ]
 
 export function VenueAccordion() {
-  const [activeId, setActiveId] = useState('dining')
+  const [activeId, setActiveId] = useState('popups')
 
   return (
     <section className="bg-[#031d14] text-white py-20 sm:py-28 relative overflow-hidden">

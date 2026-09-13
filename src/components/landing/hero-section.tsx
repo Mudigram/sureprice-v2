@@ -42,7 +42,7 @@ export function HeroSection() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="mx-auto max-w-xl text-sm sm:text-base leading-relaxed text-slate-600 font-medium"
         >
-          Update shelf prices and dining menus in 1 tap from your phone. Customers point their native camera for instant verified Naira (₦) prices — zero app download required.
+          Update booth prices, dining menus, and catalog items in 1 tap from your phone. Customers point their native camera at your table standee for instant verified Naira (₦) prices — zero app download required.
         </motion.p>
 
         {/* Hero CTAs */}
@@ -100,22 +100,22 @@ export function HeroSection() {
                       <Store size={20} />
                     </div>
                     <div>
-                      <p className="font-black text-xs text-white">The Palms Bistro · Bodija</p>
-                      <p className="text-[10px] text-slate-400 font-medium">Table 04 Digital Menu</p>
+                      <p className="font-black text-xs text-white">Heritage Bites · Pop-Up Stall 04</p>
+                      <p className="text-[10px] text-slate-400 font-medium">Ibadan Market Table Standee</p>
                     </div>
                   </div>
                 </div>
 
                 <div className="mt-3.5 rounded-2xl border border-slate-800 bg-slate-950 p-4 space-y-2">
                   <span className="inline-block rounded-full bg-[var(--lime-base)]/20 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-[var(--lime-base)] border border-[var(--lime-base)]/30">
-                    ✓ Live Menu Item
+                    ✓ Live Catalog Item
                   </span>
-                  <p className="text-sm font-black text-white pt-0.5">Smokey Jollof & Grilled Tilapia</p>
+                  <p className="text-sm font-black text-white pt-0.5">Smokey Jollof &amp; Suya Platter</p>
                   <p className="text-2xl font-black text-white">
-                    ₦6,500<span className="ml-1 inline-block h-2 w-2 rounded-full bg-[var(--lime-base)] animate-pulse" />
+                    ₦4,500<span className="ml-1 inline-block h-2 w-2 rounded-full bg-[var(--lime-base)] animate-pulse" />
                   </p>
                   <p className="text-[10px] font-medium text-slate-400 border-t border-slate-900 pt-2 flex items-center justify-between">
-                    <span>Freshly prepared · In Stock</span>
+                    <span>In Stock · Fresh Batch</span>
                     <span className="text-emerald-400 font-bold">WhatsApp Ready</span>
                   </p>
                 </div>
