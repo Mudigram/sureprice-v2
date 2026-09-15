@@ -96,10 +96,9 @@ export default async function StorefrontPage({ params }: Props) {
     description: `Verified prices and catalog for ${business.name}.`,
     address: {
       '@type': 'PostalAddress',
-      streetAddress: business.locations?.[0]?.address_text || undefined,
+      streetAddress: business.locations?.[0]?.address_line1 || business.locations?.[0]?.city || undefined,
       addressCountry: 'NG',
     },
-    telephone: business.locations?.[0]?.phone || undefined,
     currenciesAccepted: 'NGN',
     hasMenu: business.business_type === 'restaurant' || business.business_type === 'cafe' ? storeUrl : undefined,
     itemListElement: items.slice(0, 15).map((item, idx) => ({

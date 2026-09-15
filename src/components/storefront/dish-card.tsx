@@ -10,6 +10,7 @@ import {
 import type { StorefrontItem } from '@/features/storefront/types'
 import { useCart } from '@/context/CartContext'
 import { getCategorySvgIcon } from '@/components/icons'
+import { isItemSoldOut } from '@/lib/catalog/availability'
 
 interface DishCardProps {
   product: StorefrontItem
@@ -72,15 +73,18 @@ export function DishCard({
     ? (product.attributes as Record<string, string>)
     : {}
 
-  const spicyTag = !!(attributes.spicy || attributes.Spicy || attributes.spice)
-  const vegTag = !!(attributes.vegetarian || attributes.veg || attributes.Dietary === 'Vegetarian')
-  const halalTag = !!(attributes.halal || attributes.Halal)
-  const bestsellerTag = !!(attributes.bestseller || attributes.popular || attributes.favorite || attributes.recommended)
-  const limitedTag = !!(attributes.limited || attributes.batch || attributes.event_exclusive)
-  const specialTag = !!(attributes.special || attributes.Special || attributes.featured)
+  const soldOut = isItemSoldOut(product.attributes)
+  const spicyTag = !soldOut && !!(attributes.spicy || attributes.Spicy || attributes.spice)
+  const vegTag = !soldOut && !!(attributes.vegetarian || attributes.veg || attributes.Dietary === 'Vegetarian')
+  const halalTag = !soldOut && !!(attributes.halal || attributes.Halal)
+  const bestsellerTag = !soldOut && !!(attributes.bestseller || attributes.popular || attributes.favorite || attributes.recommended)
+  const limitedTag = !soldOut && !!(attributes.limited || attributes.batch || attributes.event_exclusive)
+  const specialTag = !soldOut && !!(attributes.special || attributes.Special || attributes.featured)
 
-  // Priority badge for image overlay — max 1 (Bestseller > Special/Featured > Limited)
-  const primaryBadge = bestsellerTag
+  // Priority badge for image overlay — max 1 (Sold Out > Bestseller > Special/Featured > Limited)
+  const primaryBadge = soldOut
+    ? { label: '🔴 Sold Out', className: 'bg-rose-600/95 text-white border-rose-400/40' }
+    : bestsellerTag
     ? { label: '⭐ Bestseller', className: 'bg-amber-500/95 text-black border-amber-300/40' }
     : specialTag
     ? { label: '🔥 Special', className: 'bg-rose-600/90 text-white border-rose-400/30' }
@@ -99,7 +103,9 @@ export function DishCard({
     <div
       onClick={onOpenSheet}
       className={`group relative flex flex-row items-center gap-3.5 overflow-hidden rounded-2xl border p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md cursor-pointer active:scale-[0.98] ${
-        inList
+        soldOut
+          ? 'border-slate-200 bg-slate-50/60 opacity-85 hover:border-slate-300'
+          : inList
           ? 'border-emerald-400/60 bg-emerald-50 shadow-emerald-100'
           : 'border-slate-200 bg-white hover:border-slate-300'
       }`}
@@ -160,7 +166,16 @@ export function DishCard({
 
         {/* Price + Action Row */}
         <div className="mt-2.5 flex items-center justify-between gap-2">
-          {inList ? (
+          {soldOut ? (
+            <div className="flex items-center justify-between w-full">
+              <span className="text-xs font-bold text-slate-400 line-through">
+                {product.base_price !== null ? `₦${product.base_price.toLocaleString()}` : ''}
+              </span>
+              <span className="inline-flex items-center rounded-xl bg-rose-50 px-2.5 py-1.5 text-[10px] font-black text-rose-700 border border-rose-200/80">
+                Sold Out
+              </span>
+            </div>
+          ) : inList ? (
             /* Stepper Controls (min 44px height) */
             <div className="flex h-11 items-center overflow-hidden rounded-xl border border-emerald-400/60 bg-emerald-50 shadow-sm">
               <button

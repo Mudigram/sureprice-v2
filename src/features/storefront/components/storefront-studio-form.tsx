@@ -921,7 +921,7 @@ export function StorefrontStudioForm({
             <input
               type="text"
               {...register('social_instagram')}
-              placeholder="Instagram (e.g. @qarty_ng)"
+              placeholder="Instagram (e.g. @qartyapp)"
               className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:bg-white focus:outline-none"
             />
             <input

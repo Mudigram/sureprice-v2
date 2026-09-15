@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getStorefrontBusiness, getStorefrontItem } from '@/features/storefront/queries'
+import { isItemSoldOut } from '@/lib/catalog/availability'
 import { ItemDetailClient } from './item-detail-client'
 
 export const revalidate = 60
@@ -76,7 +77,7 @@ export default async function StorefrontItemPage({ params }: Props) {
       url: itemUrl,
       priceCurrency: 'NGN',
       price: item.base_price !== null ? item.base_price : undefined,
-      availability: 'https://schema.org/InStock',
+      availability: isItemSoldOut(item.attributes) ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
       seller: {
         '@type': 'Organization',
         name: business.name,

@@ -1,26 +1,31 @@
 'use client'
 
+import { useState, useTransition } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useTransition } from 'react'
-import { Package, Tag, FolderTree, FileText, Save, Loader2, Plus, Trash2 } from 'lucide-react'
+import { Package, Tag, FolderTree, FileText, Save, Loader2, Plus, Trash2, CheckCircle2, AlertCircle } from 'lucide-react'
 import { updateCatalogItemSchema, type UpdateCatalogItemFormValues, type UpdateCatalogItemInput } from '../schema'
 import { updateCatalogItem } from '../actions'
 import type { Category } from '@/features/categories/types'
 import type { CatalogItem } from '../types'
+import { isItemSoldOut } from '@/lib/catalog/availability'
 
 function attributesToArray(attrs: CatalogItem['attributes']): { key: string; value: string }[] {
   if (attrs && typeof attrs === 'object' && !Array.isArray(attrs)) {
-    return Object.entries(attrs as Record<string, string>).map(([key, value]) => ({
-      key,
-      value: String(value),
-    }))
+    return Object.entries(attrs as Record<string, string>)
+      .filter(([key]) => key !== 'is_sold_out' && key !== 'in_stock')
+      .map(([key, value]) => ({
+        key,
+        value: String(value),
+      }))
   }
   return []
 }
 
 export function CatalogItemEditForm({ item, categories }: { item: CatalogItem; categories: Category[] }) {
   const [isPending, startTransition] = useTransition()
+  const [isSoldOut, setIsSoldOut] = useState<boolean>(() => isItemSoldOut(item.attributes))
+
   const { register, control, handleSubmit, formState: { errors } } = useForm<UpdateCatalogItemFormValues>({
     resolver: zodResolver(updateCatalogItemSchema),
     defaultValues: {
@@ -35,13 +40,60 @@ export function CatalogItemEditForm({ item, categories }: { item: CatalogItem; c
   const { fields, append, remove } = useFieldArray({ control, name: 'attributes' })
 
   const onSubmit = (data: UpdateCatalogItemFormValues) => {
+    // Preserve sold out status in attributes payload
+    const finalAttributes = [
+      ...(data.attributes || []),
+      { key: 'is_sold_out', value: isSoldOut ? 'true' : 'false' },
+      { key: 'in_stock', value: isSoldOut ? 'false' : 'true' },
+    ]
+
     startTransition(() => {
-      updateCatalogItem(item.id, item.business_id, data as UpdateCatalogItemInput)
+      updateCatalogItem(item.id, item.business_id, {
+        ...data,
+        attributes: finalAttributes,
+      } as UpdateCatalogItemInput)
     })
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 text-slate-900 dark:text-white">
+      {/* Availability / Stock Status Toggle Box */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50/70 p-4 dark:border-slate-800 dark:bg-slate-950">
+        <div className="space-y-0.5">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-black text-slate-900 dark:text-white">
+              Inventory &amp; Stock Status
+            </span>
+            <span
+              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-black ${
+                isSoldOut
+                  ? 'bg-rose-100 text-rose-800 border border-rose-200 dark:bg-rose-950 dark:text-rose-300'
+                  : 'bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300'
+              }`}
+            >
+              {isSoldOut ? '🔴 Currently Sold Out' : '🟢 In Stock'}
+            </span>
+          </div>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400">
+            {isSoldOut
+              ? 'Item will show a "Sold Out" badge on physical QR scans and the webview, with checkout disabled.'
+              : 'Item is available for in-store price checks and orders.'}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setIsSoldOut(!isSoldOut)}
+          className={`shrink-0 rounded-xl px-4 py-2 text-xs font-black transition-all shadow-sm ${
+            isSoldOut
+              ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+              : 'bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100'
+          }`}
+        >
+          {isSoldOut ? 'Mark as In Stock' : 'Mark as Sold Out'}
+        </button>
+      </div>
+
       {/* Product Title Field */}
       <div className="space-y-1.5">
         <label htmlFor="edit-item-name" className="text-xs font-extrabold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">

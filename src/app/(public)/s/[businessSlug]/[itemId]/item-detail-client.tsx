@@ -38,6 +38,8 @@ function generateTrend(basePrice: number): number[] {
   })
 }
 
+import { isItemSoldOut } from '@/lib/catalog/availability'
+
 interface Props {
   item: StorefrontItemDetail
   business: StorefrontBusiness
@@ -58,6 +60,7 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
   const isCafe = business.business_type === 'cafe'
   const isEvent = business.business_type === 'popup_vendor' || business.business_type === 'event_vendor'
   const isRetail = business.business_type === 'retail'
+  const soldOut = isItemSoldOut(item.attributes)
 
   // Parse attributes
   const attributes: AttributeEntry[] = (() => {
@@ -222,29 +225,35 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
 
       {/* Main Content Area */}
       <div className="mt-4 space-y-5 px-5">
-        {/* Business Type Psychological Badge */}
-        <div className="flex items-center justify-between">
-          {isRestaurant ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-900 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-900">
-              <Utensils size={13} />
-              Verified Dining Dish
-            </span>
-          ) : isCafe ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-900 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-900">
-              <Sparkles size={13} />
-              Freshly Brewed & Prepared
-            </span>
-          ) : isEvent ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-100 px-3 py-1 text-xs font-bold text-purple-900 border border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-900">
-              <Ticket size={13} />
-              🎪 Limited Event Batch
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-900 border border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-900">
-              <CheckCircle2 size={13} />
-              100% Verified Shelf Price
-            </span>
-          )}
+        {/* Business Type & Stock Status Badges */}
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {soldOut ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-100 px-3 py-1 text-xs font-black text-rose-900 border border-rose-200 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-900">
+                🔴 Currently Sold Out
+              </span>
+            ) : isRestaurant ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-900 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-900">
+                <Utensils size={13} />
+                Verified Dining Dish
+              </span>
+            ) : isCafe ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-900 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-900">
+                <Sparkles size={13} />
+                Freshly Brewed & Prepared
+              </span>
+            ) : isEvent ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-100 px-3 py-1 text-xs font-bold text-purple-900 border border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-900">
+                <Ticket size={13} />
+                🎪 Limited Event Batch
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-900 border border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-900">
+                <CheckCircle2 size={13} />
+                100% Verified Shelf Price
+              </span>
+            )}
+          </div>
 
           {/* Dedicated Share Button */}
           <button
@@ -286,13 +295,23 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
         </div>
 
         {/* Price Tag Box */}
-        <div className="flex items-center justify-between rounded-2xl border border-gray-200/80 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <div className={`flex items-center justify-between rounded-2xl border p-4 shadow-sm transition-colors ${
+          soldOut
+            ? 'border-rose-200/80 bg-rose-50/30 dark:border-rose-900/40 dark:bg-rose-950/20'
+            : 'border-gray-200/80 bg-white dark:border-zinc-800 dark:bg-zinc-900'
+        }`}>
           <div>
             <p className="text-xs font-bold text-slate-500 dark:text-zinc-400">
-              {isRestaurant ? 'Verified Menu Price' : 'Verified Shelf Price'}
+              {soldOut
+                ? 'Last Listed Price (Sold Out)'
+                : isRestaurant
+                ? 'Verified Menu Price'
+                : 'Verified Shelf Price'}
             </p>
             {item.base_price !== null ? (
-              <p className="text-3xl font-black text-slate-900 dark:text-zinc-100 mt-0.5">
+              <p className={`text-3xl font-black mt-0.5 ${
+                soldOut ? 'text-slate-500 line-through dark:text-zinc-400' : 'text-slate-900 dark:text-zinc-100'
+              }`}>
                 ₦{item.base_price.toLocaleString()}
               </p>
             ) : (
@@ -300,7 +319,11 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
             )}
           </div>
 
-          <span className="flex h-3 w-3 rounded-full bg-[var(--lime-base)] shadow-[0_0_8px_var(--lime-base)]" />
+          <span className={`flex h-3 w-3 rounded-full ${
+            soldOut
+              ? 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.6)]'
+              : 'bg-[var(--lime-base)] shadow-[0_0_8px_var(--lime-base)]'
+          }`} />
         </div>
 
         {/* 30-Day Trend Graph (Retail / Grocery) */}
@@ -401,7 +424,7 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
           <ArrowRight size={16} className="text-slate-400 group-hover:translate-x-0.5 transition-transform" />
         </Link>
 
-        {/* WhatsApp Direct Order / Inquiry Button */}
+        {/* WhatsApp Direct Order / Restock Inquiry Button */}
         <button
           type="button"
           onClick={() => {
@@ -411,7 +434,9 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
               catalogItemId: item.id,
             }).catch(() => {})
 
-            const text = `Hello ${business.name}, I saw ${item.name} (${item.base_price ? `₦${item.base_price.toLocaleString()}` : ''}) on your Qarty digital menu. I'd like to order / inquire!`
+            const text = soldOut
+              ? `Hello ${business.name}, I noticed ${item.name} is marked as Sold Out on your Qarty digital catalog. Will it be available or restocked soon?`
+              : `Hello ${business.name}, I saw ${item.name} (${item.base_price ? `₦${item.base_price.toLocaleString()}` : ''}) on your Qarty digital menu. I'd like to order / inquire!`
             const phone = business.locations?.[0]?.phone ? business.locations[0].phone.replace(/[^0-9]/g, '') : ''
             const waUrl = phone
               ? `https://wa.me/${phone}?text=${encodeURIComponent(text)}`
@@ -420,62 +445,73 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
           }}
           className="flex items-center justify-center gap-2 w-full rounded-2xl border border-emerald-500/30 bg-emerald-50/80 py-3 text-xs font-black text-emerald-900 shadow-sm transition-all hover:bg-emerald-100 active:scale-95 dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300"
         >
-          <span>💬 Order / Inquire via WhatsApp</span>
+          <span>{soldOut ? '💬 Inquire about Restock via WhatsApp' : '💬 Order / Inquire via WhatsApp'}</span>
         </button>
 
-        {/* Quantity + Note Price CTA */}
-        <div className="flex items-center gap-3 pt-2">
-          <div className="flex h-12 items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+        {/* Quantity + Note Price CTA OR Sold Out Banner */}
+        {soldOut ? (
+          <div className="rounded-2xl border border-rose-200 bg-rose-50/90 p-4 text-center dark:border-rose-900/60 dark:bg-rose-950/40 space-y-1">
+            <p className="text-xs font-black text-rose-800 dark:text-rose-300">
+              ⛔ Currently Sold Out
+            </p>
+            <p className="text-[11px] font-medium text-rose-700 dark:text-rose-400">
+              Please check with store staff for restock availability or send an inquiry via WhatsApp.
+            </p>
+          </div>
+        ) : (
+          <div className="flex items-center gap-3 pt-2">
+            <div className="flex h-12 items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+              <button
+                id="qty-minus"
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                className="text-slate-500 hover:text-red-500 transition-colors"
+              >
+                <Minus size={16} />
+              </button>
+              <span className="w-5 text-center font-bold text-sm text-slate-900 dark:text-zinc-100">
+                {quantity}
+              </span>
+              <button
+                id="qty-plus"
+                onClick={() => setQuantity((q) => q + 1)}
+                className="text-slate-500 hover:text-slate-900 dark:hover:text-zinc-100 transition-colors"
+              >
+                <Plus size={16} />
+              </button>
+            </div>
+
             <button
-              id="qty-minus"
-              onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-              className="text-slate-500 hover:text-red-500 transition-colors"
+              id="note-price-btn"
+              onClick={handleNotePrice}
+              disabled={alreadyNoted}
+              className={`flex flex-1 items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-black shadow-md transition-all active:scale-95 ${
+                alreadyNoted || noted
+                  ? 'bg-slate-900 text-white dark:bg-zinc-100 dark:text-zinc-900'
+                  : 'bg-[var(--lime-base)] text-black shadow-[var(--lime-base)]/25 hover:bg-[var(--lime-dark)]'
+              }`}
             >
-              <Minus size={16} />
-            </button>
-            <span className="w-5 text-center font-bold text-sm text-slate-900 dark:text-zinc-100">
-              {quantity}
-            </span>
-            <button
-              id="qty-plus"
-              onClick={() => setQuantity((q) => q + 1)}
-              className="text-slate-500 hover:text-slate-900 dark:hover:text-zinc-100 transition-colors"
-            >
-              <Plus size={16} />
+              {alreadyNoted ? (
+                <>
+                  <ClipboardCheck size={18} />
+                  Price Noted
+                </>
+              ) : noted ? (
+                <>
+                  <CheckCircle2 size={18} />
+                  Added!
+                </>
+              ) : (
+                <>
+                  <ClipboardList size={18} />
+                  {isRestaurant ? 'Note Menu Price' : 'Note Price'}
+                </>
+              )}
             </button>
           </div>
-
-          <button
-            id="note-price-btn"
-            onClick={handleNotePrice}
-            disabled={alreadyNoted}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-black shadow-md transition-all active:scale-95 ${
-              alreadyNoted || noted
-                ? 'bg-slate-900 text-white dark:bg-zinc-100 dark:text-zinc-900'
-                : 'bg-[var(--lime-base)] text-black shadow-[var(--lime-base)]/25 hover:bg-[var(--lime-dark)]'
-            }`}
-          >
-            {alreadyNoted ? (
-              <>
-                <ClipboardCheck size={18} />
-                Price Noted
-              </>
-            ) : noted ? (
-              <>
-                <CheckCircle2 size={18} />
-                Added!
-              </>
-            ) : (
-              <>
-                <ClipboardList size={18} />
-                {isRestaurant ? 'Note Menu Price' : 'Note Price'}
-              </>
-            )}
-          </button>
-        </div>
+        )}
 
         {/* View Price List link */}
-        {(noted || alreadyNoted) && (
+        {(noted || alreadyNoted) && !soldOut && (
           <Link
             href="/cart"
             className="block text-center text-xs font-black text-[var(--lime-dark)] underline pt-1"
