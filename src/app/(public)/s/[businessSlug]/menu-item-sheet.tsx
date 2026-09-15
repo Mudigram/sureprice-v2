@@ -17,6 +17,11 @@ import {
   Maximize2,
   ChevronLeft,
   ChevronRight,
+  Clock,
+  Scale,
+  Box,
+  ShieldCheck,
+  Info,
 } from 'lucide-react'
 import { BottomSheet } from '@/components/ui/bottom-sheet'
 import { useCart } from '@/context/CartContext'
@@ -25,6 +30,7 @@ import { getCategorySvgIcon } from '@/components/icons'
 import { ImageGalleryLightbox, type GalleryImage } from '@/components/storefront/image-gallery-lightbox'
 import { trackStorefrontEvent } from '@/features/analytics/actions'
 import { isItemSoldOut } from '@/lib/catalog/availability'
+import { parseItemAttributes } from '@/lib/catalog/attributes'
 
 interface Props {
   item: (StorefrontItem & { images?: GalleryImage[] }) | null
@@ -98,11 +104,8 @@ export function MenuItemSheet({ item, business, businessSlug, open, onClose }: P
   }
 
 
-  // Parse attributes
-  const attributes: { key: string; value: string }[] = (() => {
-    if (!item.attributes || typeof item.attributes !== 'object' || Array.isArray(item.attributes)) return []
-    return Object.entries(item.attributes as Record<string, string>).map(([key, value]) => ({ key, value }))
-  })()
+  // Parse attributes & badges
+  const { badges: itemBadges, specs: itemSpecs } = parseItemAttributes(item.attributes)
 
   const handleNotePrice = () => {
     trackStorefrontEvent({
@@ -339,21 +342,57 @@ export function MenuItemSheet({ item, business, businessSlug, open, onClose }: P
           </div>
         )}
 
-        {/* Attributes / Specifications */}
-        {attributes.filter(({ value }) => value && String(value).trim() !== '').length > 0 && (
+        {/* Highlights & Dietary Badges */}
+        {itemBadges.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+            {itemBadges.map((badge) => (
+              <span
+                key={badge.id}
+                className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-black border shadow-sm ${badge.colorClass}`}
+              >
+                {badge.emoji && <span className="text-xs">{badge.emoji}</span>}
+                <span>{badge.label}</span>
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Dynamic Specifications & Details Grid */}
+        {itemSpecs.length > 0 && (
           <div className="space-y-2">
-            <h4 className="text-sm font-black text-slate-900">
-              {attributesHeading}
+            <h4 className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+              <Info size={13} className="text-emerald-600" />
+              <span>{attributesHeading}</span>
             </h4>
-            <div className="divide-y divide-gray-100 rounded-2xl border border-gray-200 bg-white">
-              {attributes
-                .filter(({ value }) => value && String(value).trim() !== '')
-                .map(({ key, value }) => (
-                  <div key={key} className="flex items-baseline justify-between px-4 py-3 text-xs">
-                    <span className="font-medium text-slate-500">{key}</span>
-                    <span className="font-bold text-slate-900">{value}</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {itemSpecs.map((spec) => (
+                <div
+                  key={spec.key}
+                  className="flex items-start gap-2.5 rounded-2xl border border-gray-200/90 bg-slate-50/70 p-3"
+                >
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-white text-slate-600 shadow-sm border border-gray-100">
+                    {spec.iconType === 'clock' ? (
+                      <Clock size={13} />
+                    ) : spec.iconType === 'scale' ? (
+                      <Scale size={13} />
+                    ) : spec.iconType === 'shield' ? (
+                      <ShieldCheck size={13} />
+                    ) : spec.iconType === 'box' ? (
+                      <Box size={13} />
+                    ) : (
+                      <Info size={13} />
+                    )}
                   </div>
-                ))}
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                      {spec.label}
+                    </p>
+                    <p className="text-xs font-bold text-slate-900 mt-0.5 break-words">
+                      {spec.value}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
