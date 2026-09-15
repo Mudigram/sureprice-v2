@@ -24,6 +24,7 @@ import type { StorefrontItem, StorefrontBusiness } from '@/features/storefront/t
 import { getCategorySvgIcon } from '@/components/icons'
 import { ImageGalleryLightbox, type GalleryImage } from '@/components/storefront/image-gallery-lightbox'
 import { trackStorefrontEvent } from '@/features/analytics/actions'
+import { isItemSoldOut } from '@/lib/catalog/availability'
 
 interface Props {
   item: (StorefrontItem & { images?: GalleryImage[] }) | null
@@ -149,12 +150,19 @@ export function MenuItemSheet({ item, business, businessSlug, open, onClose }: P
     }
   }
 
+  const soldOut = isItemSoldOut(item.attributes)
   const isRestaurant = business.business_type === 'restaurant' || business.business_type === 'cafe'
   const isEvent = business.business_type === 'popup_vendor' || business.business_type === 'event_vendor'
 
   const itemTypeLabel = isRestaurant ? 'Digital Menu Item' : isEvent ? 'Event Stall Item' : 'Verified Store Item'
   const ItemTypeIcon = isRestaurant ? Utensils : isEvent ? Ticket : ShoppingBag
-  const priceLabel = isRestaurant ? 'Verified Menu Price' : isEvent ? 'Verified Stall Price' : 'Verified Shelf Price'
+  const priceLabel = soldOut
+    ? 'Last Listed Price (Sold Out)'
+    : isRestaurant
+    ? 'Verified Menu Price'
+    : isEvent
+    ? 'Verified Stall Price'
+    : 'Verified Shelf Price'
   const descriptionHeading = isRestaurant ? 'About this Item / Dish' : isEvent ? 'Product Details' : 'Product Description'
   const attributesHeading = isRestaurant ? 'Ingredients & Specifications' : 'Specifications & Details'
 
@@ -259,10 +267,16 @@ export function MenuItemSheet({ item, business, businessSlug, open, onClose }: P
 
         {/* Badge + Share Row */}
         <div className="flex items-center justify-between">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-900 border border-emerald-200">
-            <ItemTypeIcon size={13} />
-            {itemTypeLabel}
-          </span>
+          {soldOut ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-100 px-3 py-1 text-xs font-black text-rose-900 border border-rose-200">
+              🔴 Currently Sold Out
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-900 border border-emerald-200">
+              <ItemTypeIcon size={13} />
+              {itemTypeLabel}
+            </span>
+          )}
 
           <button
             onClick={handleShare}
@@ -293,20 +307,24 @@ export function MenuItemSheet({ item, business, businessSlug, open, onClose }: P
         </div>
 
         {/* Price Box */}
-        <div className="flex items-center justify-between rounded-2xl border border-gray-200 bg-slate-50 p-4">
+        <div className={`flex items-center justify-between rounded-2xl border p-4 ${
+          soldOut ? 'border-rose-200 bg-rose-50/40' : 'border-gray-200 bg-slate-50'
+        }`}>
           <div>
             <p className="text-xs font-bold text-slate-500">
               {priceLabel}
             </p>
             {item.base_price !== null ? (
-              <p className="text-3xl font-black text-slate-900 mt-0.5">
+              <p className={`text-3xl font-black mt-0.5 ${soldOut ? 'text-slate-500 line-through' : 'text-slate-900'}`}>
                 ₦{item.base_price.toLocaleString()}
               </p>
             ) : (
               <p className="text-lg font-bold text-slate-500">Price on request</p>
             )}
           </div>
-          <span className="flex h-3 w-3 rounded-full bg-[var(--lime-base)] shadow-[0_0_8px_var(--lime-base)]" />
+          <span className={`flex h-3 w-3 rounded-full ${
+            soldOut ? 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.6)]' : 'bg-[var(--lime-base)] shadow-[0_0_8px_var(--lime-base)]'
+          }`} />
         </div>
 
         {/* Description */}
@@ -354,7 +372,9 @@ export function MenuItemSheet({ item, business, businessSlug, open, onClose }: P
               ? new URLSearchParams(window.location.search).get('table')
               : null
             const tablePrefix = tableNum ? `Order for Table ${tableNum}: ` : ''
-            const text = `Hello ${business.name}, ${tablePrefix}I saw ${item.name}${item.base_price ? ` (₦${item.base_price.toLocaleString()})` : ''} on your Qarty product listing. I'd like to order or inquire!`
+            const text = soldOut
+              ? `Hello ${business.name}, ${tablePrefix}I saw ${item.name} is marked as Sold Out on your digital catalog. Will it be back in stock or available soon?`
+              : `Hello ${business.name}, ${tablePrefix}I saw ${item.name}${item.base_price ? ` (₦${item.base_price.toLocaleString()})` : ''} on your Qarty product listing. I'd like to order or inquire!`
             const phone = business.locations?.[0]?.phone ? business.locations[0].phone.replace(/[^0-9]/g, '') : ''
             const url = `${window.location.origin}/s/${businessSlug}/${item.id}`
             const waUrl = phone
@@ -364,61 +384,72 @@ export function MenuItemSheet({ item, business, businessSlug, open, onClose }: P
           }}
           className="flex items-center justify-center gap-2 w-full rounded-2xl border border-emerald-400/40 bg-emerald-50 py-3.5 text-sm font-black text-emerald-900 shadow-sm transition-all hover:bg-emerald-100 active:scale-95"
         >
-          <span>💬 Order / Inquire via WhatsApp</span>
+          <span>{soldOut ? '💬 Inquire about Restock via WhatsApp' : '💬 Order / Inquire via WhatsApp'}</span>
         </button>
 
-        {/* Quantity + Note CTA */}
-        <div className="flex items-center gap-3 pt-1">
-          <div className="flex h-14 items-center gap-4 rounded-2xl border border-gray-200 bg-white px-5 shadow-sm">
+        {/* Quantity + Note CTA OR Sold Out Card */}
+        {soldOut ? (
+          <div className="rounded-2xl border border-rose-200 bg-rose-50/90 p-4 text-center space-y-1">
+            <p className="text-xs font-black text-rose-800">
+              ⛔ Currently Sold Out
+            </p>
+            <p className="text-[11px] font-medium text-rose-700">
+              Please check with store staff or tap WhatsApp above for restock info.
+            </p>
+          </div>
+        ) : (
+          <div className="flex items-center gap-3 pt-1">
+            <div className="flex h-14 items-center gap-4 rounded-2xl border border-gray-200 bg-white px-5 shadow-sm">
+              <button
+                type="button"
+                onClick={() => setQuantity((q: number) => Math.max(1, q - 1))}
+                className="flex h-11 w-11 items-center justify-center text-slate-500 hover:text-red-500 transition-colors"
+                aria-label="Decrease quantity"
+              >
+                <Minus size={18} />
+              </button>
+              <span className="w-5 text-center font-black text-lg text-slate-900">
+                {quantity}
+              </span>
+              <button
+                type="button"
+                onClick={() => setQuantity((q: number) => q + 1)}
+                className="flex h-11 w-11 items-center justify-center text-slate-500 hover:text-slate-900 transition-colors"
+                aria-label="Increase quantity"
+              >
+                <Plus size={18} />
+              </button>
+            </div>
+
             <button
               type="button"
-              onClick={() => setQuantity((q: number) => Math.max(1, q - 1))}
-              className="flex h-11 w-11 items-center justify-center text-slate-500 hover:text-red-500 transition-colors"
-              aria-label="Decrease quantity"
+              onClick={handleNotePrice}
+              disabled={alreadyNoted}
+              className={`flex flex-1 items-center justify-center gap-2 rounded-2xl py-4 text-sm font-black shadow-md transition-all active:scale-95 ${
+                alreadyNoted || noted
+                  ? 'bg-slate-900 text-white'
+                  : 'bg-[var(--lime-base)] text-black shadow-[var(--lime-base)]/25 hover:bg-[var(--lime-dark)]'
+              }`}
             >
-              <Minus size={18} />
-            </button>
-            <span className="w-5 text-center font-black text-lg text-slate-900">
-              {quantity}
-            </span>
-            <button
-              type="button"
-              onClick={() => setQuantity((q: number) => q + 1)}
-              className="flex h-11 w-11 items-center justify-center text-slate-500 hover:text-slate-900 transition-colors"
-              aria-label="Increase quantity"
-            >
-              <Plus size={18} />
+              {alreadyNoted ? (
+                <>
+                  <ClipboardCheck size={18} />
+                  Price Noted
+                </>
+              ) : noted ? (
+                <>
+                  <CheckCircle2 size={18} />
+                  Added!
+                </>
+              ) : (
+                <>
+                  <ClipboardList size={18} />
+                  + Add to My List
+                </>
+              )}
             </button>
           </div>
-
-          <button
-            type="button"
-            onClick={handleNotePrice}
-            disabled={alreadyNoted}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-2xl py-4 text-sm font-black shadow-md transition-all active:scale-95 ${
-              alreadyNoted || noted
-                ? 'bg-slate-900 text-white'
-                : 'bg-[var(--lime-base)] text-black shadow-[var(--lime-base)]/25 hover:bg-[var(--lime-dark)]'
-            }`}
-          >
-            {alreadyNoted ? (
-              <>
-                <ClipboardCheck size={18} />
-                Price Noted
-              </>
-            ) : noted ? (
-              <>
-                <CheckCircle2 size={18} />
-                Added!
-              </>
-            ) : (
-              <>
-                <ClipboardList size={18} />
-                + Add to My List
-              </>
-            )}
-          </button>
-        </div>
+        )}
       </div>
     </BottomSheet>
   )

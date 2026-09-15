@@ -6,6 +6,7 @@ import { Plus, Minus, Trash2, Package } from 'lucide-react'
 import type { StorefrontItem } from '@/features/storefront/types'
 import { useCart } from '@/context/CartContext'
 import { getCategorySvgIcon } from '@/components/icons'
+import { isItemSoldOut } from '@/lib/catalog/availability'
 
 interface ProductRowProps {
   product: StorefrontItem
@@ -16,6 +17,7 @@ interface ProductRowProps {
 export function ProductRow({ product, businessSlug, businessName }: ProductRowProps) {
   const { addItem, removeItem, updateQuantity, isInList, getQuantity } = useCart()
 
+  const soldOut = isItemSoldOut(product.attributes)
   const inList = isInList(product.id)
   const quantity = getQuantity(product.id)
 
@@ -33,6 +35,7 @@ export function ProductRow({ product, businessSlug, businessName }: ProductRowPr
   const imageUrl = product.image_url ? resolveUrl(product.image_url) : null
 
   const handleToggle = () => {
+    if (soldOut) return
     if (inList) {
       removeItem(product.id)
     } else {
@@ -63,7 +66,9 @@ export function ProductRow({ product, businessSlug, businessName }: ProductRowPr
   return (
     <div
       className={`flex items-center gap-4 border-b p-4 last:border-0 transition-colors backdrop-blur-xl ${
-        inList
+        soldOut
+          ? 'border-slate-200/60 bg-slate-50/70 opacity-85 dark:border-slate-800/60 dark:bg-slate-900/60'
+          : inList
           ? 'border-emerald-500/30 bg-emerald-950/20 dark:border-emerald-900/40 dark:bg-emerald-950/30'
           : 'border-slate-200/80 bg-white hover:bg-slate-50/80 dark:border-slate-800/80 dark:bg-slate-900/90 dark:hover:bg-slate-850'
       }`}
@@ -73,11 +78,14 @@ export function ProductRow({ product, businessSlug, businessName }: ProductRowPr
         <input
           type="checkbox"
           checked={inList}
+          disabled={soldOut}
           onChange={handleToggle}
           id={`check-${product.id}`}
-          className="h-6 w-6 cursor-pointer rounded-lg border-2 border-slate-300 dark:border-slate-700 accent-[var(--lime-base)] transition-transform active:scale-95"
+          className={`h-6 w-6 rounded-lg border-2 border-slate-300 dark:border-slate-700 accent-[var(--lime-base)] transition-transform ${
+            soldOut ? 'cursor-not-allowed opacity-30' : 'cursor-pointer active:scale-95'
+          }`}
         />
-        {inList && (
+        {inList && !soldOut && (
           <span className="rounded-full border border-emerald-500/30 bg-emerald-950/80 px-2 py-0.5 text-[10px] font-black text-[var(--lime-base)] shadow-sm">
             {quantity}
           </span>
@@ -99,6 +107,13 @@ export function ProductRow({ product, businessSlug, businessName }: ProductRowPr
             {getCategorySvgIcon(product.category?.name ?? product.name, { size: 24 })}
           </div>
         )}
+        {soldOut && (
+          <div className="absolute inset-0 bg-slate-950/40 flex items-center justify-center">
+            <span className="bg-rose-600/90 text-white text-[8px] font-black px-1 py-0.5 rounded shadow">
+              OUT
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Name, SKU, date — links to detail view */}
@@ -107,9 +122,16 @@ export function ProductRow({ product, businessSlug, businessName }: ProductRowPr
         id={`product-row-link-${product.id}`}
         className="flex min-w-0 flex-1 flex-col gap-1"
       >
-        <h3 className="truncate text-sm font-black leading-tight text-slate-900 dark:text-white hover:text-emerald-600 dark:hover:text-[var(--lime-base)] transition-colors">
-          {product.name}
-        </h3>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <h3 className="truncate text-sm font-black leading-tight text-slate-900 dark:text-white hover:text-emerald-600 dark:hover:text-[var(--lime-base)] transition-colors">
+            {product.name}
+          </h3>
+          {soldOut && (
+            <span className="rounded bg-rose-100 px-1.5 py-0.5 text-[9px] font-black text-rose-800 border border-rose-200 dark:bg-rose-950 dark:text-rose-300 dark:border-rose-900">
+              Sold Out
+            </span>
+          )}
+        </div>
         <div className="flex items-center gap-2">
           {product.sku && (
             <span className="rounded bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 text-[10px] font-mono font-bold text-slate-600 dark:text-slate-400">
@@ -124,7 +146,7 @@ export function ProductRow({ product, businessSlug, businessName }: ProductRowPr
 
       {/* Right: Quantity controls when in list, or price display */}
       <div className="flex min-w-[85px] shrink-0 flex-col items-end gap-1">
-        {inList ? (
+        {!soldOut && inList ? (
           <div className="flex h-8 items-center overflow-hidden rounded-xl border border-emerald-500/40 bg-emerald-50 shadow-sm dark:border-emerald-800 dark:bg-emerald-950/80">
             <button
               onClick={() => handleQtyChange(quantity - 1)}
@@ -146,11 +168,15 @@ export function ProductRow({ product, businessSlug, businessName }: ProductRowPr
           </div>
         ) : (
           <div className="text-right">
-            <div className="text-base font-black text-slate-900 dark:text-white">
+            <div className={`text-base font-black ${
+              soldOut ? 'text-slate-400 line-through dark:text-slate-500' : 'text-slate-900 dark:text-white'
+            }`}>
               {product.base_price !== null ? `₦${product.base_price.toLocaleString()}` : '—'}
             </div>
-            <div className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-[var(--lime-base)]">
-              Verified Price
+            <div className={`text-[10px] font-black uppercase tracking-wider ${
+              soldOut ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-[var(--lime-base)]'
+            }`}>
+              {soldOut ? 'Sold Out' : 'Verified Price'}
             </div>
           </div>
         )}

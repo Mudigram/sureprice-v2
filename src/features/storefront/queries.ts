@@ -1,4 +1,4 @@
-import { createAnonClient } from '@/lib/supabase/server'
+import { createClient, createAnonClient } from '@/lib/supabase/server'
 import type { StorefrontBusiness, StorefrontItem, StorefrontItemDetail } from './types'
 
 /**
@@ -180,19 +180,27 @@ export async function getFeaturedCatalogItems(limit = 6): Promise<(StorefrontIte
 
 /**
  * Fetches the storefront configuration by business ID.
- * Used on the admin storefront settings page.
+ * Used on admin storefront and settings pages with authenticated client.
  */
 export async function getStorefrontByBusinessId(businessId: string) {
-  const supabase = createAnonClient()
+  try {
+    const supabase = await createClient()
 
-  const { data, error } = await supabase
-    .from('storefronts')
-    .select('*')
-    .eq('business_id', businessId)
-    .maybeSingle()
+    const { data, error } = await supabase
+      .from('storefronts')
+      .select('*')
+      .eq('business_id', businessId)
+      .maybeSingle()
 
-  if (error) throw error
-  return data
+    if (error) {
+      console.warn(`[getStorefrontByBusinessId] Warning for business ${businessId}:`, error.message)
+      return null
+    }
+    return data
+  } catch (err) {
+    console.warn(`[getStorefrontByBusinessId] Exception for business ${businessId}:`, err)
+    return null
+  }
 }
 
 

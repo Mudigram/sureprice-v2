@@ -93,7 +93,7 @@ export default async function StorefrontStudioPage({
             primary_color: typeof theme.primary_color === 'string' ? theme.primary_color : '#13ec5b',
             announcement_enabled: announcement?.enabled ?? false,
             announcement_text: announcement?.text ?? '',
-            whatsapp_phone: ordering?.whatsapp_phone ?? business.locations?.[0]?.phone ?? '',
+            whatsapp_phone: ordering?.whatsapp_phone ?? '',
             stall_number: typeof theme.stall_number === 'string' ? theme.stall_number : null,
             location_zone: typeof theme.location_zone === 'string' ? theme.location_zone : null,
             directions_landmark: typeof theme.directions_landmark === 'string' ? theme.directions_landmark : null,

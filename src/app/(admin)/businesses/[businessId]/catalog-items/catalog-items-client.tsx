@@ -24,6 +24,7 @@ import { WhatsAppStoryModal } from '@/features/marketing/components/whatsapp-sto
 import type { StorefrontBusiness, StorefrontItem } from '@/features/storefront/types'
 import { getCategorySvgIcon } from '@/components/icons'
 import { quickUpdateCatalogItem } from '@/features/catalog-items/actions'
+import { isItemSoldOut } from '@/lib/catalog/availability'
 
 interface CatalogItemsClientProps {
   business: StorefrontBusiness
@@ -265,7 +266,7 @@ export function CatalogItemsClient({ business, items }: CatalogItemsClientProps)
                                   <span>Featured</span>
                                 </span>
                               )}
-                              {(item.attributes as Record<string, unknown> | null)?.in_stock === false && (
+                              {isItemSoldOut(item.attributes) && (
                                 <span className="inline-flex items-center rounded-md bg-rose-50 px-1.5 py-0.5 text-[9px] font-extrabold text-rose-700 border border-rose-200">
                                   Sold Out
                                 </span>
@@ -363,18 +364,19 @@ export function CatalogItemsClient({ business, items }: CatalogItemsClientProps)
                             type="button"
                             onClick={async () => {
                               const attrs = (item.attributes && typeof item.attributes === 'object') ? { ...(item.attributes as Record<string, unknown>) } : {}
-                              const currentlyInStock = attrs.in_stock !== false
-                              attrs.in_stock = !currentlyInStock
+                              const currentlySoldOut = isItemSoldOut(attrs)
+                              attrs.is_sold_out = !currentlySoldOut
+                              attrs.in_stock = currentlySoldOut
                               await quickUpdateCatalogItem(item.id, business.id, { attributes: attrs })
                             }}
                             className={`rounded-lg px-2 py-1 text-[10px] font-bold border transition-colors ${
-                              (item.attributes as Record<string, unknown> | null)?.in_stock === false
+                              isItemSoldOut(item.attributes)
                                 ? 'border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100'
                                 : 'border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100'
                             }`}
                             title="Toggle Stock Availability"
                           >
-                            {(item.attributes as Record<string, unknown> | null)?.in_stock === false ? 'Mark In Stock' : 'In Stock'}
+                            {isItemSoldOut(item.attributes) ? '🔴 Sold Out (Tap to Restock)' : '🟢 In Stock'}
                           </button>
 
                           <button
