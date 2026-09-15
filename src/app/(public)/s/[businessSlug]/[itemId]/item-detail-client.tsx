@@ -21,13 +21,20 @@ import {
   Images,
   Maximize2,
   ArrowRight,
+  Clock,
+  Scale,
+  Box,
+  ShieldCheck,
+  Info,
 } from 'lucide-react'
 import { addToHistory } from '@/lib/storefront/local-storage'
 import { useCart } from '@/context/CartContext'
-import type { StorefrontBusiness, StorefrontItemDetail, AttributeEntry } from '@/features/storefront/types'
+import type { StorefrontBusiness, StorefrontItemDetail } from '@/features/storefront/types'
 import { getCategorySvgIcon, getBrandFallbackSvgIcon } from '@/components/icons'
 import { ImageGalleryLightbox } from '@/components/storefront/image-gallery-lightbox'
 import { trackStorefrontEvent } from '@/features/analytics/actions'
+import { isItemSoldOut } from '@/lib/catalog/availability'
+import { parseItemAttributes } from '@/lib/catalog/attributes'
 
 // Generate deterministic sparkline data for 30-day trend
 function generateTrend(basePrice: number): number[] {
@@ -37,8 +44,6 @@ function generateTrend(basePrice: number): number[] {
     return Math.max(0, basePrice + variance)
   })
 }
-
-import { isItemSoldOut } from '@/lib/catalog/availability'
 
 interface Props {
   item: StorefrontItemDetail
@@ -61,12 +66,7 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
   const isEvent = business.business_type === 'popup_vendor' || business.business_type === 'event_vendor'
   const isRetail = business.business_type === 'retail'
   const soldOut = isItemSoldOut(item.attributes)
-
-  // Parse attributes
-  const attributes: AttributeEntry[] = (() => {
-    if (!item.attributes || typeof item.attributes !== 'object' || Array.isArray(item.attributes)) return []
-    return Object.entries(item.attributes as Record<string, string>).map(([key, value]) => ({ key, value }))
-  })()
+  const { badges: itemBadges, specs: itemSpecs } = parseItemAttributes(item.attributes)
 
   const images = item.images
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
@@ -371,17 +371,55 @@ export function ItemDetailClient({ item, business, businessSlug }: Props) {
           </div>
         )}
 
-        {/* Dynamic Attributes Table */}
-        {attributes.length > 0 && (
-          <div className="space-y-2">
-            <h3 className="text-sm font-black text-slate-900 dark:text-zinc-100">
-              {isRestaurant ? 'Ingredients & Composition' : 'Specifications & Details'}
+        {/* Highlights & Dietary Badges */}
+        {itemBadges.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+            {itemBadges.map((badge) => (
+              <span
+                key={badge.id}
+                className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-black border shadow-sm ${badge.colorClass}`}
+              >
+                {badge.emoji && <span className="text-xs">{badge.emoji}</span>}
+                <span>{badge.label}</span>
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Dynamic Specifications & Details Grid */}
+        {itemSpecs.length > 0 && (
+          <div className="space-y-2.5">
+            <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 dark:text-zinc-500 flex items-center gap-1.5">
+              <Info size={13} className="text-emerald-600 dark:text-[var(--lime-base)]" />
+              <span>{isRestaurant ? 'Dish Details & Ingredients' : 'Specifications & Details'}</span>
             </h3>
-            <div className="divide-y divide-gray-100 rounded-2xl border border-gray-200/80 bg-white dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-900">
-              {attributes.map(({ key, value }) => (
-                <div key={key} className="flex items-baseline justify-between px-4 py-3 text-xs">
-                  <span className="font-medium text-slate-500 dark:text-zinc-400">{key}</span>
-                  <span className="font-bold text-slate-900 dark:text-zinc-100">{value}</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {itemSpecs.map((spec) => (
+                <div
+                  key={spec.key}
+                  className="flex items-start gap-3 rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-sm dark:border-zinc-800/80 dark:bg-zinc-900"
+                >
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600 dark:bg-zinc-800 dark:text-zinc-300">
+                    {spec.iconType === 'clock' ? (
+                      <Clock size={15} />
+                    ) : spec.iconType === 'scale' ? (
+                      <Scale size={15} />
+                    ) : spec.iconType === 'shield' ? (
+                      <ShieldCheck size={15} />
+                    ) : spec.iconType === 'box' ? (
+                      <Box size={15} />
+                    ) : (
+                      <Info size={15} />
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-zinc-500">
+                      {spec.label}
+                    </p>
+                    <p className="text-xs font-bold text-slate-900 dark:text-zinc-100 mt-0.5 break-words">
+                      {spec.value}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
