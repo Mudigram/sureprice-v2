@@ -81,6 +81,7 @@ export function ProductRow({ product, businessSlug, businessName }: ProductRowPr
           disabled={soldOut}
           onChange={handleToggle}
           id={`check-${product.id}`}
+          aria-label={inList ? `Remove ${product.name} from list` : `Add ${product.name} to list`}
           className={`h-6 w-6 rounded-lg border-2 border-slate-300 dark:border-slate-700 accent-[var(--lime-base)] transition-transform ${
             soldOut ? 'cursor-not-allowed opacity-30' : 'cursor-pointer active:scale-95'
           }`}
@@ -151,6 +152,7 @@ export function ProductRow({ product, businessSlug, businessName }: ProductRowPr
             <button
               onClick={() => handleQtyChange(quantity - 1)}
               id={`dec-qty-${product.id}`}
+              aria-label={quantity === 1 ? `Remove ${product.name} from list` : `Decrease quantity of ${product.name}`}
               className="px-2.5 text-emerald-700 transition-colors hover:text-rose-500 dark:text-emerald-300"
             >
               {quantity === 1 ? <Trash2 size={13} className="text-rose-500" /> : <Minus size={13} />}
@@ -161,6 +163,7 @@ export function ProductRow({ product, businessSlug, businessName }: ProductRowPr
             <button
               onClick={() => handleQtyChange(quantity + 1)}
               id={`inc-qty-${product.id}`}
+              aria-label={`Increase quantity of ${product.name}`}
               className="px-2.5 text-emerald-700 transition-colors hover:text-emerald-900 dark:text-emerald-300"
             >
               <Plus size={13} />
