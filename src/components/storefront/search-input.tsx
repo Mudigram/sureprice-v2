@@ -33,6 +33,7 @@ export function SearchInput({ placeholder = 'Search…', value, onChange }: Sear
         placeholder={placeholder}
         value={current}
         onChange={(e) => handleChange(e.target.value)}
+        aria-label={placeholder || "Search items"}
         className="w-full rounded-xl border border-[var(--lime-base)]/40 bg-[var(--lime-base)]/8 py-3 pl-10 pr-10 text-sm text-foreground placeholder:text-muted-foreground focus:border-[var(--lime-base)] focus:outline-none focus:ring-2 focus:ring-[var(--lime-base)]/20"
       />
       {current && (

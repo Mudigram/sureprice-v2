@@ -48,6 +48,7 @@ export function HomeSearchBar() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search dishes, items, or stores (e.g. Suya, Jollof, Bistro)..."
+          aria-label="Search dishes, items, or stores"
           className="w-full rounded-2xl border border-slate-200 bg-white py-3 pl-11 pr-24 text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-white dark:placeholder:text-slate-500 transition-colors"
         />
         <button
