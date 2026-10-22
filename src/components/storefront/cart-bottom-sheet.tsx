@@ -212,7 +212,7 @@ export function CartBottomSheet({ isOpen, onClose }: CartBottomSheetProps) {
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
                         className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors active:scale-95"
-                        aria-label="Decrease quantity"
+                        aria-label={item.quantity === 1 ? `Remove ${item.name} from list` : `Decrease quantity of ${item.name}`}
                       >
                         {item.quantity === 1 ? <Trash2 size={13} className="text-rose-600" /> : <Minus size={13} />}
                       </button>
@@ -222,7 +222,7 @@ export function CartBottomSheet({ isOpen, onClose }: CartBottomSheetProps) {
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
                         className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--lime-base)] text-black font-extrabold transition-transform active:scale-95 hover:bg-[var(--lime-dark)]"
-                        aria-label="Increase quantity"
+                        aria-label={`Increase quantity of ${item.name}`}
                       >
                         <Plus size={13} />
                       </button>

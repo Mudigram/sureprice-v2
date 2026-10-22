@@ -30,6 +30,7 @@ export function SearchInput({ placeholder = 'Search…', value, onChange }: Sear
       <input
         id={id}
         type="search"
+        aria-label={placeholder || 'Search'}
         placeholder={placeholder}
         value={current}
         onChange={(e) => handleChange(e.target.value)}
