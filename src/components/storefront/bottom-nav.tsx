@@ -21,7 +21,8 @@ export function BottomNav() {
 
   return (
     /* Outer wrapper: centres the pill, handles scroll transition and safe-area spacing */
-    <div
+    <nav
+      aria-label="Main Navigation"
       className={`fixed bottom-4 left-0 right-0 z-50 flex justify-center px-5 transition-all duration-300 ease-in-out transform ${
         isVisible ? 'translate-y-0 opacity-100' : 'translate-y-[200px] opacity-0 pointer-events-none'
       }`}
@@ -41,12 +42,18 @@ export function BottomNav() {
           return (
             <div key={item.name} className="contents">
               {/* Centre gap for the ScanButton */}
-              {index === 2 && <div className="w-14 shrink-0" />}
+              {index === 2 && <div className="w-14 shrink-0" aria-hidden="true" />}
 
               <Link
                 href={item.href}
                 id={`nav-${item.name.toLowerCase()}`}
-                className={`relative flex flex-col items-center gap-0.5 min-w-[52px] py-1 transition-all active:scale-95 ${
+                aria-current={isActive ? 'page' : undefined}
+                aria-label={
+                  isListTab && totalCount > 0
+                    ? `List, ${totalCount} ${totalCount === 1 ? 'item' : 'items'}`
+                    : item.name
+                }
+                className={`relative flex flex-col items-center gap-0.5 min-w-[52px] py-1 rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:focus-visible:ring-[var(--lime-base)] active:scale-95 ${
                   isActive ? 'opacity-100' : 'opacity-50 hover:opacity-85'
                 }`}
               >
@@ -54,11 +61,15 @@ export function BottomNav() {
                   <Icon
                     size={22}
                     strokeWidth={isActive ? 2.5 : 1.8}
+                    aria-hidden="true"
                     className={isActive ? 'text-emerald-600 dark:text-[var(--lime-base)]' : 'text-slate-700 dark:text-slate-300'}
                   />
                   {/* Live badge on List tab */}
                   {isListTab && totalCount > 0 && (
-                    <span className="absolute -right-2 -top-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[var(--lime-base)] px-1 text-[9px] font-black text-black shadow-sm">
+                    <span
+                      aria-hidden="true"
+                      className="absolute -right-2 -top-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[var(--lime-base)] px-1 text-[9px] font-black text-black shadow-sm"
+                    >
                       {totalCount > 99 ? '99+' : totalCount}
                     </span>
                   )}
@@ -75,7 +86,7 @@ export function BottomNav() {
           )
         })}
       </div>
-    </div>
+    </nav>
   )
 }
 
