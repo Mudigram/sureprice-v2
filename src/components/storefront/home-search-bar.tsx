@@ -48,6 +48,7 @@ export function HomeSearchBar() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search dishes, items, or stores (e.g. Suya, Jollof, Bistro)..."
+          aria-label="Search dishes, items, or stores"
           className="w-full rounded-2xl border border-slate-200 bg-white py-3 pl-11 pr-24 text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-white dark:placeholder:text-slate-500 transition-colors"
         />
         <button
@@ -70,6 +71,8 @@ export function HomeSearchBar() {
               key={area.value}
               type="button"
               onClick={() => handleAreaClick(area.value)}
+              aria-pressed={isSelected}
+              aria-label={`Filter stores by ${area.name}`}
               className={`shrink-0 rounded-full px-3 py-1 text-[11px] font-bold transition-all ${
                 isSelected
                   ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800'
