@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { Store as StoreIcon, Search, Clock, RotateCcw } from 'lucide-react'
+import { Store as StoreIcon, Search, Clock, RotateCcw, X } from 'lucide-react'
 import { StoreCard } from '@/components/storefront/store-card'
 import { computeIsOpen, type StorefrontBusiness, type WeeklyOperatingHours, type StatusOverride } from '@/features/storefront/types'
 
@@ -86,8 +86,9 @@ export function StoresClient({ businesses }: StoresClientProps) {
         {/* Search Input */}
         <div className="relative">
           <Search
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500"
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 pointer-events-none"
             size={18}
+            aria-hidden="true"
           />
           <input
             type="text"
@@ -95,24 +96,37 @@ export function StoresClient({ businesses }: StoresClientProps) {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             id="store-search-input"
-            className="h-12 w-full rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/90 pl-11 pr-4 text-xs font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-[var(--lime-base)] focus:outline-none focus:ring-1 focus:ring-[var(--lime-base)] shadow-sm transition-all"
+            aria-label="Search stores by name, venue type, or location"
+            className="h-12 w-full rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/90 pl-11 pr-10 text-xs font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-[var(--lime-base)] focus:outline-none focus:ring-1 focus:ring-[var(--lime-base)] shadow-sm transition-all"
           />
+          {search && (
+            <button
+              type="button"
+              onClick={() => setSearch('')}
+              aria-label="Clear search query"
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+            >
+              <X size={16} aria-hidden="true" />
+            </button>
+          )}
         </div>
 
         {/* Venue Filter Pills + Open Now Toggle */}
         <div className="relative">
-          <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar pr-6">
+          <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar pr-6" role="group" aria-label="Store filters">
             {/* Open Now Toggle Chip */}
             <button
               id="filter-open-now"
+              type="button"
               onClick={() => setOpenOnly(!openOnly)}
+              aria-pressed={openOnly}
               className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-extrabold transition-all active:scale-95 border ${
                 openOnly
                   ? 'bg-emerald-500/15 text-emerald-700 border-emerald-300 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/40 shadow-sm'
                   : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
               }`}
             >
-              <span className={`h-2 w-2 rounded-full ${openOnly ? 'bg-emerald-500 dark:bg-emerald-400 animate-pulse' : 'bg-slate-400'}`} />
+              <span className={`h-2 w-2 rounded-full ${openOnly ? 'bg-emerald-500 dark:bg-emerald-400 animate-pulse' : 'bg-slate-400'}`} aria-hidden="true" />
               Open Now
             </button>
 
@@ -123,7 +137,9 @@ export function StoresClient({ businesses }: StoresClientProps) {
                 <button
                   key={filter.value}
                   id={`filter-${filter.value}`}
+                  type="button"
                   onClick={() => setSelectedType(filter.value)}
+                  aria-pressed={isSelected}
                   className={`whitespace-nowrap rounded-full px-4 py-2 text-xs font-extrabold transition-all active:scale-95 border ${
                     isSelected
                       ? 'bg-[var(--lime-base)] text-black border-[var(--lime-base)] shadow-md shadow-[var(--lime-base)]/25'
@@ -162,7 +178,7 @@ export function StoresClient({ businesses }: StoresClientProps) {
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-8 text-center my-4 shadow-sm">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-900 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-800 mb-3">
-            <StoreIcon size={28} />
+            <StoreIcon size={28} aria-hidden="true" />
           </div>
           <p className="text-base font-extrabold text-slate-900 dark:text-white">
             No matching stores found
@@ -171,10 +187,11 @@ export function StoresClient({ businesses }: StoresClientProps) {
             Try adjusting your search terms or turning off the "Open Now" filter.
           </p>
           <button
+            type="button"
             onClick={handleResetFilters}
             className="mt-4 flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-900 px-4 py-2 text-xs font-extrabold text-slate-700 dark:text-white transition-all hover:bg-slate-200 dark:hover:bg-slate-800 active:scale-95"
           >
-            <RotateCcw size={13} />
+            <RotateCcw size={13} aria-hidden="true" />
             Reset All Filters
           </button>
         </div>
