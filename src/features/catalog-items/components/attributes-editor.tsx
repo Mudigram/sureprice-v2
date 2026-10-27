@@ -43,6 +43,8 @@ export function AttributesEditor({
           <button
             type="button"
             onClick={() => togglePreset('special', isSpecial)}
+            aria-pressed={isSpecial}
+            aria-label="Today's Special badge"
             className={`inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-extrabold transition-all border ${
               isSpecial
                 ? 'bg-rose-500 text-white border-rose-600 shadow-sm shadow-rose-500/20'
@@ -56,6 +58,8 @@ export function AttributesEditor({
           <button
             type="button"
             onClick={() => togglePreset('bestseller', isBestseller)}
+            aria-pressed={isBestseller}
+            aria-label="Bestseller badge"
             className={`inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-extrabold transition-all border ${
               isBestseller
                 ? 'bg-amber-500 text-black border-amber-600 shadow-sm shadow-amber-500/20'
@@ -69,6 +73,8 @@ export function AttributesEditor({
           <button
             type="button"
             onClick={() => togglePreset('limited', isLimited)}
+            aria-pressed={isLimited}
+            aria-label="Limited Drop badge"
             className={`inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-extrabold transition-all border ${
               isLimited
                 ? 'bg-purple-600 text-white border-purple-700 shadow-sm shadow-purple-500/20'
@@ -82,6 +88,8 @@ export function AttributesEditor({
           <button
             type="button"
             onClick={() => togglePreset('spicy', isSpicy)}
+            aria-pressed={isSpicy}
+            aria-label="Spicy badge"
             className={`inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-extrabold transition-all border ${
               isSpicy
                 ? 'bg-rose-600 text-white border-rose-700 shadow-sm shadow-rose-600/20'
@@ -94,6 +102,8 @@ export function AttributesEditor({
           <button
             type="button"
             onClick={() => togglePreset('vegetarian', isVeg)}
+            aria-pressed={isVeg}
+            aria-label="Vegetarian badge"
             className={`inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-extrabold transition-all border ${
               isVeg
                 ? 'bg-emerald-600 text-white border-emerald-700 shadow-sm shadow-emerald-600/20'
@@ -130,6 +140,7 @@ export function AttributesEditor({
               <button
                 type="button"
                 onClick={() => remove(index)}
+                aria-label={`Remove attribute ${field.key || index + 1}`}
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 dark:border-rose-900/50 dark:bg-rose-950/40 dark:text-rose-400 transition-colors"
                 title="Remove Attribute"
               >
