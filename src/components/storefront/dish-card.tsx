@@ -102,7 +102,19 @@ export function DishCard({
   return (
     <div
       onClick={onOpenSheet}
-      className={`group relative flex flex-row items-center gap-3.5 overflow-hidden rounded-2xl border p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md cursor-pointer active:scale-[0.98] ${
+      onKeyDown={(e) => {
+        if (e.target !== e.currentTarget) return
+        if (onOpenSheet && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault()
+          onOpenSheet()
+        }
+      }}
+      role={onOpenSheet ? 'button' : undefined}
+      tabIndex={onOpenSheet ? 0 : undefined}
+      aria-label={onOpenSheet ? `View details for ${product.name}` : undefined}
+      className={`group relative flex flex-row items-center gap-3.5 overflow-hidden rounded-2xl border p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 ${
+        onOpenSheet ? 'cursor-pointer' : ''
+      } ${
         soldOut
           ? 'border-slate-200 bg-slate-50/60 opacity-85 hover:border-slate-300'
           : inList
@@ -181,8 +193,8 @@ export function DishCard({
               <button
                 type="button"
                 onClick={(e) => handleQtyChange(e, quantity - 1)}
-                className="flex h-11 w-11 items-center justify-center text-emerald-700 hover:text-rose-600 transition-colors"
-                aria-label="Decrease quantity"
+                className="flex h-11 w-11 items-center justify-center text-emerald-700 hover:text-rose-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                aria-label={quantity === 1 ? `Remove ${product.name} from list` : `Decrease quantity of ${product.name}`}
               >
                 {quantity === 1 ? <Trash2 size={13} className="text-rose-500" /> : <Minus size={13} />}
               </button>
@@ -192,8 +204,8 @@ export function DishCard({
               <button
                 type="button"
                 onClick={(e) => handleQtyChange(e, quantity + 1)}
-                className="flex h-11 w-11 items-center justify-center text-emerald-700 hover:text-emerald-900 transition-colors"
-                aria-label="Increase quantity"
+                className="flex h-11 w-11 items-center justify-center text-emerald-700 hover:text-emerald-900 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                aria-label={`Increase quantity of ${product.name}`}
               >
                 <Plus size={13} />
               </button>
@@ -203,7 +215,8 @@ export function DishCard({
             <button
               type="button"
               onClick={handleToggleCart}
-              className="flex items-center overflow-hidden rounded-xl bg-[var(--lime-base)] text-black shadow-sm transition-all hover:bg-[var(--lime-dark)] active:scale-[0.97]"
+              aria-label={`Add ${product.name} to list`}
+              className="flex items-center overflow-hidden rounded-xl bg-[var(--lime-base)] text-black shadow-sm transition-all hover:bg-[var(--lime-dark)] active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
             >
               {/* Left Price Half */}
               <span className="px-2.5 py-2 text-xs font-black bg-black/8">
