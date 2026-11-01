@@ -115,6 +115,9 @@ export function CartBottomSheet({ isOpen, onClose }: CartBottomSheetProps) {
 
       {/* Sheet Container */}
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="cart-sheet-title"
         className="relative z-10 flex max-h-[85vh] w-full flex-col rounded-t-[28px] border-t border-slate-200 bg-white text-slate-900 p-5 shadow-2xl animate-in slide-in-from-bottom duration-300 max-w-lg mx-auto"
         style={{ paddingBottom: 'calc(1.25rem + env(safe-area-inset-bottom))' }}
       >
@@ -128,7 +131,7 @@ export function CartBottomSheet({ isOpen, onClose }: CartBottomSheetProps) {
               <ShoppingBag size={18} />
             </div>
             <div className="min-w-0">
-              <h2 className="truncate text-base font-black text-slate-900">
+              <h2 id="cart-sheet-title" className="truncate text-base font-black text-slate-900">
                 {currentBusinessSlug && activeStoreItems.length > 0
                   ? activeStoreName
                   : 'My Price List'}
@@ -163,6 +166,7 @@ export function CartBottomSheet({ isOpen, onClose }: CartBottomSheetProps) {
                   {activeStoreItems.length > 0 && (
                     <button
                       onClick={() => clearStoreItems(currentBusinessSlug)}
+                      aria-label={`Clear items for ${activeStoreName}`}
                       className="text-[11px] font-semibold text-rose-600 hover:underline transition-colors"
                     >
                       Clear Store
@@ -212,7 +216,7 @@ export function CartBottomSheet({ isOpen, onClose }: CartBottomSheetProps) {
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
                         className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors active:scale-95"
-                        aria-label="Decrease quantity"
+                        aria-label={item.quantity === 1 ? `Remove ${item.name} from list` : `Decrease quantity of ${item.name}`}
                       >
                         {item.quantity === 1 ? <Trash2 size={13} className="text-rose-600" /> : <Minus size={13} />}
                       </button>
@@ -222,7 +226,7 @@ export function CartBottomSheet({ isOpen, onClose }: CartBottomSheetProps) {
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
                         className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--lime-base)] text-black font-extrabold transition-transform active:scale-95 hover:bg-[var(--lime-dark)]"
-                        aria-label="Increase quantity"
+                        aria-label={`Increase quantity of ${item.name}`}
                       >
                         <Plus size={13} />
                       </button>
@@ -244,6 +248,7 @@ export function CartBottomSheet({ isOpen, onClose }: CartBottomSheetProps) {
             <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden">
               <button
                 onClick={() => setShowOtherStores(!showOtherStores)}
+                aria-expanded={showOtherStores}
                 className="flex w-full items-center justify-between p-3 text-left transition-colors hover:bg-slate-100"
               >
                 <div className="flex items-center gap-2 min-w-0">
@@ -276,6 +281,7 @@ export function CartBottomSheet({ isOpen, onClose }: CartBottomSheetProps) {
                             <span>₦{storeGroup.total.toLocaleString()}</span>
                             <button
                               onClick={() => clearStoreItems(storeGroup.slug)}
+                              aria-label={`Clear items for ${storeGroup.name}`}
                               className="text-rose-600 hover:underline"
                             >
                               Clear
