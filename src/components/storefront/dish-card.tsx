@@ -182,7 +182,7 @@ export function DishCard({
                 type="button"
                 onClick={(e) => handleQtyChange(e, quantity - 1)}
                 className="flex h-11 w-11 items-center justify-center text-emerald-700 hover:text-rose-600 transition-colors"
-                aria-label="Decrease quantity"
+                aria-label={quantity === 1 ? `Remove ${product.name} from list` : `Decrease quantity of ${product.name}`}
               >
                 {quantity === 1 ? <Trash2 size={13} className="text-rose-500" /> : <Minus size={13} />}
               </button>
@@ -193,7 +193,7 @@ export function DishCard({
                 type="button"
                 onClick={(e) => handleQtyChange(e, quantity + 1)}
                 className="flex h-11 w-11 items-center justify-center text-emerald-700 hover:text-emerald-900 transition-colors"
-                aria-label="Increase quantity"
+                aria-label={`Increase quantity of ${product.name}`}
               >
                 <Plus size={13} />
               </button>
@@ -203,6 +203,7 @@ export function DishCard({
             <button
               type="button"
               onClick={handleToggleCart}
+              aria-label={`Add ${product.name} to list`}
               className="flex items-center overflow-hidden rounded-xl bg-[var(--lime-base)] text-black shadow-sm transition-all hover:bg-[var(--lime-dark)] active:scale-[0.97]"
             >
               {/* Left Price Half */}
