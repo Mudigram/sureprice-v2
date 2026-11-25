@@ -27,7 +27,12 @@ import {
   CreditCard,
   ExternalLink,
   Sparkles,
+  Calendar,
+  Scissors,
+  ShieldCheck,
 } from 'lucide-react'
+import type { Service } from '@/features/bookings/types'
+import { BookingSheet } from '@/features/bookings/components/booking-sheet'
 import { SearchInput } from '@/components/storefront/search-input'
 import { ProductRow } from '@/components/storefront/product-row'
 import { MenuItemSheet } from './menu-item-sheet'
@@ -85,16 +90,22 @@ interface Props {
   business: StorefrontBusiness
   items: StorefrontItem[]
   businessSlug: string
+  services?: Service[]
 }
 
-export function StoreDetailClient({ business, items, businessSlug }: Props) {
+export function StoreDetailClient({ business, items, businessSlug, services }: Props) {
+  const hasServices = Boolean(services && services.length > 0)
+  const defaultTab = items.length === 0 && hasServices ? 'services' : 'menu'
+
   const [search, setSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'menu' | 'about'>('menu')
+  const [activeTab, setActiveTab] = useState<'menu' | 'services' | 'about'>(defaultTab)
   const [selectedItem, setSelectedItem] = useState<StorefrontItem | null>(null)
   const [copiedLink, setCopiedLink] = useState(false)
   const [copiedAcc, setCopiedAcc] = useState(false)
   const [hoursExpanded, setHoursExpanded] = useState(false)
+  const [isBookingSheetOpen, setIsBookingSheetOpen] = useState(false)
+  const [bookingInitialService, setBookingInitialService] = useState<Service | null>(null)
   const { isInList, totalCount } = useCart()
 
   const isRestaurant = business.business_type === 'restaurant' || business.business_type === 'cafe'
@@ -445,6 +456,20 @@ export function StoreDetailClient({ business, items, businessSlug }: Props) {
                   <span>Chat</span>
                 </a>
               )}
+
+              {hasServices && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setBookingInitialService(services?.[0] || null)
+                    setIsBookingSheetOpen(true)
+                  }}
+                  className="flex shrink-0 items-center gap-1.5 rounded-full bg-slate-900 px-3 py-1.5 text-xs font-black text-white shadow-md active:scale-95 transition-all"
+                >
+                  <Calendar size={13} className="text-emerald-400" />
+                  <span>Book</span>
+                </button>
+              )}
             </div>
 
             {/* Address & Stall Location Row */}
@@ -471,19 +496,35 @@ export function StoreDetailClient({ business, items, businessSlug }: Props) {
             )}
           </div>
 
-          {/* Segmented Tab Selector [ Menu/Catalog | About ] — Available for all business types */}
+          {/* Segmented Tab Selector [ Menu/Catalog | Services | About ] — Available for all business types */}
           <div className="mt-4 flex rounded-2xl bg-slate-200/80 p-1 border border-slate-200">
-            <button
-              type="button"
-              onClick={() => setActiveTab('menu')}
-              className={`flex-1 rounded-xl py-2.5 text-xs font-black transition-all ${
-                activeTab === 'menu'
-                  ? 'bg-emerald-600 text-white shadow-md'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              {isRestaurant ? 'Menu' : 'Catalog'}
-            </button>
+            {items.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setActiveTab('menu')}
+                className={`flex-1 rounded-xl py-2.5 text-xs font-black transition-all ${
+                  activeTab === 'menu'
+                    ? 'bg-emerald-600 text-white shadow-md'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                {isRestaurant ? 'Menu' : 'Catalog'}
+              </button>
+            )}
+            {hasServices && (
+              <button
+                type="button"
+                onClick={() => setActiveTab('services')}
+                className={`flex-1 rounded-xl py-2.5 text-xs font-black transition-all flex items-center justify-center gap-1 ${
+                  activeTab === 'services'
+                    ? 'bg-emerald-600 text-white shadow-md'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <Scissors size={12} />
+                <span>Services ({services?.length})</span>
+              </button>
+            )}
             <button
               type="button"
               onClick={() => setActiveTab('about')}
@@ -837,6 +878,93 @@ export function StoreDetailClient({ business, items, businessSlug }: Props) {
                 </button>
               </div>
             </div>
+          ) : activeTab === 'services' && hasServices ? (
+            /* ─── SERVICES & APPOINTMENTS TAB VIEW ─────────────────────────── */
+            <div className="space-y-4 pb-8">
+              {/* Header Banner */}
+              <div className="rounded-3xl bg-slate-900 text-white p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-400 uppercase tracking-wider mb-1">
+                    <Calendar size={13} /> Direct Appointment Booking
+                  </span>
+                  <h3 className="text-lg font-black tracking-tight text-white">
+                    Book with {business.name}
+                  </h3>
+                  <p className="text-xs text-slate-300 mt-1 max-w-sm">
+                    Select any service below to view open dates, choose your time slot, and confirm directly on WhatsApp.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setBookingInitialService(services?.[0] || null)
+                    setIsBookingSheetOpen(true)
+                  }}
+                  className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-white font-bold text-xs shadow-md transition-all shrink-0"
+                >
+                  <Calendar size={14} />
+                  <span>Book an Appointment</span>
+                </button>
+              </div>
+
+              {/* Services List Cards */}
+              <div className="space-y-3">
+                {services?.map((svc) => (
+                  <div
+                    key={svc.id}
+                    className="rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-sm hover:border-slate-300 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                  >
+                    <div className="space-y-2 min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h4 className="text-base font-black text-slate-900">{svc.name}</h4>
+                        <span className="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-lg flex items-center gap-1">
+                          <Clock size={11} /> {svc.duration_minutes} mins
+                        </span>
+                      </div>
+
+                      {svc.description && (
+                        <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                          {svc.description}
+                        </p>
+                      )}
+
+                      <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
+                        <span className="font-black text-base text-slate-900">
+                          {new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(svc.price)}
+                        </span>
+
+                        {svc.requires_deposit && (
+                          <span className="text-[11px] font-semibold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/80 flex items-center gap-1">
+                            <ShieldCheck size={11} />
+                            Deposit: {new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(svc.deposit_amount || 0)}
+                          </span>
+                        )}
+
+                        {svc.addons && svc.addons.length > 0 && (
+                          <span className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md flex items-center gap-1">
+                            <Sparkles size={11} />
+                            {svc.addons.length} Add-on option{svc.addons.length > 1 ? 's' : ''}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setBookingInitialService(svc)
+                        setIsBookingSheetOpen(true)
+                      }}
+                      className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition-all shadow-sm flex items-center justify-center gap-1.5 shrink-0"
+                    >
+                      <span>Book Slot</span>
+                      <ArrowRight size={13} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
           ) : (
             /* ─── MENU TAB VIEW ─────────────────────────────────────────── */
             <>
@@ -992,6 +1120,20 @@ export function StoreDetailClient({ business, items, businessSlug }: Props) {
           )}
         </div>
       </div>
+
+      {/* Client Booking Bottom Sheet */}
+      {hasServices && (
+        <BookingSheet
+          isOpen={isBookingSheetOpen}
+          onClose={() => setIsBookingSheetOpen(false)}
+          businessId={business.id}
+          businessName={business.name}
+          businessSlug={businessSlug}
+          whatsappNumber={phoneNumber}
+          services={services || []}
+          initialSelectedService={bookingInitialService}
+        />
+      )}
     </>
   )
 }

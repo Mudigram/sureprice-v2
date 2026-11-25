@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getStorefrontBusiness, getStorefrontItems } from '@/features/storefront/queries'
+import { getBusinessServices } from '@/features/bookings/queries'
 import { StoreDetailClient } from './store-detail-client'
 
 export const revalidate = 60
@@ -77,6 +78,7 @@ export default async function StorefrontPage({ params }: Props) {
   }
 
   const items = await getStorefrontItems(business.id)
+  const services = await getBusinessServices(business.id)
 
   const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://qarty.ng'
   const storeUrl = `${siteUrl}/s/${businessSlug}`
@@ -122,7 +124,12 @@ export default async function StorefrontPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
       />
-      <StoreDetailClient business={business} items={items} businessSlug={businessSlug} />
+      <StoreDetailClient
+        business={business}
+        items={items}
+        businessSlug={businessSlug}
+        services={services}
+      />
     </>
   )
 }

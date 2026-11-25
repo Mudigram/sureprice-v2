@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
@@ -21,17 +21,38 @@ import {
   Store,
   ArrowLeft,
   ChevronDown,
+  Scissors,
+  CalendarCheck,
+  Sparkles,
+  Menu,
+  X,
 } from 'lucide-react'
 import type { StorefrontBusiness } from '@/features/storefront/types'
 import { getBrandFallbackSvgIcon } from '@/components/icons'
 
 interface BusinessAdminNavProps {
   business: StorefrontBusiness
-  currentSection?: 'overview' | 'catalog' | 'categories' | 'storefront' | 'qr-studio' | 'analytics' | 'team' | 'edit'
+  currentSection?:
+    | 'overview'
+    | 'catalog'
+    | 'categories'
+    | 'services'
+    | 'bookings'
+    | 'storefront'
+    | 'qr-studio'
+    | 'analytics'
+    | 'team'
+    | 'edit'
 }
 
 export function BusinessAdminNav({ business, currentSection }: BusinessAdminNavProps) {
   const pathname = usePathname()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  // Close mobile menu sheet on route change
+  useEffect(() => {
+    setMobileMenuOpen(false)
+  }, [pathname])
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
   const resolveUrl = (path: string | null | undefined): string => {
@@ -58,28 +79,37 @@ export function BusinessAdminNav({ business, currentSection }: BusinessAdminNavP
 
   const logoUrl = rawLogoUrl ? resolveUrl(rawLogoUrl) : null
 
-  const isRestaurant = business.business_type === 'restaurant' || business.business_type === 'cafe'
-  const isEvent = business.business_type === 'popup_vendor' || business.business_type === 'event_vendor'
+  const bType = String(business.business_type)
+  const isEvent = bType === 'popup_vendor' || bType === 'event_vendor'
+  const isServiceBusiness = bType === 'services' || bType === 'beauty_wellness'
 
   const typeLabel =
-    business.business_type === 'restaurant'
+    bType === 'restaurant'
       ? 'Restaurant & Dining'
-      : business.business_type === 'cafe'
+      : bType === 'cafe'
       ? 'Café & Bakery'
+      : bType === 'beauty_wellness'
+      ? 'Beauty & Wellness'
+      : bType === 'services'
+      ? 'Services & Bookings'
       : isEvent
       ? 'Pop-up & Event Stall'
       : 'Retail & Supermarket'
 
   const TypeIcon =
-    business.business_type === 'restaurant'
+    bType === 'restaurant'
       ? Utensils
-      : business.business_type === 'cafe'
+      : bType === 'cafe'
       ? Coffee
+      : bType === 'beauty_wellness'
+      ? Sparkles
+      : bType === 'services'
+      ? Scissors
       : isEvent
       ? Ticket
       : ShoppingBag
 
-  const navTabs = [
+  const allSections = [
     {
       id: 'overview',
       label: 'Overview',
@@ -100,6 +130,20 @@ export function BusinessAdminNav({ business, currentSection }: BusinessAdminNavP
       href: `/businesses/${business.id}/categories`,
       icon: FolderTree,
       active: pathname.includes('/categories'),
+    },
+    {
+      id: 'services',
+      label: 'Services',
+      href: `/businesses/${business.id}/services`,
+      icon: Scissors,
+      active: pathname.includes('/services'),
+    },
+    {
+      id: 'bookings',
+      label: 'Bookings',
+      href: `/businesses/${business.id}/bookings`,
+      icon: CalendarCheck,
+      active: pathname.includes('/bookings'),
     },
     {
       id: 'storefront',
@@ -138,18 +182,27 @@ export function BusinessAdminNav({ business, currentSection }: BusinessAdminNavP
     },
   ]
 
-  // Auto-scroll active tab into view on mobile mount/route change
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    const activeTabEl = document.getElementById(`admin-nav-${currentSection || 'overview'}`)
-    if (activeTabEl) {
-      activeTabEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
-    }
-  }, [pathname, currentSection])
+  // Primary 4 mobile dock items (5th slot is always "More" sheet)
+  const mobileDockItems = isServiceBusiness
+    ? [
+        { id: 'overview', label: 'Home', href: `/businesses/${business.id}`, icon: LayoutDashboard },
+        { id: 'bookings', label: 'Bookings', href: `/businesses/${business.id}/bookings`, icon: CalendarCheck },
+        { id: 'services', label: 'Services', href: `/businesses/${business.id}/services`, icon: Scissors },
+        { id: 'qr-studio', label: 'QR', href: `/businesses/${business.id}/qr-studio`, icon: Printer },
+      ]
+    : [
+        { id: 'overview', label: 'Home', href: `/businesses/${business.id}`, icon: LayoutDashboard },
+        { id: 'catalog', label: 'Items', href: `/businesses/${business.id}/catalog-items`, icon: Package },
+        { id: 'bookings', label: 'Bookings', href: `/businesses/${business.id}/bookings`, icon: CalendarCheck },
+        { id: 'qr-studio', label: 'QR', href: `/businesses/${business.id}/qr-studio`, icon: Printer },
+      ]
+
+  const isMoreActive =
+    !mobileDockItems.some((d) => d.id === (currentSection || 'overview'))
 
   return (
     <>
-      <div className="sticky top-0 z-30 mb-6 space-y-3.5 rounded-2xl border border-slate-200/90 bg-white/95 backdrop-blur-md p-4 sm:p-5 shadow-md transition-all">
+      <div className="mb-6 space-y-3.5 rounded-2xl border border-slate-200/90 bg-white/95 backdrop-blur-md p-4 sm:p-5 shadow-sm transition-all">
         {/* Breadcrumb Trail & Quick Back Navigation */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-3 text-xs">
           <div className="flex items-center gap-1.5 font-medium text-slate-500 min-w-0">
@@ -163,18 +216,32 @@ export function BusinessAdminNav({ business, currentSection }: BusinessAdminNavP
             {currentSection && (
               <>
                 <span className="text-slate-300 shrink-0">/</span>
-                <span className="capitalize font-bold text-emerald-700 truncate">{currentSection.replace('-', ' ')}</span>
+                <span className="capitalize font-bold text-emerald-700 truncate">
+                  {currentSection.replace('-', ' ')}
+                </span>
               </>
             )}
           </div>
 
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center gap-1 font-bold text-slate-600 hover:text-slate-900 transition-colors shrink-0 text-xs"
-          >
-            <ArrowLeft size={13} />
-            <span>All Stores</span>
-          </Link>
+          <div className="flex items-center gap-3 shrink-0">
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(true)}
+              className="md:hidden inline-flex items-center gap-1 rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700 hover:bg-slate-200 transition-colors"
+            >
+              <Menu size={13} />
+              <span>Menu</span>
+            </button>
+
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-1 font-bold text-slate-600 hover:text-slate-900 transition-colors text-xs"
+            >
+              <ArrowLeft size={13} />
+              <span className="hidden sm:inline">All Stores</span>
+              <span className="sm:hidden">Stores</span>
+            </Link>
+          </div>
         </div>
 
         {/* Top Header: Store Info & Quick Actions */}
@@ -199,7 +266,7 @@ export function BusinessAdminNav({ business, currentSection }: BusinessAdminNavP
                   className="group inline-flex items-center gap-1 rounded-xl hover:bg-slate-100 p-0.5 -m-0.5 transition-all"
                   title="Switch Business Store"
                 >
-                  <h1 className="truncate text-lg sm:text-xl font-black tracking-tight text-slate-900 group-hover:text-emerald-700 transition-colors">
+                  <h1 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 truncate">
                     {business.name}
                   </h1>
                   <span className="inline-flex items-center gap-0.5 rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-500 group-hover:bg-emerald-100 group-hover:text-emerald-800 transition-colors">
@@ -241,56 +308,37 @@ export function BusinessAdminNav({ business, currentSection }: BusinessAdminNavP
             </Link>
 
             <Link
-              href={`/businesses/${business.id}/catalog-items/new`}
+              href={
+                currentSection === 'services' || isServiceBusiness
+                  ? `/businesses/${business.id}/services/new`
+                  : `/businesses/${business.id}/catalog-items/new`
+              }
               className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-3.5 py-2 text-xs font-bold text-white shadow-sm hover:bg-slate-800 active:scale-[0.98] transition-all min-h-[38px]"
             >
               <Plus size={14} strokeWidth={3} className="text-emerald-400" />
-              <span>New Item</span>
+              <span>
+                {currentSection === 'services' || isServiceBusiness ? 'New Service' : 'New Item'}
+              </span>
             </Link>
           </div>
         </div>
-
-        {/* Navigation Tabs Bar */}
-        <div className="flex gap-1.5 overflow-x-auto no-scrollbar touch-pan-x pt-2 border-t border-slate-100 -mx-1 px-1">
-          {navTabs.map((tab) => {
-            const Icon = tab.icon
-            return (
-              <Link
-                key={tab.id}
-                href={tab.href}
-                id={`admin-nav-${tab.id}`}
-                className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${
-                  tab.active
-                    ? 'bg-slate-900 text-white shadow-sm'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 bg-slate-50 border border-slate-100'
-                }`}
-              >
-                <Icon size={14} className={tab.active ? 'text-[var(--lime-base)]' : 'text-slate-500'} />
-                <span>{tab.label}</span>
-              </Link>
-            )
-          })}
-        </div>
       </div>
 
-      {/* ─── MOBILE BOTTOM STICKY ADMIN DOCK (For Smartphone Merchants) ──────── */}
+      {/* ─── MOBILE BOTTOM STICKY ADMIN DOCK (5 Tabs, Zero Swiping) ──────── */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white/95 backdrop-blur-md md:hidden shadow-2xl px-2 py-1.5">
         <div className="flex items-center justify-around">
-          {[
-            { id: 'overview', label: 'Home', href: `/businesses/${business.id}`, icon: LayoutDashboard },
-            { id: 'catalog', label: 'Items', href: `/businesses/${business.id}/catalog-items`, icon: Package },
-            { id: 'storefront', label: 'Studio', href: `/businesses/${business.id}/storefront`, icon: Store },
-            { id: 'qr-studio', label: 'QR', href: `/businesses/${business.id}/qr-studio`, icon: Printer },
-            { id: 'edit', label: 'Settings', href: `/businesses/${business.id}/edit`, icon: Settings },
-          ].map((item) => {
+          {mobileDockItems.map((item) => {
             const Icon = item.icon
-            const isActive = currentSection === item.id || (item.id === 'overview' && !currentSection)
+            const isActive =
+              currentSection === item.id || (item.id === 'overview' && !currentSection)
             return (
               <Link
                 key={item.id}
                 href={item.href}
                 className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-xl transition-all ${
-                  isActive ? 'text-emerald-600 font-black scale-105' : 'text-slate-500 hover:text-slate-900'
+                  isActive
+                    ? 'text-emerald-600 font-black scale-105'
+                    : 'text-slate-500 hover:text-slate-900'
                 }`}
               >
                 <Icon size={18} />
@@ -298,10 +346,73 @@ export function BusinessAdminNav({ business, currentSection }: BusinessAdminNavP
               </Link>
             )
           })}
+
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(true)}
+            className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-xl transition-all ${
+              isMoreActive || mobileMenuOpen
+                ? 'text-emerald-600 font-black scale-105'
+                : 'text-slate-500 hover:text-slate-900'
+            }`}
+          >
+            <Menu size={18} />
+            <span className="text-[10px] font-bold">More</span>
+          </button>
         </div>
       </nav>
+
+      {/* ─── MOBILE "MORE" NAVIGATION BOTTOM SHEET ──────────────────────── */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 z-50 md:hidden flex items-end bg-black/50 backdrop-blur-xs"
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          <div
+            className="w-full rounded-t-3xl bg-white p-5 pb-8 shadow-2xl space-y-4 animate-in slide-in-from-bottom duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <p className="text-sm font-black text-slate-900">{business.name}</p>
+                <p className="text-[11px] font-medium text-slate-500">All Store Sections</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200"
+                aria-label="Close menu"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2.5">
+              {allSections.map((sec) => {
+                const Icon = sec.icon
+                return (
+                  <Link
+                    key={sec.id}
+                    href={sec.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center gap-2.5 rounded-2xl border p-3 text-xs font-bold transition-all ${
+                      sec.active
+                        ? 'border-slate-900 bg-slate-900 text-white shadow-sm'
+                        : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
+                    }`}
+                  >
+                    <Icon
+                      size={16}
+                      className={sec.active ? 'text-emerald-400 shrink-0' : 'text-slate-500 shrink-0'}
+                    />
+                    <span className="truncate">{sec.label}</span>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }
-
-

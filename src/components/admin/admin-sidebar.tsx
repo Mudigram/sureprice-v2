@@ -12,11 +12,17 @@ import {
   Shield,
   ExternalLink,
   Store,
-  Sparkles,
-  ChevronLeft,
-  ChevronRight,
   PanelLeftClose,
   PanelLeftOpen,
+  LayoutDashboard,
+  Package,
+  FolderTree,
+  Scissors,
+  CalendarCheck,
+  Printer,
+  BarChart2,
+  Settings,
+  ArrowLeft,
 } from 'lucide-react'
 
 interface AdminSidebarProps {
@@ -47,6 +53,11 @@ export function AdminSidebar({ userEmail, signOutAction }: AdminSidebarProps) {
     })
   }
 
+  // Detect if we are inside a specific business workspace (/businesses/[businessId]/...)
+  const businessMatch = pathname.match(/^\/businesses\/([^/]+)/)
+  const activeBusinessId =
+    businessMatch && businessMatch[1] !== 'new' ? businessMatch[1] : null
+
   const navItems = [
     {
       label: 'Your Businesses',
@@ -62,13 +73,98 @@ export function AdminSidebar({ userEmail, signOutAction }: AdminSidebarProps) {
     },
   ]
 
+  const storeGroups = activeBusinessId
+    ? [
+        {
+          heading: 'Store',
+          items: [
+            {
+              label: 'Overview',
+              href: `/businesses/${activeBusinessId}`,
+              icon: LayoutDashboard,
+              active: pathname === `/businesses/${activeBusinessId}`,
+            },
+          ],
+        },
+        {
+          heading: 'Catalog & Bookings',
+          items: [
+            {
+              label: 'Catalog Items',
+              href: `/businesses/${activeBusinessId}/catalog-items`,
+              icon: Package,
+              active: pathname.includes('/catalog-items'),
+            },
+            {
+              label: 'Categories',
+              href: `/businesses/${activeBusinessId}/categories`,
+              icon: FolderTree,
+              active: pathname.includes('/categories'),
+            },
+            {
+              label: 'Services',
+              href: `/businesses/${activeBusinessId}/services`,
+              icon: Scissors,
+              active: pathname.includes('/services'),
+            },
+            {
+              label: 'Bookings',
+              href: `/businesses/${activeBusinessId}/bookings`,
+              icon: CalendarCheck,
+              active: pathname.includes('/bookings'),
+            },
+          ],
+        },
+        {
+          heading: 'Growth & QR',
+          items: [
+            {
+              label: 'Storefront Studio',
+              href: `/businesses/${activeBusinessId}/storefront`,
+              icon: Store,
+              active: pathname.includes('/storefront'),
+            },
+            {
+              label: 'QR Studio',
+              href: `/businesses/${activeBusinessId}/qr-studio`,
+              icon: Printer,
+              active: pathname.includes('/qr-studio'),
+            },
+            {
+              label: 'Scan Analytics',
+              href: `/businesses/${activeBusinessId}/analytics`,
+              icon: BarChart2,
+              active: pathname.includes('/analytics'),
+            },
+          ],
+        },
+        {
+          heading: 'Administration',
+          items: [
+            {
+              label: 'Store Team',
+              href: `/businesses/${activeBusinessId}/team`,
+              icon: Users,
+              active: pathname.includes('/team'),
+            },
+            {
+              label: 'Settings',
+              href: `/businesses/${activeBusinessId}/edit`,
+              icon: Settings,
+              active: pathname.includes('/edit'),
+            },
+          ],
+        },
+      ]
+    : []
+
   return (
     <aside
       className={`hidden md:flex shrink-0 flex-col justify-between border-r border-slate-200/90 bg-white p-4 min-h-screen sticky top-0 h-screen overflow-y-auto no-scrollbar shadow-sm transition-all duration-300 ${
         isCollapsed ? 'w-20' : 'w-64'
       }`}
     >
-      <div className="space-y-6">
+      <div className="space-y-5">
         {/* Brand Header & Collapse Toggle */}
         <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-4">
           <Link href="/dashboard" className="flex items-center gap-2.5 min-w-0">
@@ -89,7 +185,6 @@ export function AdminSidebar({ userEmail, signOutAction }: AdminSidebarProps) {
                 </span>
               </div>
             )}
-
           </Link>
 
           <button
@@ -103,79 +198,133 @@ export function AdminSidebar({ userEmail, signOutAction }: AdminSidebarProps) {
           </button>
         </div>
 
-        {/* Primary Navigation Menu */}
-        <div className="space-y-1">
-          {!isCollapsed && (
-            <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 px-3 pb-1">
-              Management
-            </p>
-          )}
+        {activeBusinessId ? (
+          /* ─── CONTEXTUAL STORE SIDEBAR ─────────────────────────────────── */
+          <div className="space-y-4">
+            <Link
+              href="/dashboard"
+              title={isCollapsed ? 'All Businesses' : undefined}
+              className={`flex items-center gap-2 rounded-xl py-2 text-xs font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors ${
+                isCollapsed ? 'justify-center px-0' : 'px-3'
+              }`}
+            >
+              <ArrowLeft size={15} />
+              {!isCollapsed && <span>All Businesses</span>}
+            </Link>
 
-          {navItems.map((item) => {
-            const Icon = item.icon
-            return (
+            {storeGroups.map((group) => (
+              <div key={group.heading} className="space-y-1">
+                {!isCollapsed && (
+                  <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 px-3 pb-0.5">
+                    {group.heading}
+                  </p>
+                )}
+                {group.items.map((item) => {
+                  const Icon = item.icon
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      title={isCollapsed ? item.label : undefined}
+                      className={`flex items-center gap-3 rounded-xl py-2 text-xs font-bold transition-all ${
+                        isCollapsed ? 'justify-center px-0' : 'px-3.5'
+                      } ${
+                        item.active
+                          ? 'bg-slate-900 text-white shadow-sm'
+                          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                      }`}
+                    >
+                      <Icon
+                        size={17}
+                        className={item.active ? 'text-emerald-400' : 'text-slate-500'}
+                      />
+                      {!isCollapsed && <span className="truncate">{item.label}</span>}
+                    </Link>
+                  )
+                })}
+              </div>
+            ))}
+          </div>
+        ) : (
+          /* ─── TOP-LEVEL CONSOLE SIDEBAR ────────────────────────────────── */
+          <>
+            <div className="space-y-1">
+              {!isCollapsed && (
+                <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 px-3 pb-1">
+                  Management
+                </p>
+              )}
+
+              {navItems.map((item) => {
+                const Icon = item.icon
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    title={isCollapsed ? item.label : undefined}
+                    id={`sidebar-nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
+                    className={`flex items-center gap-3 rounded-xl py-2.5 text-xs font-bold transition-all ${
+                      isCollapsed ? 'justify-center px-0' : 'px-3.5'
+                    } ${
+                      item.active
+                        ? 'bg-slate-900 text-white shadow-sm'
+                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                    }`}
+                  >
+                    <Icon
+                      size={18}
+                      className={item.active ? 'text-emerald-400' : 'text-slate-500'}
+                    />
+                    {!isCollapsed && <span>{item.label}</span>}
+                  </Link>
+                )
+              })}
+            </div>
+
+            {/* Quick Tools Section */}
+            <div className="space-y-1 pt-3 border-t border-slate-100">
+              {!isCollapsed && (
+                <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 px-3 pb-1">
+                  Storefront Shortcuts
+                </p>
+              )}
+
               <Link
-                key={item.href}
-                href={item.href}
-                title={isCollapsed ? item.label : undefined}
-                id={`sidebar-nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
-                className={`flex items-center gap-3 rounded-xl py-2.5 text-xs font-bold transition-all ${
-                  isCollapsed ? 'justify-center px-0' : 'px-3.5'
-                } ${
-                  item.active
-                    ? 'bg-slate-900 text-white shadow-sm'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                href="/scan"
+                target="_blank"
+                title={isCollapsed ? 'Test Scanner' : undefined}
+                className={`flex items-center rounded-xl py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors ${
+                  isCollapsed ? 'justify-center px-0' : 'justify-between px-3.5'
                 }`}
               >
-                <Icon size={18} className={item.active ? 'text-emerald-400' : 'text-slate-500'} />
-                {!isCollapsed && <span>{item.label}</span>}
+                <span className="flex items-center gap-2">
+                  <ScanLine size={16} className="text-emerald-600" />
+                  {!isCollapsed && <span>Test Scanner</span>}
+                </span>
+                {!isCollapsed && <ExternalLink size={13} className="text-slate-400" />}
               </Link>
-            )
-          })}
-        </div>
 
-        {/* Quick Tools Section */}
-        <div className="space-y-1 pt-3 border-t border-slate-100">
-          {!isCollapsed && (
-            <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 px-3 pb-1">
-              Storefront Shortcuts
-            </p>
-          )}
-
-          <Link
-            href="/scan"
-            target="_blank"
-            title={isCollapsed ? 'Test Scanner' : undefined}
-            className={`flex items-center rounded-xl py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors ${
-              isCollapsed ? 'justify-center px-0' : 'justify-between px-3.5'
-            }`}
-          >
-            <span className="flex items-center gap-2">
-              <ScanLine size={16} className="text-emerald-600" />
-              {!isCollapsed && <span>Test Scanner</span>}
-            </span>
-            {!isCollapsed && <ExternalLink size={13} className="text-slate-400" />}
-          </Link>
-
-          <Link
-            href="/stores"
-            target="_blank"
-            title={isCollapsed ? 'Browse Stores' : undefined}
-            className={`flex items-center rounded-xl py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors ${
-              isCollapsed ? 'justify-center px-0' : 'justify-between px-3.5'
-            }`}
-          >
-            <span className="flex items-center gap-2">
-              <Store size={16} className="text-slate-700" />
-              {!isCollapsed && <span>Browse Stores</span>}
-            </span>
-            {!isCollapsed && <ExternalLink size={13} className="text-slate-400" />}
-          </Link>
-        </div>
+              <Link
+                href="/stores"
+                target="_blank"
+                title={isCollapsed ? 'Browse Stores' : undefined}
+                className={`flex items-center rounded-xl py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors ${
+                  isCollapsed ? 'justify-center px-0' : 'justify-between px-3.5'
+                }`}
+              >
+                <span className="flex items-center gap-2">
+                  <Store size={16} className="text-slate-700" />
+                  {!isCollapsed && <span>Browse Stores</span>}
+                </span>
+                {!isCollapsed && <ExternalLink size={13} className="text-slate-400" />}
+              </Link>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Bottom Profile & Sign Out Box */}
-      <div className="space-y-3 pt-4 border-t border-slate-200/80">
+      <div className="space-y-3 pt-4 border-t border-slate-200/80 mt-4">
         {userEmail && !isCollapsed && (
           <div className="flex items-center gap-2.5 rounded-xl bg-slate-50 p-2.5 border border-slate-200/80">
             <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-white font-bold text-xs">
@@ -205,4 +354,3 @@ export function AdminSidebar({ userEmail, signOutAction }: AdminSidebarProps) {
     </aside>
   )
 }
-
